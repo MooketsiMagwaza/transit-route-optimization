@@ -286,6 +286,7 @@ class ApiKeyRead(ApiModel):
     expires_at: datetime = Field(serialization_alias="expiresAt")
     last_used_at: datetime | None = Field(serialization_alias="lastUsedAt")
     rotated_from_id: int | None = Field(serialization_alias="rotatedFromId")
+    scopes: str = "routes:read"
 
 
 class ApiKeyCreated(ApiKeyRead):

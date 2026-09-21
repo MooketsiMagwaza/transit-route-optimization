@@ -14,6 +14,7 @@ from fastapi.responses import JSONResponse
 
 from app.config import get_settings
 from app.metrics import SECURITY_REJECTIONS
+from app.services.api_access import API_VERSION, finalize_usage
 
 REQUEST_ID: ContextVar[str] = ContextVar("request_id", default="")
 REQUEST_ID_PATTERN = re.compile(r"^[A-Za-z0-9._-]{8,128}$")
@@ -64,9 +65,22 @@ async def request_boundary_middleware(request: Request, call_next):
         response = await call_next(request)
         status_code = response.status_code
         response.headers["X-Request-ID"] = request_id
+        quota = getattr(request.state, "quota", None)
+        if quota is not None:
+            response.headers.update(quota.headers())
+        if request.url.path.startswith(f"/{API_VERSION}/"):
+            response.headers["X-API-Version"] = API_VERSION
         return response
     finally:
         route = request.scope.get("route")
+        usage_id = getattr(request.state, "api_usage_id", None)
+        if usage_id is not None:
+            finalize_usage(
+                usage_id,
+                status_code,
+                round((time.perf_counter() - started) * 1000),
+                request_id,
+            )
         LOGGER.info(
             json.dumps(
                 {
