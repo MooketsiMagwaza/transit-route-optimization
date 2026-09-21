@@ -1,11 +1,15 @@
 """Operational account, usage, and Grafana notification endpoints for the admin UI."""
 
 import asyncio
+import csv
+import io
+from collections.abc import Iterator
 from datetime import UTC, datetime, timedelta
 from typing import Any
 
 import httpx
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
+from fastapi.responses import StreamingResponse
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
@@ -265,3 +269,71 @@ async def grafana_webhook(
         GRAFANA_NOTIFICATIONS.labels(state, severity).inc()
     session.commit()
     return {"accepted": True}
+
+
+EXPORT_HEADER = ("occurredAt", "keyPrefix", "method", "path", "status", "latencyMs", "requestId")
+EXPORT_ROW_LIMIT = 100_000
+
+
+def _cell(value: object) -> object:
+    """Neutralise spreadsheet formulas in exported text (CSV injection)."""
+
+    if isinstance(value, str) and value[:1] in ("=", "+", "-", "@"):
+        return "'" + value
+    return value
+
+
+def _usage_csv(rows: list[tuple]) -> Iterator[str]:
+    buffer = io.StringIO()
+    writer = csv.writer(buffer)
+    writer.writerow(EXPORT_HEADER)
+    yield buffer.getvalue()
+    for occurred_at, prefix, method, path, status_code, latency_ms, request_id in rows:
+        buffer.seek(0)
+        buffer.truncate()
+        writer.writerow(
+            [
+                _cell(value)
+                for value in (
+                    occurred_at.isoformat(),
+                    prefix,
+                    method,
+                    path,
+                    status_code,
+                    latency_ms,
+                    request_id,
+                )
+            ]
+        )
+        yield buffer.getvalue()
+
+
+@router.get("/usage/export")
+def export_usage(
+    days: int = Query(default=30, ge=1, le=400),
+    _: DeveloperAccount = Depends(require_admin),
+    session: Session = Depends(get_db),
+) -> StreamingResponse:
+    """Audit export of admitted public-API requests; secrets are never included."""
+
+    since = datetime.now(UTC) - timedelta(days=days)
+    rows = session.execute(
+        select(
+            ApiUsage.occurred_at,
+            ApiKey.prefix,
+            ApiUsage.method,
+            ApiUsage.path,
+            ApiUsage.status_code,
+            ApiUsage.latency_ms,
+            ApiUsage.request_id,
+        )
+        .join(ApiKey, ApiKey.id == ApiUsage.api_key_id)
+        .where(ApiUsage.occurred_at >= since)
+        .order_by(ApiUsage.occurred_at.desc())
+        .limit(EXPORT_ROW_LIMIT)
+    ).all()
+    return StreamingResponse(
+        _usage_csv([tuple(row) for row in rows]),
+        media_type="text/csv",
+        headers={"Content-Disposition": f'attachment; filename="tsela-api-usage-{days}d.csv"'},
+    )

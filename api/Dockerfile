@@ -14,6 +14,8 @@ RUN useradd --create-home --uid 10001 --shell /usr/sbin/nologin appuser
 COPY --chown=appuser:appuser alembic.ini ./
 COPY --chown=appuser:appuser alembic ./alembic
 COPY --chown=appuser:appuser app ./app
+# Internal handbook Markdown, supplied by the `handbook` build context (compose maps ./docs).
+COPY --from=handbook --chown=appuser:appuser . /app/handbook
 
 USER appuser
 

@@ -6,13 +6,14 @@ are editable starter corridors, not an official operator schedule.
 """
 
 from dataclasses import dataclass
+from datetime import UTC, datetime, timedelta
 
 from sqlalchemy import func, select
 
 from app.config import get_settings
 from app.database import SessionLocal
-from app.models import DeveloperAccount, Node, Route
-from app.services.security import hash_password
+from app.models import ApiKey, DeveloperAccount, Node, Route
+from app.services.security import hash_password, hash_token, key_prefix
 
 
 @dataclass(frozen=True)
@@ -138,8 +139,59 @@ def seed_demo_account() -> bool:
     return True
 
 
+def seed_sandbox_key() -> bool:
+    """Provision the documentation sandbox key from ``SANDBOX_API_KEY`` (never a default).
+
+    The key is a normal, hashed, read-only credential owned by a dedicated non-admin
+    account with a tight hourly limit, so the docs demo cannot reach anything sensitive.
+    """
+
+    settings = get_settings()
+    if not settings.sandbox_api_key:
+        return False
+    with SessionLocal() as session:
+        account = session.scalar(
+            select(DeveloperAccount).where(DeveloperAccount.email == "sandbox@tsela.local")
+        )
+        if account is None:
+            account = DeveloperAccount(
+                email="sandbox@tsela.local",
+                display_name="Documentation sandbox",
+                # An unusable hash: nobody can sign in as the sandbox account.
+                password_hash="!disabled",
+                role="sandbox",
+            )
+            session.add(account)
+            session.flush()
+        secret_hash = hash_token(settings.sandbox_api_key)
+        key = session.scalar(select(ApiKey).where(ApiKey.secret_hash == secret_hash))
+        expires_at = datetime.now(UTC) + timedelta(days=settings.api_key_lifetime_days)
+        if key is None:
+            session.add(
+                ApiKey(
+                    account_id=account.id,
+                    name="Documentation sandbox",
+                    prefix=key_prefix(settings.sandbox_api_key),
+                    secret_hash=secret_hash,
+                    monthly_quota=5000,
+                    hourly_limit=settings.sandbox_hourly_limit,
+                    scopes="routes:read",
+                    expires_at=expires_at,
+                )
+            )
+        else:
+            key.revoked_at = None
+            key.expires_at = expires_at
+            key.scopes = "routes:read"
+            key.hourly_limit = settings.sandbox_hourly_limit
+        session.commit()
+    return True
+
+
 if __name__ == "__main__":
     count = seed()
     print(f"Seeded {count} Gaborone route(s).")
     if seed_demo_account():
         print("Local developer demo account is ready.")
+    if seed_sandbox_key():
+        print("Documentation sandbox key is ready.")

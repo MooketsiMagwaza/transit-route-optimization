@@ -1,6 +1,6 @@
 import pytest
 
-from app.config import LOCAL_TOKEN_HASH_SECRET, Settings
+from app.config import LOCAL_SANDBOX_API_KEY, LOCAL_TOKEN_HASH_SECRET, Settings
 from app.schemas import CommunityPostCreate
 from app.services.rate_limit import InvalidCredentialGate
 from app.services.security import hash_password, hash_token, issue_api_key, verify_password
@@ -29,6 +29,16 @@ def test_production_rejects_the_local_token_hash_secret() -> None:
             _env_file=None,
             deployment_environment="production",
             token_hash_secret=LOCAL_TOKEN_HASH_SECRET,
+        )
+
+
+def test_production_rejects_the_published_sandbox_key() -> None:
+    with pytest.raises(ValueError, match="SANDBOX_API_KEY"):
+        Settings(
+            _env_file=None,
+            deployment_environment="production",
+            token_hash_secret="a-real-production-secret-that-is-long-enough",
+            sandbox_api_key=LOCAL_SANDBOX_API_KEY,
         )
 
 

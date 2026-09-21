@@ -21,6 +21,8 @@ services:
   api:
     build:
       context: ./api
+      additional_contexts:
+        handbook: ./docs
     container_name: transit-api
     restart: unless-stopped
     environment:
@@ -33,6 +35,8 @@ services:
       DEMO_ACCOUNT_PASSWORD: TselaDemo2026!
       GRAFANA_WEBHOOK_SECRET: ${GRAFANA_WEBHOOK_SECRET:-local-grafana-webhook}
       TOKEN_HASH_SECRET: ${TOKEN_HASH_SECRET:-local-development-token-hash-secret-change-me}
+      SANDBOX_API_KEY: ${DOCS_SANDBOX_API_KEY:-tos_live_local_docs_sandbox_key_not_for_production}
+      HANDBOOK_DIR: /app/handbook
       GRAFANA_PUBLIC_URL: http://localhost:3004
       PROMETHEUS_PUBLIC_URL: http://localhost:9090
       PROMETHEUS_INTERNAL_URL: http://prometheus:9090
@@ -176,6 +180,7 @@ services:
     restart: unless-stopped
     environment:
       API_INTERNAL_URL: http://api:8000
+      DOCS_SANDBOX_API_KEY: ${DOCS_SANDBOX_API_KEY:-tos_live_local_docs_sandbox_key_not_for_production}
       COOKIE_SECURE: "false"
       NEXT_PUBLIC_API_BASE: http://localhost:8000
       NEXT_PUBLIC_MARKETING_URL: http://localhost:3000

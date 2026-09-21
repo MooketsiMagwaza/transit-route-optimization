@@ -45,3 +45,7 @@ target-version = "py312"
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B"]
 ignore = ["B008"]
+
+[tool.ruff.lint.per-file-ignores]
+# The handbook manifest is a readable table; one page per line is clearer than wrapping.
+"app/handbook.py" = ["E501"]

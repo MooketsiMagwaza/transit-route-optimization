@@ -6,6 +6,7 @@ from pydantic import model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 LOCAL_TOKEN_HASH_SECRET = "local-development-token-hash-secret-change-me"
+LOCAL_SANDBOX_API_KEY = "tos_live_local_docs_sandbox_key_not_for_production"
 
 
 class Settings(BaseSettings):
@@ -42,6 +43,11 @@ class Settings(BaseSettings):
     demo_account_email: str = "demo@tsela.local"
     demo_account_password: str = "TselaDemo2026!"
     demo_account_name: str = "Tsela Demo"
+    # Directory holding the internal handbook Markdown; empty falls back to the repository docs.
+    handbook_dir: str = ""
+    # Optional fixed secret for the documentation sandbox key (local development only).
+    sandbox_api_key: str | None = None
+    sandbox_hourly_limit: int = 60
     grafana_webhook_secret: str = "local-grafana-webhook"
     grafana_public_url: str = "http://localhost:3004"
     prometheus_public_url: str = "http://localhost:9090"
@@ -62,6 +68,11 @@ class Settings(BaseSettings):
             and self.token_hash_secret == LOCAL_TOKEN_HASH_SECRET
         ):
             raise ValueError("TOKEN_HASH_SECRET must be set to a production secret")
+        if (
+            self.deployment_environment.lower() == "production"
+            and self.sandbox_api_key == LOCAL_SANDBOX_API_KEY
+        ):
+            raise ValueError("SANDBOX_API_KEY must not use the published local development key")
         return self
 
     @property

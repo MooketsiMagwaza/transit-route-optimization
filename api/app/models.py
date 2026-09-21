@@ -113,8 +113,17 @@ class ApiKey(Base):
     rotated_from_id: Mapped[int | None] = mapped_column(
         "rotatedFromId", ForeignKey("ApiKey.id", ondelete="SET NULL"), index=True
     )
+    scopes: Mapped[str] = mapped_column(
+        String(200), nullable=False, default="routes:read", server_default="routes:read"
+    )
 
     account: Mapped[DeveloperAccount] = relationship(back_populates="api_keys")
+
+    @property
+    def scope_list(self) -> list[str]:
+        """Space-separated scopes such as ``routes:read``; empty means no access."""
+
+        return self.scopes.split()
     usage_events: Mapped[list["ApiUsage"]] = relationship(
         back_populates="api_key", cascade="all, delete-orphan"
     )
@@ -122,7 +131,10 @@ class ApiKey(Base):
 
 class ApiUsage(Base):
     __tablename__ = "ApiUsage"
-    __table_args__ = (Index("ix_api_usage_key_time", "apiKeyId", "occurredAt"),)
+    __table_args__ = (
+        Index("ix_api_usage_key_time", "apiKeyId", "occurredAt"),
+        Index("ix_api_usage_occurred_at", "occurredAt"),
+    )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     api_key_id: Mapped[int] = mapped_column(
@@ -130,7 +142,10 @@ class ApiUsage(Base):
     )
     method: Mapped[str] = mapped_column(String(10), nullable=False)
     path: Mapped[str] = mapped_column(String(300), nullable=False)
-    status_code: Mapped[int] = mapped_column("statusCode", Integer, nullable=False, default=200)
+    # 0 marks a request that was admitted but has not been finalised (for example a crash).
+    status_code: Mapped[int] = mapped_column("statusCode", Integer, nullable=False, default=0)
+    latency_ms: Mapped[int | None] = mapped_column("latencyMs", Integer)
+    request_id: Mapped[str | None] = mapped_column("requestId", String(64))
     occurred_at: Mapped[datetime] = mapped_column(
         "occurredAt", DateTime(timezone=True), server_default=func.now(), nullable=False
     )
