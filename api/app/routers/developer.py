@@ -2,7 +2,7 @@
 
 from datetime import UTC, datetime, timedelta
 
-from fastapi import APIRouter, Depends, Header, HTTPException, status
+from fastapi import APIRouter, Depends, Header, HTTPException, Request, status
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
@@ -29,6 +29,16 @@ from app.schemas import (
     PasswordResetRequest,
     UsageSummary,
 )
+from app.services.identity import (
+    AuthContext,
+    IdentityError,
+    IdentityUnavailable,
+    is_session_revoked,
+    looks_like_jwt,
+    resolve_account,
+    revoke_session,
+    verify_access_token,
+)
 from app.services.security import (
     hash_password,
     hash_token,
@@ -46,13 +56,38 @@ def account_read(account: DeveloperAccount) -> DeveloperAccountRead:
     return DeveloperAccountRead.model_validate(account)
 
 
-def get_current_account(
-    authorization: str | None = Header(default=None),
-    session: Session = Depends(get_db),
-) -> DeveloperAccount:
+def _bearer_token(authorization: str | None) -> str:
     if not authorization or not authorization.startswith("Bearer "):
         raise HTTPException(status_code=401, detail="Sign in to continue")
-    token = authorization.removeprefix("Bearer ").strip()
+    return authorization.removeprefix("Bearer ").strip()
+
+
+def get_current_account(
+    request: Request,
+    authorization: str | None = Header(default=None),
+    session: Session = Depends(get_db),
+    settings: Settings = Depends(get_settings),
+) -> DeveloperAccount:
+    """Authenticate a bearer token from the identity provider or, in development, a local session."""
+
+    token = _bearer_token(authorization)
+    if settings.external_auth_enabled and looks_like_jwt(token):
+        try:
+            identity = verify_access_token(token, settings)
+        except IdentityError as error:
+            AUTH_FAILURES.labels("developer", "invalid_token").inc()
+            raise HTTPException(status_code=401, detail=str(error)) from error
+        except IdentityUnavailable as error:
+            raise HTTPException(status_code=503, detail=str(error)) from error
+        if is_session_revoked(session, identity.session_id):
+            AUTH_FAILURES.labels("developer", "revoked_session").inc()
+            raise HTTPException(status_code=401, detail="Your session has ended")
+        account = resolve_account(session, identity)
+        request.state.auth = AuthContext("external", identity.aal, identity.session_id)
+        return account
+
+    if not settings.local_auth_enabled:
+        raise HTTPException(status_code=401, detail="Sign in to continue")
     developer_session = session.scalar(
         select(DeveloperSession).where(
             DeveloperSession.token_hash == hash_token(token),
@@ -61,7 +96,19 @@ def get_current_account(
     )
     if developer_session is None:
         raise HTTPException(status_code=401, detail="Your session has expired")
+    if developer_session.account.disabled_at is not None:
+        raise HTTPException(status_code=403, detail="This account has been disabled")
+    request.state.auth = AuthContext("local")
     return developer_session.account
+
+
+def _require_local_auth(settings: Settings) -> None:
+    """Password sign-in is owned by the identity provider once local auth is switched off."""
+
+    if not settings.local_auth_enabled:
+        raise HTTPException(
+            status_code=410, detail="Sign in with the identity provider instead"
+        )
 
 
 @router.post("/register", response_model=DeveloperAuthResponse, status_code=status.HTTP_201_CREATED)
@@ -70,6 +117,7 @@ def register(
     session: Session = Depends(get_db),
     settings: Settings = Depends(get_settings),
 ) -> DeveloperAuthResponse:
+    _require_local_auth(settings)
     if session.scalar(select(DeveloperAccount).where(DeveloperAccount.email == payload.email)):
         raise HTTPException(status_code=409, detail="An account already exists for this email")
     account = DeveloperAccount(
@@ -98,12 +146,15 @@ def login(
     session: Session = Depends(get_db),
     settings: Settings = Depends(get_settings),
 ) -> DeveloperAuthResponse:
+    _require_local_auth(settings)
     account = session.scalar(
         select(DeveloperAccount).where(DeveloperAccount.email == payload.email.strip().lower())
     )
     if account is None or not verify_password(payload.password, account.password_hash):
         AUTH_FAILURES.labels("developer", "invalid_credentials").inc()
         raise HTTPException(status_code=401, detail="Email or password is incorrect")
+    if account.disabled_at is not None:
+        raise HTTPException(status_code=403, detail="This account has been disabled")
     raw_token = issue_session_token()
     session.add(
         DeveloperSession(
@@ -125,10 +176,17 @@ def me(account: DeveloperAccount = Depends(get_current_account)) -> DeveloperAcc
 def logout(
     authorization: str | None = Header(default=None),
     session: Session = Depends(get_db),
+    settings: Settings = Depends(get_settings),
 ) -> None:
     if not authorization or not authorization.startswith("Bearer "):
         return
     token = authorization.removeprefix("Bearer ").strip()
+    if settings.external_auth_enabled and looks_like_jwt(token):
+        try:
+            revoke_session(session, verify_access_token(token, settings))
+        except (IdentityError, IdentityUnavailable):
+            return  # an invalid or expired token has nothing left to revoke
+        return
     developer_session = session.scalar(
         select(DeveloperSession).where(DeveloperSession.token_hash == hash_token(token))
     )
@@ -279,6 +337,7 @@ def request_password_recovery(
 ) -> PasswordRecoveryResponse:
     """Create a one-use recovery token while returning the same response for every email."""
 
+    _require_local_auth(settings)
     account = session.scalar(
         select(DeveloperAccount).where(DeveloperAccount.email == payload.email)
     )
@@ -305,7 +364,9 @@ def request_password_recovery(
 def reset_password(
     payload: PasswordResetRequest,
     session: Session = Depends(get_db),
+    settings: Settings = Depends(get_settings),
 ) -> None:
+    _require_local_auth(settings)
     now = datetime.now(UTC)
     reset = session.scalar(
         select(PasswordResetToken).where(

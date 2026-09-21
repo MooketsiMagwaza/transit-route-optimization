@@ -10,7 +10,11 @@ RUN --mount=type=cache,id=transitos-npm,target=/root/.npm \
 COPY . .
 
 ARG NEXT_PUBLIC_API_BASE=http://localhost:8000
+ARG NEXT_PUBLIC_AUTH_URL=
+ARG NEXT_PUBLIC_GOOGLE_AUTH=false
 ENV NEXT_PUBLIC_API_BASE=$NEXT_PUBLIC_API_BASE
+ENV NEXT_PUBLIC_AUTH_URL=$NEXT_PUBLIC_AUTH_URL
+ENV NEXT_PUBLIC_GOOGLE_AUTH=$NEXT_PUBLIC_GOOGLE_AUTH
 
 RUN npm run build && chown -R node:node /app/.next
 

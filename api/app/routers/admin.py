@@ -13,10 +13,16 @@ from fastapi.responses import StreamingResponse
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
-from app.config import get_settings
+from app.config import Settings, get_settings
 from app.database import get_db
 from app.metrics import GRAFANA_NOTIFICATIONS
-from app.models import ApiKey, ApiUsage, DeveloperAccount, GrafanaNotification
+from app.models import (
+    ApiKey,
+    ApiUsage,
+    DeveloperAccount,
+    DeveloperSession,
+    GrafanaNotification,
+)
 from app.routers.developer import get_current_account
 from app.schemas import (
     AdminAccountRead,
@@ -29,11 +35,23 @@ from app.schemas import (
 router = APIRouter(prefix="/api/admin", tags=["Admin operations"])
 
 
-def require_admin(account: DeveloperAccount = Depends(get_current_account)) -> DeveloperAccount:
-    """Enforce administrator role at the API boundary, independent of UI visibility."""
+def require_admin(
+    request: Request,
+    account: DeveloperAccount = Depends(get_current_account),
+    settings: Settings = Depends(get_settings),
+) -> DeveloperAccount:
+    """Enforce administrator role and operator MFA at the API boundary, not in the UI."""
 
     if account.role != "admin":
         raise HTTPException(status_code=403, detail="Administrator access is required")
+    if settings.mfa_required_for_operators:
+        context = getattr(request.state, "auth", None)
+        # Fail closed: only an MFA-verified identity-provider session may operate the platform.
+        if context is None or context.method != "external" or context.aal != "aal2":
+            raise HTTPException(
+                status_code=403,
+                detail="Multi-factor authentication is required for administrator access",
+            )
     return account
 
 
@@ -337,3 +355,41 @@ def export_usage(
         media_type="text/csv",
         headers={"Content-Disposition": f'attachment; filename="tsela-api-usage-{days}d.csv"'},
     )
+
+
+@router.post("/accounts/{account_id}/disable", status_code=status.HTTP_204_NO_CONTENT)
+def disable_account(
+    account_id: int,
+    admin: DeveloperAccount = Depends(require_admin),
+    session: Session = Depends(get_db),
+) -> None:
+    """Block sign-in and API-key use for an account and end its local sessions."""
+
+    if account_id == admin.id:
+        raise HTTPException(status_code=409, detail="You cannot disable your own account")
+    account = session.get(DeveloperAccount, account_id)
+    if account is None:
+        raise HTTPException(status_code=404, detail="Account not found")
+    account.disabled_at = datetime.now(UTC)
+    session.query(DeveloperSession).filter(DeveloperSession.account_id == account.id).delete()
+    now = datetime.now(UTC)
+    for key in session.scalars(
+        select(ApiKey).where(ApiKey.account_id == account.id, ApiKey.revoked_at.is_(None))
+    ):
+        key.revoked_at = now
+    session.commit()
+
+
+@router.post("/accounts/{account_id}/enable", status_code=status.HTTP_204_NO_CONTENT)
+def enable_account(
+    account_id: int,
+    _: DeveloperAccount = Depends(require_admin),
+    session: Session = Depends(get_db),
+) -> None:
+    """Re-enable sign-in. Revoked API keys stay revoked; the owner issues new ones."""
+
+    account = session.get(DeveloperAccount, account_id)
+    if account is None:
+        raise HTTPException(status_code=404, detail="Account not found")
+    account.disabled_at = None
+    session.commit()

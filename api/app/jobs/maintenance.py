@@ -19,6 +19,7 @@ from app.models import (
     GrafanaNotification,
     MaintenanceRun,
     PasswordResetToken,
+    RevokedAuthSession,
 )
 
 
@@ -32,7 +33,14 @@ def cleanup_auth(session, now: datetime) -> tuple[int, dict]:
             | (PasswordResetToken.used_at < now - timedelta(days=7))
         )
     ).rowcount
-    return sessions + resets, {"expiredSessions": sessions, "expiredResetTokens": resets}
+    revoked = session.execute(
+        delete(RevokedAuthSession).where(RevokedAuthSession.expires_at < now)
+    ).rowcount
+    return sessions + resets + revoked, {
+        "expiredSessions": sessions,
+        "expiredResetTokens": resets,
+        "expiredRevocations": revoked,
+    }
 
 
 def prune_usage(session, now: datetime) -> tuple[int, dict]:
