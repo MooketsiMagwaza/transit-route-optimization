@@ -275,3 +275,33 @@ class MaintenanceRun(Base):
         "startedAt", DateTime(timezone=True), server_default=func.now(), nullable=False
     )
     finished_at: Mapped[datetime | None] = mapped_column("finishedAt", DateTime(timezone=True))
+
+
+class UploadIntent(Base):
+    """A signed, expiring permission to upload one private object, and its verification outcome."""
+
+    __tablename__ = "UploadIntent"
+    __table_args__ = (
+        Index("ix_upload_intent_account_time", "accountId", "createdAt"),
+        Index("ix_upload_intent_status_expiry", "status", "expiresAt"),
+    )
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    account_id: Mapped[int] = mapped_column(
+        "accountId", ForeignKey("DeveloperAccount.id", ondelete="CASCADE"), nullable=False
+    )
+    purpose: Mapped[str] = mapped_column(String(30), nullable=False)
+    object_key: Mapped[str] = mapped_column("objectKey", String(200), nullable=False, unique=True)
+    content_type: Mapped[str] = mapped_column("contentType", String(60), nullable=False)
+    size_bytes: Mapped[int] = mapped_column("sizeBytes", Integer, nullable=False)
+    sha256: Mapped[str] = mapped_column(String(64), nullable=False)
+    # pending -> verified | rejected -> deleted
+    status: Mapped[str] = mapped_column(String(16), nullable=False, default="pending")
+    expires_at: Mapped[datetime] = mapped_column(
+        "expiresAt", DateTime(timezone=True), nullable=False
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        "createdAt", DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+    verified_at: Mapped[datetime | None] = mapped_column("verifiedAt", DateTime(timezone=True))
+    deleted_at: Mapped[datetime | None] = mapped_column("deletedAt", DateTime(timezone=True))

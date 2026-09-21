@@ -10,8 +10,28 @@ services:
       POSTGRES_DB: ${POSTGRES_DB:-transit}
     ports:
       - "127.0.0.1:6000:5432"
+    # Continuous WAL archiving is always on so point-in-time recovery is possible from day one.
+    # archive_timeout bounds the recovery point objective to five minutes of activity.
+    command:
+      - postgres
+      - -c
+      - wal_level=replica
+      - -c
+      - archive_mode=on
+      - -c
+      - archive_command=test ! -f /wal_archive/%f && cp %p /wal_archive/%f
+      - -c
+      - archive_timeout=300
+      - -c
+      - max_wal_senders=5
+      - -c
+      - max_replication_slots=5
+      - -c
+      - hba_file=/etc/postgresql/pg_hba.conf
     volumes:
       - transit_system:/var/lib/postgresql/data
+      - wal_archive:/wal_archive
+      - ./ops/recovery/pg_hba.conf:/etc/postgresql/pg_hba.conf:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U transitsym -d transit"]
       interval: 5s
@@ -272,8 +292,164 @@ services:
       mailpit:
         condition: service_started
 
+  # ── Recovery (opt-in): docker compose --profile recovery up -d ───────────────
+  objects:
+    profiles: ["recovery"]
+    image: minio/minio:RELEASE.2025-04-22T22-12-26Z
+    container_name: transit-objects
+    restart: unless-stopped
+    command: ["server", "/data", "--console-address", ":9001"]
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-tsela-objects-admin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-local-objects-admin-password}
+    volumes:
+      - object_data:/data
+    ports:
+      - "127.0.0.1:9000:9000"
+      - "127.0.0.1:9001:9001"
+
+  objects-init:
+    profiles: ["recovery"]
+    image: minio/mc:RELEASE.2025-04-16T18-13-26Z
+    container_name: transit-objects-init
+    restart: "no"
+    entrypoint: ["sh", "/objects-init.sh"]
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-tsela-objects-admin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-local-objects-admin-password}
+      UPLOADS_BUCKET: tsela-uploads
+      BACKUPS_BUCKET: tsela-backups
+      UPLOADS_ACCESS_KEY: ${UPLOADS_ACCESS_KEY:-tsela-uploads-app}
+      UPLOADS_SECRET_KEY: ${UPLOADS_SECRET_KEY:-local-uploads-secret-key}
+      BACKUPS_ACCESS_KEY: ${BACKUPS_ACCESS_KEY:-tsela-backups-app}
+      BACKUPS_SECRET_KEY: ${BACKUPS_SECRET_KEY:-local-backups-secret-key}
+    volumes:
+      - ./ops/recovery/objects-init.sh:/objects-init.sh:ro
+    depends_on:
+      - objects
+
+  recovery-init:
+    profiles: ["recovery"]
+    image: postgres:16-alpine
+    container_name: transit-recovery-init
+    restart: "no"
+    entrypoint: ["sh", "/recovery-init.sh"]
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-transitsym}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-metro}
+      POSTGRES_DB: ${POSTGRES_DB:-transit}
+      REPLICATION_PASSWORD: ${REPLICATION_PASSWORD:-local-replication-password}
+      BACKUP_DB_PASSWORD: ${BACKUP_DB_PASSWORD:-local-backup-db-password}
+    volumes:
+      - ./ops/recovery/recovery-init.sh:/recovery-init.sh:ro
+    depends_on:
+      api:
+        condition: service_healthy
+
+  db-standby:
+    profiles: ["recovery"]
+    build:
+      context: ./database
+    container_name: transit-db-standby
+    restart: unless-stopped
+    user: root
+    entrypoint: ["/bin/bash", "/standby-entrypoint.sh"]
+    environment:
+      REPLICATION_PASSWORD: ${REPLICATION_PASSWORD:-local-replication-password}
+    volumes:
+      - standby_data:/var/lib/postgresql/data
+      - ./ops/recovery/standby-entrypoint.sh:/standby-entrypoint.sh:ro
+    ports:
+      - "127.0.0.1:6001:5432"
+    depends_on:
+      recovery-init:
+        condition: service_completed_successfully
+
+  backup:
+    profiles: ["recovery"]
+    build:
+      context: ./ops/backups
+    container_name: transit-backup
+    restart: unless-stopped
+    environment:
+      PGHOST: db
+      PGDATABASE: ${POSTGRES_DB:-transit}
+      BACKUP_DB_PASSWORD: ${BACKUP_DB_PASSWORD:-local-backup-db-password}
+      BACKUP_ENCRYPTION_PASSPHRASE: ${BACKUP_ENCRYPTION_PASSPHRASE:-local-only-passphrase-replace-in-real-use}
+      OFFSITE_ENDPOINT: http://objects:9000
+      OFFSITE_ACCESS_KEY: ${BACKUPS_ACCESS_KEY:-tsela-backups-app}
+      OFFSITE_SECRET_KEY: ${BACKUPS_SECRET_KEY:-local-backups-secret-key}
+      BACKUPS_BUCKET: tsela-backups
+      BACKUP_RUN_ON_START: "true"
+    volumes:
+      - backup_data:/backups
+      - wal_archive:/wal_archive
+    depends_on:
+      recovery-init:
+        condition: service_completed_successfully
+      objects-init:
+        condition: service_completed_successfully
+
+  # Drill targets: scratch servers that share no volume with the primary.
+  restore-target:
+    profiles: ["drill"]
+    build:
+      context: ./database
+    container_name: transit-restore-target
+    environment:
+      POSTGRES_PASSWORD: restore-drill
+      POSTGRES_USER: postgres
+    tmpfs:
+      - /var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+
+  restore-drill:
+    profiles: ["drill"]
+    build:
+      context: ./ops/backups
+    container_name: transit-restore-drill
+    entrypoint: ["/usr/local/bin/restore-drill.sh"]
+    environment:
+      RESTORE_HOST: restore-target
+      RESTORE_PASSWORD: restore-drill
+      BACKUP_ENCRYPTION_PASSPHRASE: ${BACKUP_ENCRYPTION_PASSPHRASE:-local-only-passphrase-replace-in-real-use}
+      OFFSITE_ENDPOINT: http://objects:9000
+      OFFSITE_ACCESS_KEY: ${BACKUPS_ACCESS_KEY:-tsela-backups-app}
+      OFFSITE_SECRET_KEY: ${BACKUPS_SECRET_KEY:-local-backups-secret-key}
+      BACKUPS_BUCKET: tsela-backups
+    volumes:
+      - ./ops/backups/evidence:/evidence
+    depends_on:
+      restore-target:
+        condition: service_healthy
+
+  pitr-target:
+    profiles: ["drill"]
+    build:
+      context: ./database
+    container_name: transit-pitr-target
+    user: root
+    entrypoint: ["/bin/bash", "/pitr-restore.sh"]
+    environment:
+      RECOVERY_TARGET_TIME: ${RECOVERY_TARGET_TIME:-}
+      BASE_BACKUP_DIR: /backups/base/current
+    volumes:
+      - backup_data:/backups:ro
+      - wal_archive:/wal_archive:ro
+      - ./ops/recovery/pitr-restore.sh:/pitr-restore.sh:ro
+    tmpfs:
+      - /var/lib/postgresql/data
+
 volumes:
   transit_system:
+  wal_archive:
+  backup_data:
+  object_data:
+  standby_data:
   prometheus_data:
   grafana_data:
   tempo_data:
