@@ -5,11 +5,50 @@ import { BrandMark } from "../../components/brand-mark";
 
 export const metadata: Metadata = { title: "Brand and icons", description: "The working Tsela name, route-loop logo, app icon, and public colour system.", alternates: { canonical: "/brand" } };
 
+const swatches = [
+  { name: "Primary blue", hex: "#445CFF", className: "blue" },
+  { name: "Go lime", hex: "#C8F135", className: "lime" },
+  { name: "Paper", hex: "#FFFDF3", className: "paper" },
+  { name: "Signal pink", hex: "#FF70B7", className: "pink" },
+];
+
 export default function BrandPage() {
-  return <>
-    <section className="inner-hero brand-hero"><p className="section-number">IDENTITY / WORKING DIRECTION</p><h1>A name that feels<br />like a way forward.</h1><p>Tsela means path, road, or way in Setswana. The public identity is warm and direct; TransitOS remains only the internal platform name while local-language, domain, and trademark validation continues.</p></section>
-    <section className="brand-showcase"><article className="brand-lockup-card"><span>PRIMARY LOCKUP</span><BrandMark /><a href="/brand/tsela-mark.svg" download>Download SVG ↘</a></article><article className="brand-icon-card"><span>APP ICON</span><BrandMark compact /><p>The route loops from a starting point to a destination. It stays legible at favicon and home-screen size.</p></article></section>
-      <section className="brand-colors"><div><p className="section-number">COLOUR SYSTEM</p><h2>Bright enough to guide.<br />Calm enough to trust.</h2></div><div className="swatches"><span className="swatch blue"><b>Primary blue</b>#3157FF</span><span className="swatch lime"><b>Go lime</b>#C8FF3D</span><span className="swatch cream"><b>Paper</b>#FFFAF0</span><span className="swatch red"><b>Signal red</b>#FF4F3D</span></div></section>
-    <section className="brand-caution"><strong>Working identity—not legal clearance.</strong><p>Before public launch, complete Botswana and regional trademark searches, domain and handle checks, and pronunciation testing with Setswana-speaking riders.</p></section>
-  </>;
+  return (
+    <>
+      <section className="page-hero container">
+        <p className="kicker">Identity · working direction</p>
+        <h1>A name that feels like a way forward.</h1>
+        <p className="lede">Tsela means path, road, or way in Setswana. The public identity is warm and direct; TransitOS remains only the internal platform name while local-language, domain, and trademark validation continues.</p>
+      </section>
+      <section className="container brand-showcase" aria-label="Logo and icon">
+        <article className="brand-card brand-card-lockup">
+          <span className="kicker">Primary lockup</span>
+          <BrandMark large />
+          <a className="text-link" href="/brand/tsela-mark.svg" download>Download SVG ↓</a>
+        </article>
+        <article className="brand-card brand-card-icon">
+          <span className="kicker">App icon</span>
+          <BrandMark compact large />
+          <p>The route loops from a starting point to a destination and stays legible at favicon and home-screen size.</p>
+        </article>
+      </section>
+      <section className="section">
+        <div className="container split">
+          <header>
+            <p className="kicker">Colour system</p>
+            <h2>Bright enough to guide. Calm enough to trust.</h2>
+          </header>
+          <div className="swatches">
+            {swatches.map((swatch) => <span className={`swatch ${swatch.className}`} key={swatch.name}><b>{swatch.name}</b><code>{swatch.hex}</code></span>)}
+          </div>
+        </div>
+      </section>
+      <section className="container brand-caution-wrap">
+        <div className="brand-caution">
+          <strong>Working identity, not legal clearance.</strong>
+          <p>Before public launch, complete Botswana and regional trademark searches, domain and handle checks, and pronunciation testing with Setswana-speaking riders.</p>
+        </div>
+      </section>
+    </>
+  );
 }

@@ -8,9 +8,32 @@ import Link from "next/link";
 const KEY = "tsela-privacy-choice-v1";
 
 export function CookieConsent() {
-  const [visible,setVisible]=useState(false);
-  useEffect(()=>{const frame=requestAnimationFrame(()=>setVisible(localStorage.getItem(KEY)===null));return()=>cancelAnimationFrame(frame);},[]);
-  function choose(value:"necessary"|"optional") { localStorage.setItem(KEY,value); setVisible(false); }
-  if(!visible) return null;
-  return <aside className="cookie-consent" aria-label="Privacy choices" role="dialog" aria-modal="false"><div><strong>Your privacy, without tricks.</strong><p>Tsela uses necessary storage for sign-in and this choice. Optional analytics are not installed today.</p><Link href="/legal/cookies">Read the cookie policy</Link></div><div><button type="button" onClick={()=>choose("necessary")}>Necessary only</button><button type="button" onClick={()=>choose("optional")}>Allow optional</button></div></aside>;
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const frame = requestAnimationFrame(() => {
+      try { setVisible(localStorage.getItem(KEY) === null); } catch { setVisible(true); }
+    });
+    return () => cancelAnimationFrame(frame);
+  }, []);
+
+  function choose(value: "necessary" | "optional") {
+    try { localStorage.setItem(KEY, value); } catch { /* the choice simply will not persist */ }
+    setVisible(false);
+  }
+
+  if (!visible) return null;
+  return (
+    <aside className="cookie-consent" aria-label="Privacy choices">
+      <p>
+        <strong>Your privacy, without tricks.</strong>{" "}
+        Tsela stores only what sign-in and this choice need. No optional analytics are installed.{" "}
+        <Link href="/legal/cookies">Cookie policy</Link>
+      </p>
+      <div>
+        <button type="button" onClick={() => choose("necessary")}>Necessary only</button>
+        <button type="button" onClick={() => choose("optional")}>Allow optional</button>
+      </div>
+    </aside>
+  );
 }

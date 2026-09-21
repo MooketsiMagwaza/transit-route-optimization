@@ -1,6 +1,6 @@
 /** Root marketing layout, metadata, navigation, and footer composition. */
 
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { SiteFooter } from "../components/site-footer";
 import { SiteHeader } from "../components/site-header";
 import { CookieConsent } from "../components/cookie-consent";
@@ -20,13 +20,15 @@ export const metadata: Metadata = {
   category: "transportation",
 };
 
+export const viewport: Viewport = { themeColor: "#fffdf3", width: "device-width", initialScale: 1 };
+
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
       <body>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "WebSite", name: SITE_NAME, url: SITE_URL, description: SITE_DESCRIPTION, inLanguage: "en-BW" }).replace(/</g, "\\u003c") }} />
         <SiteHeader />
-        <main>{children}</main>
+        <main id="main">{children}</main>
         <SiteFooter />
         <CookieConsent />
       </body>
