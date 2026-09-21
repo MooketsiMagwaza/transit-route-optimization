@@ -1,0 +1,121 @@
+{
+  "version": "v1",
+  "description": "The supported public Tsela API. Every /v1 operation implemented by the API has exactly one entry here; api/tests/test_public_contract_docs.py fails CI when the two drift apart.",
+  "sharedResponseHeaders": [
+    { "name": "X-Request-ID", "description": "Correlation ID for this request. Quote it when reporting a problem. You may send your own 8 to 128 character [A-Za-z0-9._-] value and it is echoed back." },
+    { "name": "X-API-Version", "description": "The API major version that served the request. Always v1." },
+    { "name": "X-RateLimit-Limit", "description": "Requests allowed per rolling hour for this key." },
+    { "name": "X-RateLimit-Remaining", "description": "Requests left in the current rolling hour, after this one." },
+    { "name": "X-RateLimit-Reset", "description": "Unix time (seconds) when the oldest request in the window expires and capacity is returned." },
+    { "name": "X-Quota-Limit", "description": "Requests allowed per calendar month (UTC) for this key." },
+    { "name": "X-Quota-Remaining", "description": "Requests left this month, after this one." }
+  ],
+  "endpoints": [
+    {
+      "slug": "routes/list",
+      "operationId": "v1ListRoutes",
+      "group": "Routes",
+      "method": "GET",
+      "path": "/v1/routes",
+      "title": "List routes",
+      "summary": "Return published routes, newest first, with optional search and offset pagination.",
+      "stability": "preview",
+      "since": "1.0.0",
+      "auth": { "header": "X-API-Key", "scope": "routes:read" },
+      "quotaCost": 1,
+      "idempotency": "Safe and idempotent. Repeating the request never changes state, so it is always safe to retry.",
+      "parameters": [
+        { "name": "search", "in": "query", "type": "string", "required": false, "constraints": "Up to 120 characters.", "maxLength": 120, "default": null, "description": "Case-insensitive match against route name and description.", "example": "Broadhurst" },
+        { "name": "offset", "in": "query", "type": "integer", "required": false, "constraints": "0 or greater.", "minimum": 0, "default": 0, "description": "Number of routes to skip.", "example": 0 },
+        { "name": "limit", "in": "query", "type": "integer", "required": false, "constraints": "1 to 100.", "minimum": 1, "maximum": 100, "default": 50, "description": "Maximum number of routes to return.", "example": 25 }
+      ],
+      "response": {
+        "status": 200,
+        "schema": "RouteRead[]",
+        "description": "A JSON array of routes. An empty array means no route matched.",
+        "example": [
+          { "id": 3, "name": "Broadhurst Route 1", "description": "Community-sourced Gaborone starter corridor.", "createdAt": "2026-09-12T08:42:12Z" }
+        ],
+        "fields": [
+          { "name": "id", "type": "integer", "description": "Stable numeric route identifier used by other endpoints." },
+          { "name": "name", "type": "string", "description": "Human-readable route name." },
+          { "name": "description", "type": "string | null", "description": "Short plain-text description, when one exists." },
+          { "name": "createdAt", "type": "string (ISO 8601, UTC)", "description": "When the route was first published." }
+        ]
+      },
+      "errors": [
+        { "status": 401, "meaning": "X-API-Key is missing, invalid, expired, or revoked.", "retry": "Do not retry with the same key. Check the header, or rotate the key in the console." },
+        { "status": 403, "meaning": "The key does not carry the routes:read scope.", "retry": "Do not retry. Create a key with the required scope." },
+        { "status": 422, "meaning": "A query parameter failed validation, for example limit=500.", "retry": "Do not retry unchanged. Correct the parameter named in the detail array." },
+        { "status": 429, "meaning": "The hourly limit, monthly quota, or invalid-credential limit was exceeded.", "retry": "Wait for the number of seconds in Retry-After, then retry. Spread requests out with backoff." },
+        { "status": 500, "meaning": "An unexpected server error.", "retry": "Retry with exponential backoff and jitter, up to three times. Quote X-Request-ID if it persists." }
+      ],
+      "pagination": "Offset pagination. Request the next page with offset = offset + limit; a page shorter than limit is the last one. Order is newest first and stable for equal timestamps.",
+      "caching": "Responses are not cacheable by intermediaries (Cache-Control is not set to public). Cache on your side for at most a few minutes; route lists change rarely.",
+      "timeout": "Typical responses complete in well under a second. Use a client timeout of 10 seconds.",
+      "freshness": "Reflects the published route table at request time. Publishing a route makes it visible immediately.",
+      "examples": {
+        "curl": "curl \"{{BASE_URL}}/v1/routes?limit=25&search=Broadhurst\" \\\n  -H \"X-API-Key: $TSELA_API_KEY\"",
+        "javascript": "// Run on a server. Never ship the key to a browser.\nconst response = await fetch(`${process.env.TSELA_API_URL}/v1/routes?limit=25`, {\n  headers: { \"X-API-Key\": process.env.TSELA_API_KEY },\n  signal: AbortSignal.timeout(10_000),\n});\nif (!response.ok) {\n  throw new Error(`Tsela ${response.status} (request ${response.headers.get(\"x-request-id\")})`);\n}\nconst routes = await response.json();"
+      },
+      "sandbox": { "enabled": true, "sample": { "limit": 3 } }
+    },
+    {
+      "slug": "routes/geometry",
+      "operationId": "v1GetRouteGeometry",
+      "group": "Routes",
+      "method": "GET",
+      "path": "/v1/routes/{route_id}/geometry",
+      "title": "Get route geometry",
+      "summary": "Resolve one published route into its ordered, road-following geometry.",
+      "stability": "preview",
+      "since": "1.0.0",
+      "auth": { "header": "X-API-Key", "scope": "routes:read" },
+      "quotaCost": 1,
+      "idempotency": "Safe and idempotent. Repeating the request never changes state, so it is always safe to retry.",
+      "parameters": [
+        { "name": "route_id", "in": "path", "type": "integer", "required": true, "constraints": "An existing route identifier.", "default": null, "description": "Identifier of the route, as returned by List routes.", "example": 3 }
+      ],
+      "response": {
+        "status": 200,
+        "schema": "RouteGeometryResponse",
+        "description": "Coordinates are [longitude, latitude] pairs in route order.",
+        "example": {
+          "routeId": 3,
+          "coordinates": [[25.94367, -24.62896], [25.94281, -24.62931]],
+          "distanceMeters": 5240,
+          "durationMinutes": 11,
+          "geometrySource": "osrm",
+          "isRoadAligned": true,
+          "warning": "Road-aligned preview; field-recorded corridor verification is still required."
+        },
+        "fields": [
+          { "name": "routeId", "type": "integer", "description": "The route this geometry belongs to." },
+          { "name": "coordinates", "type": "[number, number][]", "description": "Ordered [longitude, latitude] pairs along the road." },
+          { "name": "distanceMeters", "type": "integer | null", "description": "Route length in metres, when the road router provided it." },
+          { "name": "durationMinutes", "type": "integer | null", "description": "Estimated ride time in minutes, when available." },
+          { "name": "geometrySource", "type": "string", "description": "Where the line came from: osrm for road-following, stop_sequence for a straight fallback." },
+          { "name": "isRoadAligned", "type": "boolean", "description": "False means the line joins the stops directly and does not follow roads." },
+          { "name": "warning", "type": "string | null", "description": "Always present today: it flags a fallback line or that the corridor has not been field-verified." }
+        ]
+      },
+      "errors": [
+        { "status": 401, "meaning": "X-API-Key is missing, invalid, expired, or revoked.", "retry": "Do not retry with the same key. Check the header, or rotate the key in the console." },
+        { "status": 403, "meaning": "The key does not carry the routes:read scope.", "retry": "Do not retry. Create a key with the required scope." },
+        { "status": 404, "meaning": "No route exists with this identifier.", "retry": "Do not retry. Confirm the identifier with List routes." },
+        { "status": 422, "meaning": "route_id is not an integer, or the route has fewer than two stops.", "retry": "Do not retry unchanged. Correct the identifier or choose another route." },
+        { "status": 429, "meaning": "The hourly limit, monthly quota, or invalid-credential limit was exceeded.", "retry": "Wait for the number of seconds in Retry-After, then retry. Spread requests out with backoff." },
+        { "status": 500, "meaning": "An unexpected server error.", "retry": "Retry with exponential backoff and jitter, up to three times. Quote X-Request-ID if it persists." }
+      ],
+      "pagination": "Not paginated. One route is returned per request.",
+      "caching": "Geometry for a route rarely changes. Cache it on your side for up to 24 hours, keyed by route_id.",
+      "timeout": "Road routing may take a few seconds on a cold route. Use a client timeout of 20 seconds. When the road router is unavailable the response falls back to a straight line with isRoadAligned set to false.",
+      "freshness": "Road geometry is cached server-side and can lag a stop edit by a short time. Treat isRoadAligned false, and any warning, as unverified.",
+      "examples": {
+        "curl": "curl \"{{BASE_URL}}/v1/routes/3/geometry\" \\\n  -H \"X-API-Key: $TSELA_API_KEY\"",
+        "javascript": "// Run on a server. Never ship the key to a browser.\nconst response = await fetch(`${process.env.TSELA_API_URL}/v1/routes/3/geometry`, {\n  headers: { \"X-API-Key\": process.env.TSELA_API_KEY },\n  signal: AbortSignal.timeout(20_000),\n});\nif (response.status === 404) return null;\nif (!response.ok) {\n  throw new Error(`Tsela ${response.status} (request ${response.headers.get(\"x-request-id\")})`);\n}\nconst geometry = await response.json();\nif (!geometry.isRoadAligned) console.warn(geometry.warning);"
+      },
+      "sandbox": { "enabled": true, "sample": { "route_id": 1 } }
+    }
+  ]
+}

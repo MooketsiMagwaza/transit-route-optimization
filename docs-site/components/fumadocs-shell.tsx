@@ -10,10 +10,9 @@ export function FumadocsShell({ children }: { children: ReactNode }) {
     tree={pageTree}
     nav={{ title: <span className="fuma-brand"><b>T</b><span>Tsela <small>Developers</small></span></span>, url: "/reference" }}
     links={[
-      { type: "main", text: "Overview", url: "/reference" },
+      { type: "main", text: "Guides", url: "/reference/guides/getting-started" },
       { type: "main", text: "API reference", url: "/reference/routes/list" },
-      { type: "main", text: "Production", url: "/reference/guides/production-architecture" },
-      { type: "button", text: "Dashboard", url: "/console" },
+      { type: "button", text: "Console", url: "/console" },
       { type: "main", text: "Tsela ↗", url: MARKETING_URL, external: true },
     ]}
     sidebar={{ defaultOpenLevel: 1, collapsible: true }}

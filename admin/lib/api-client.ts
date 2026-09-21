@@ -157,6 +157,19 @@ export interface AdminSystemMetrics {
   collectedAt: string;
 }
 
+export interface HandbookPageSummary {
+  slug: string;
+  title: string;
+  group: string;
+  summary: string;
+  source: string;
+}
+
+export interface HandbookPage extends HandbookPageSummary {
+  markdown: string;
+  updatedAt: string;
+}
+
 // ── API methods ──────────────────────────────────────────────────────────────
 export const apiClient = {
   routes: {
@@ -237,6 +250,11 @@ export const apiClient = {
     system: () => request<AdminSystemMetrics>("/api/admin/system", { cache: "no-store" }),
     accounts: () => request<AdminAccount[]>("/api/admin/accounts", { cache: "no-store" }),
     notifications: () => request<GrafanaNotification[]>("/api/admin/notifications", { cache: "no-store" }),
+  },
+  handbook: {
+    index: () => request<HandbookPageSummary[]>("/api/admin/handbook", { cache: "no-store" }),
+    page: (slug: string) =>
+      request<HandbookPage>(`/api/admin/handbook/${encodeURIComponent(slug)}`, { cache: "no-store" }),
   },
 };
 

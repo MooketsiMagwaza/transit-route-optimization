@@ -9,7 +9,8 @@
     "dev": "next dev -p 3003",
     "build": "next build",
     "start": "next start -p 3003 -H 0.0.0.0",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test": "node --test tests/"
   },
   "dependencies": {
     "@tailwindcss/postcss": "^4.3.3",
