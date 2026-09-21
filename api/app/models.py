@@ -55,6 +55,14 @@ class DeveloperAccount(Base):
     display_name: Mapped[str] = mapped_column("displayName", String(120), nullable=False)
     password_hash: Mapped[str] = mapped_column("passwordHash", String(512), nullable=False)
     role: Mapped[str] = mapped_column(String(24), nullable=False, default="developer", index=True)
+    # Immutable subject (JWT ``sub``) from the identity provider; email is profile data only.
+    external_subject: Mapped[str | None] = mapped_column(
+        "externalSubject", String(64), unique=True, index=True
+    )
+    auth_provider: Mapped[str] = mapped_column(
+        "authProvider", String(24), nullable=False, default="local", server_default="local"
+    )
+    disabled_at: Mapped[datetime | None] = mapped_column("disabledAt", DateTime(timezone=True))
     created_at: Mapped[datetime] = mapped_column(
         "createdAt", DateTime(timezone=True), server_default=func.now(), nullable=False
     )
@@ -86,6 +94,20 @@ class DeveloperSession(Base):
     )
 
     account: Mapped[DeveloperAccount] = relationship(back_populates="sessions")
+
+
+class RevokedAuthSession(Base):
+    """Identity-provider sessions ended before their access token expires."""
+
+    __tablename__ = "RevokedAuthSession"
+
+    session_id: Mapped[str] = mapped_column("sessionId", String(64), primary_key=True)
+    revoked_at: Mapped[datetime] = mapped_column(
+        "revokedAt", DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+    expires_at: Mapped[datetime] = mapped_column(
+        "expiresAt", DateTime(timezone=True), nullable=False, index=True
+    )
 
 
 class ApiKey(Base):

@@ -43,6 +43,16 @@ class Settings(BaseSettings):
     demo_account_email: str = "demo@tsela.local"
     demo_account_password: str = "TselaDemo2026!"
     demo_account_name: str = "Tsela Demo"
+    # External identity provider (self-hosted Supabase Auth / GoTrue). Access tokens are verified
+    # locally; roles and account ownership always come from Tsela's own tables, never from claims.
+    auth_issuer: str = ""
+    auth_jwt_secret: str = ""
+    auth_jwks_url: str = ""
+    auth_audience: str = "authenticated"
+    # Opaque local sessions (development). Must be off in production.
+    local_auth_enabled: bool = True
+    # Operators must present an MFA-verified (aal2) token. Defaults to on in production.
+    operator_mfa_required: bool | None = None
     # Directory holding the internal handbook Markdown; empty falls back to the repository docs.
     handbook_dir: str = ""
     # Optional fixed secret for the documentation sandbox key (local development only).
@@ -73,7 +83,26 @@ class Settings(BaseSettings):
             and self.sandbox_api_key == LOCAL_SANDBOX_API_KEY
         ):
             raise ValueError("SANDBOX_API_KEY must not use the published local development key")
+        if self.auth_jwt_secret and len(self.auth_jwt_secret) < 32:
+            raise ValueError("AUTH_JWT_SECRET must be at least 32 characters")
+        if self.deployment_environment.lower() == "production":
+            if self.local_auth_enabled:
+                raise ValueError("LOCAL_AUTH_ENABLED must be false in production")
+            if not self.external_auth_enabled:
+                raise ValueError(
+                    "AUTH_ISSUER and AUTH_JWT_SECRET or AUTH_JWKS_URL are required in production"
+                )
         return self
+
+    @property
+    def external_auth_enabled(self) -> bool:
+        return bool(self.auth_issuer and (self.auth_jwt_secret or self.auth_jwks_url))
+
+    @property
+    def mfa_required_for_operators(self) -> bool:
+        if self.operator_mfa_required is not None:
+            return self.operator_mfa_required
+        return self.deployment_environment.lower() == "production"
 
     @property
     def cors_origin_list(self) -> list[str]:

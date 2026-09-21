@@ -369,3 +369,7 @@ button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid 
   html { scroll-behavior: auto; }
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
 }
+
+.auth-notice { padding: 11px 13px; border: 1px solid var(--portal-success-line); border-radius: 8px; background: var(--portal-success-soft); color: var(--portal-success-text); font-size: 13px; line-height: 1.45; }
+.auth-google { margin-top: 12px; min-height: 44px; display: flex; align-items: center; justify-content: center; border: 2px solid var(--portal-ink); border-radius: 10px; background: var(--portal-surface-raised); color: var(--portal-ink); font-weight: 700; text-decoration: none; }
+.auth-google:hover { background: var(--portal-lime-soft); }
