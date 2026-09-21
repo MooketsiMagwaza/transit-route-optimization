@@ -16,5 +16,15 @@ export default async function JournalPostPage({ params }: { params: Promise<{ sl
   const { slug } = await params;
   const post = await getJournalPost(slug);
   if (!post) notFound();
-  return <article className="journal-article"><Link className="journal-back" href="/journal">← All blog posts</Link><header><div className="journal-meta"><time>{post.date}</time><span>{post.status}</span></div><h1>{post.title}</h1><p className="hero-lede">{post.summary}</p></header><MarkdownArticle source={post.body} /></article>;
+  return (
+    <article className="article">
+      <Link className="text-link" href="/journal">← All posts</Link>
+      <header>
+        <div className="article-meta"><time dateTime={post.date}>{post.date}</time><span className="status-label">{post.status}</span></div>
+        <h1>{post.title}</h1>
+        <p className="lede">{post.summary}</p>
+      </header>
+      <MarkdownArticle source={post.body} />
+    </article>
+  );
 }

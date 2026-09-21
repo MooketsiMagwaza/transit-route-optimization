@@ -10,21 +10,23 @@ export function AccessModal() {
 
   return (
     <>
-      <button className="button button-dark access-trigger" onClick={() => dialogRef.current?.showModal()}>
-        Request API access <span>→</span>
+      <button type="button" className="button button-dark" onClick={() => dialogRef.current?.showModal()}>
+        Get an API key <span aria-hidden="true">→</span>
       </button>
-      <dialog className="access-dialog" ref={dialogRef} onClick={(event) => {
+      <dialog className="access-dialog" ref={dialogRef} aria-labelledby="access-title" onClick={(event) => {
         if (event.target === dialogRef.current) dialogRef.current.close();
       }}>
-        <button className="dialog-close" aria-label="Close access dialog" onClick={() => dialogRef.current?.close()}>×</button>
-        <p className="section-number">DEVELOPER PREVIEW</p>
-        <h2>Start with the live contract.</h2>
-        <p>Create a developer account to issue a hashed API key, call the protected v1 routes, and see your monthly request usage.</p>
-        <div className="dialog-status"><span>Available now</span><strong>Accounts, API keys, quotas, usage</strong></div>
-        <div className="dialog-status"><span>Local development</span><strong>Open docs and unkeyed /api routes</strong></div>
+        <button type="button" className="dialog-close" aria-label="Close access dialog" onClick={() => dialogRef.current?.close()}>×</button>
+        <p className="kicker">Developer preview</p>
+        <h2 id="access-title">Start with the live contract.</h2>
+        <p>Create a developer account to issue a hashed API key, call the versioned <code>/v1</code> routes, and see your request usage.</p>
+        <dl className="dialog-status">
+          <div><dt>Available now</dt><dd>Accounts, API keys, quotas, usage</dd></div>
+          <div><dt>Contract</dt><dd>Keyed <code>/v1</code> routes and geometry</dd></div>
+        </dl>
         <div className="dialog-actions">
-          <a className="button button-dark" href={`${DOCS_URL}/login`}>Sign in for API access <span>↗</span></a>
-          <a className="text-link" href={DOCS_URL}>Read the docs</a>
+          <a className="button button-primary" href={`${DOCS_URL}/login`}>Sign in for API access <span aria-hidden="true">↗</span></a>
+          <a className="text-link" href={DOCS_URL}>Read the guide</a>
         </div>
       </dialog>
     </>
