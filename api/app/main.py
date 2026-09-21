@@ -18,6 +18,7 @@ from app.routers import (
     pathfinding,
     public_v1,
     routes,
+    uploads,
 )
 from app.telemetry import configure_telemetry
 
@@ -48,6 +49,7 @@ app.include_router(dashboard.router)
 app.include_router(community.router)
 app.include_router(developer.router)
 app.include_router(public_v1.router)
+app.include_router(uploads.router)
 app.middleware("http")(metrics_middleware)
 app.middleware("http")(request_boundary_middleware)
 app.mount("/metrics", make_asgi_app())

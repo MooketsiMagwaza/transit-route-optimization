@@ -4,6 +4,9 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends postgresql-15-pgrouting \
     && rm -rf /var/lib/apt/lists/*
 
+# Continuous WAL archive lives on its own volume so point-in-time recovery survives data-dir loss.
+RUN mkdir -p /wal_archive && chown postgres:postgres /wal_archive && chmod 700 /wal_archive
+
 USER postgres
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \

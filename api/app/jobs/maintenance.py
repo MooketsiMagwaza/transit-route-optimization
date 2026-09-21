@@ -20,6 +20,7 @@ from app.models import (
     MaintenanceRun,
     PasswordResetToken,
     RevokedAuthSession,
+    UploadIntent,
 )
 
 
@@ -85,7 +86,39 @@ def key_rotation_audit(session, now: datetime) -> tuple[int, dict]:
     }
 
 
+def cleanup_uploads(session, now: datetime) -> tuple[int, dict]:
+    """Delete abandoned and rejected uploads from the object store, then mark them deleted."""
+
+    from app.services.object_store import ObjectStoreDisabled, object_delete
+
+    settings = get_settings()
+    stale = list(
+        session.scalars(
+            select(UploadIntent).where(
+                UploadIntent.deleted_at.is_(None),
+                (
+                    (UploadIntent.status == "pending")
+                    & (UploadIntent.expires_at < now - timedelta(hours=1))
+                )
+                | (UploadIntent.status == "rejected"),
+            )
+        )
+    )
+    removed = failed = 0
+    for intent in stale:
+        try:
+            object_delete(settings, intent.object_key)
+        except (ObjectStoreDisabled, Exception):  # noqa: BLE001 - retried on the next run
+            failed += 1
+            continue
+        intent.status = "deleted"
+        intent.deleted_at = now
+        removed += 1
+    return removed, {"deleted": removed, "failed": failed}
+
+
 JOBS = {
+    "cleanup-uploads": cleanup_uploads,
     "cleanup-auth": cleanup_auth,
     "prune-usage": prune_usage,
     "key-rotation-audit": key_rotation_audit,

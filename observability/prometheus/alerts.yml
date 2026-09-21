@@ -54,3 +54,11 @@ groups:
         annotations:
           summary: API quota rejections are elevated
           description: Quota or invalid-credential limits are rejecting sustained traffic. Confirm whether this is abuse or a customer integration issue.
+      - alert: TselaWalArchiveFailing
+        expr: increase(pg_stat_archiver_failed_count{job="tsela-postgres"}[15m]) > 0
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: PostgreSQL WAL archiving is failing
+          description: The archive command has failed in the last 15 minutes. Point-in-time recovery has a gap and WAL is accumulating on the primary until archiving recovers.

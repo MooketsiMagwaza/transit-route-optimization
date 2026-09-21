@@ -53,6 +53,15 @@ class Settings(BaseSettings):
     local_auth_enabled: bool = True
     # Operators must present an MFA-verified (aal2) token. Defaults to on in production.
     operator_mfa_required: bool | None = None
+    # Private S3-compatible object storage (MinIO locally). Empty public endpoint disables uploads.
+    object_store_endpoint: str = "http://objects:9000"
+    object_store_public_endpoint: str = ""
+    object_store_region: str = "us-east-1"
+    object_store_bucket: str = "tsela-uploads"
+    object_store_access_key: str = ""
+    object_store_secret_key: str = ""
+    uploads_max_bytes: int = 5_242_880
+    uploads_daily_intents: int = 20
     # Directory holding the internal handbook Markdown; empty falls back to the repository docs.
     handbook_dir: str = ""
     # Optional fixed secret for the documentation sandbox key (local development only).
