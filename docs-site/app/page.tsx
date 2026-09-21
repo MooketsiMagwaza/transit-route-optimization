@@ -22,16 +22,16 @@ export default function DeveloperLanding() {
           <div className="developer-landing-points">
             <span>Gaborone routes with road aligned geometry</span>
             <span>Clear API examples and request limits</span>
-            <span>Protected production, recovery, storage, and auth runbooks</span>
+            <span>One page per endpoint, with a live read-only sandbox</span>
           </div>
         </div>
         <LoginForm />
       </section>
 
       <section className="developer-portal-paths" aria-label="After sign in">
-        <Link href="/reference"><span>01 / DOCUMENTATION</span><strong>Browse the protected guides</strong><small>Sign in for endpoints, examples, and production runbooks</small></Link>
+        <Link href="/reference"><span>01 / DOCUMENTATION</span><strong>Browse the developer guide</strong><small>Sign in for endpoints, examples, errors, and limits</small></Link>
         <Link href="/console"><span>02 / DASHBOARD</span><strong>Manage your access</strong><small>Keys, limits, and request activity</small></Link>
-        <Link href="/reference/guides/production-architecture"><span>03 / OPERATIONS</span><strong>Read the production runbooks</strong><small>Architecture, backup, recovery, uploads, identity, and launch gates</small></Link>
+        <Link href="/reference/guides/errors-and-retries"><span>03 / RELIABILITY</span><strong>Handle errors and limits</strong><small>Status codes, retry policy, and rate-limit headers</small></Link>
       </section>
     </HomeLayout>
   );

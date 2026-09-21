@@ -17,7 +17,9 @@ const ALLOWED_METHODS: Record<string, readonly string[]> = {
 
 function isAllowed(path: string[], method: string) {
   if (path.length === 1) return ALLOWED_METHODS[path[0]]?.includes(method) ?? false;
-  return path.length === 2 && path[0] === "keys" && /^\d+$/.test(path[1]) && method === "DELETE";
+  if (path[0] !== "keys" || !/^\d+$/.test(path[1] ?? "")) return false;
+  if (path.length === 2) return method === "DELETE";
+  return path.length === 3 && path[2] === "rotate" && method === "POST";
 }
 
 async function forward(request: NextRequest, context: { params: Promise<{ path: string[] }> }) {

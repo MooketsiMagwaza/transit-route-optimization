@@ -1,26 +1,22 @@
-/** Fumadocs page tree generated from the typed Tsela endpoint catalog. */
+/** Fumadocs page tree for the public developer guide: overview, guides, then one page per endpoint. */
 
 import type * as PageTree from "fumadocs-core/page-tree";
-import { PRODUCTION_GUIDES } from "./guides";
-import { REFERENCE_ENDPOINTS, REFERENCE_GROUPS } from "./reference";
+import { ENDPOINT_GROUPS, ENDPOINTS } from "./catalog";
+import { GUIDES } from "./guides";
 
 export const pageTree: PageTree.Root = {
   name: "Tsela API",
   children: [
     { type: "page", name: "Overview", url: "/reference" },
-    ...REFERENCE_GROUPS.flatMap((group) => [
-      { type: "separator" as const, name: group },
-      ...REFERENCE_ENDPOINTS.filter((endpoint) => endpoint.group === group).map((endpoint) => ({
+    { type: "separator", name: "Guides" },
+    ...GUIDES.map((guide) => ({ type: "page" as const, name: guide.title, url: `/reference/${guide.slug}` })),
+    ...ENDPOINT_GROUPS.flatMap((group) => [
+      { type: "separator" as const, name: `${group} endpoints` },
+      ...ENDPOINTS.filter((endpoint) => endpoint.group === group).map((endpoint) => ({
         type: "page" as const,
         name: endpoint.title,
         url: `/reference/${endpoint.slug}`,
       })),
     ]),
-    { type: "separator", name: "Production operations" },
-    ...PRODUCTION_GUIDES.map((guide) => ({
-      type: "page" as const,
-      name: guide.title,
-      url: `/reference/${guide.slug}`,
-    })),
   ],
 };
