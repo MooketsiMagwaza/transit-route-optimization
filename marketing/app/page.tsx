@@ -1,20 +1,34 @@
-/** Marketing homepage: one clear promise, how it works, and direct entry points. */
+/** Marketing homepage: one clear promise, the real product, how it works, and direct entry points. */
 
 import Link from "next/link";
 import { Hero } from "../components/hero";
+import { Showcase } from "../components/showcase";
+import { TselaArt, type ArtName } from "../components/tsela-art";
+import { ClayIcon, type ClayIconName, type ClayTone } from "../components/tsela-icon";
 import { DOCS_URL, RIDER_URL } from "../lib/urls";
 
-const STEPS = [
-  { title: "Set your places", copy: "Use your location or tap a familiar place. Search for the destination; never type coordinates." },
-  { title: "Compare real options", copy: "See boarding point, walking distance, time, and transfers. Pick one and the rest step aside." },
-  { title: "Ride one clear route", copy: "Follow the road-following corridor stop by stop, with a reminder before you need to ask to stop." },
-  { title: "Keep the map true", copy: "Riders add tips and corrections. Builders use the same reviewed network through the API." },
+// The homepage shows live network numbers, so it renders per request (the data itself is cached for five minutes).
+export const dynamic = "force-dynamic";
+
+const STEPS: { title: string; copy: string; icon: ClayIconName; tone: ClayTone }[] = [
+  { title: "Set your places", copy: "Use your location or tap a familiar spot. Search for where you are going; never type coordinates.", icon: "pin", tone: "green" },
+  { title: "Compare real options", copy: "See where to board, how far you walk, the time, and any transfers. Pick one and the rest step aside.", icon: "routes", tone: "blue" },
+  { title: "Ride one clear route", copy: "Follow the road-following route stop by stop, with a nudge before you need to ask to stop.", icon: "check", tone: "amber" },
+  { title: "Keep the map true", copy: "Riders add tips and corrections. Builders use the same reviewed network through the API.", icon: "community", tone: "teal" },
+];
+
+const GATEWAYS: { kicker: string; title: string; copy: string; action: string; href: string; art: ArtName; primary?: boolean; internal?: boolean }[] = [
+  { kicker: "Ride", title: "Plan a trip", copy: "Set two places and compare road-following combi routes.", action: "Open the rider app", href: RIDER_URL, art: "stop", primary: true },
+  { kicker: "Product", title: "Explore services", copy: "See the rider, operations, community, and data tools separately.", action: "See every service", href: "/services", art: "map", internal: true },
+  { kicker: "Developers", title: "Read the API", copy: "Authentication, endpoint reference, examples, and error responses.", action: "Open the developer guide", href: DOCS_URL, art: "guide" },
+  { kicker: "Access", title: "Get an API key", copy: "Create an account, issue a key, and watch usage from the console.", action: "Open the console", href: `${DOCS_URL}/login`, art: "success" },
 ];
 
 export default function Home() {
   return (
     <>
       <Hero />
+      <Showcase />
 
       <section className="section" id="how-it-works" aria-labelledby="how-title">
         <div className="container">
@@ -25,7 +39,8 @@ export default function Home() {
           <ol className="steps">
             {STEPS.map((step, index) => (
               <li className="step" key={step.title}>
-                <span className="step-number">{String(index + 1).padStart(2, "0")}</span>
+                <ClayIcon name={step.icon} tone={step.tone} size={64} />
+                <span className="step-number">Step {index + 1}</span>
                 <h3>{step.title}</h3>
                 <p>{step.copy}</p>
               </li>
@@ -42,30 +57,23 @@ export default function Home() {
             <p className="lede">Whether you are getting somewhere, learning the platform, or building on the network, the next step should be obvious.</p>
           </header>
           <div className="gateway-grid">
-            <a className="gateway-card gateway-primary" href={RIDER_URL}>
-              <span className="kicker">01 · Ride</span>
-              <h3>Plan a trip</h3>
-              <p>Set two places and compare road-following combi routes.</p>
-              <b>Open the rider app →</b>
-            </a>
-            <Link className="gateway-card" href="/services">
-              <span className="kicker">02 · Product</span>
-              <h3>Explore services</h3>
-              <p>See the rider, operations, community, and data tools separately.</p>
-              <b>See every service →</b>
-            </Link>
-            <a className="gateway-card" href={DOCS_URL}>
-              <span className="kicker">03 · Developers</span>
-              <h3>Read the API</h3>
-              <p>Authentication, endpoint reference, examples, and error responses.</p>
-              <b>Open the developer guide →</b>
-            </a>
-            <a className="gateway-card" href={`${DOCS_URL}/login`}>
-              <span className="kicker">04 · Access</span>
-              <h3>Get an API key</h3>
-              <p>Create an account, issue a key, and watch usage from the console.</p>
-              <b>Open the console →</b>
-            </a>
+            {GATEWAYS.map((gateway) => {
+              const body = (
+                <>
+                  <div>
+                    <span className="kicker">{gateway.kicker}</span>
+                    <h3>{gateway.title}</h3>
+                    <p>{gateway.copy}</p>
+                    <b>{gateway.action} →</b>
+                  </div>
+                  <TselaArt name={gateway.art} />
+                </>
+              );
+              const className = `gateway-card${gateway.primary ? " gateway-primary" : ""}`;
+              return gateway.internal
+                ? <Link className={className} href={gateway.href} key={gateway.title}>{body}</Link>
+                : <a className={className} href={gateway.href} key={gateway.title}>{body}</a>;
+            })}
           </div>
           <div className="build-strip">
             <div><span className="kicker">Build in public</span><h3>Follow the network as it grows.</h3></div>
@@ -78,9 +86,12 @@ export default function Home() {
       <section className="section" aria-labelledby="closing-title">
         <div className="container">
           <div className="closing">
-            <p className="kicker">The first step is still the simplest</p>
-            <h2 id="closing-title">Where are you going?</h2>
-            <a className="button button-lime" href={RIDER_URL}>Choose my destination <span aria-hidden="true">→</span></a>
+            <div>
+              <p className="kicker">The first step is still the simplest</p>
+              <h2 id="closing-title">Where are you going?</h2>
+              <a className="button button-primary" href={RIDER_URL}>Choose my destination</a>
+            </div>
+            <TselaArt name="stop" />
           </div>
         </div>
       </section>

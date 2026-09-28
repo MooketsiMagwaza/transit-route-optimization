@@ -1,6 +1,7 @@
 /** Service catalog metadata and separate rider, operations, and developer products. */
 
 import type { Metadata } from "next";
+import { TselaArt } from "../../components/tsela-art";
 import { DOCS_URL, RIDER_URL } from "../../lib/urls";
 
 export const metadata: Metadata = { title: "Product", description: "Explore Tsela's rider trip planner, community-checked network operations, and developer API.", alternates: { canonical: "/services" } };
@@ -15,9 +16,13 @@ export default function ServicesPage() {
   return (
     <>
       <section className="page-hero container">
+      <div>
         <p className="kicker">The Tsela product</p>
         <h1>One route network. Three useful tools.</h1>
         <p className="lede">Riders get clear trip choices. Community and operations keep the map accountable. Builders get a readable, metered API.</p>
+      
+      </div>
+      <TselaArt name="map" />
       </section>
       <section className="container service-list" aria-label="Services">
         {services.map((service) => (

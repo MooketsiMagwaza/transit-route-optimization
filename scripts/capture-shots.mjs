@@ -90,10 +90,12 @@ let sharp = null;
 try { sharp = createRequire(join(root, "marketing", "package.json"))("sharp"); } catch { /* PNG output is fine */ }
 
 await fetch(`${API}/api/routes/network`).catch(() => undefined); // warm the map data
-const needsToken = SHOTS.some((shot) => shot.ops);
+const needsToken = SHOTS.some((shot) => shot.ops && (!process.argv[2] || process.argv.slice(2).includes(shot.name)));
 const token = needsToken ? await opsToken().catch((error) => { console.warn(`skipping operations shots: ${error.message}`); return null; }) : null;
 
+const wanted = process.argv.slice(2);
 for (const shot of SHOTS) {
+  if (wanted.length && !wanted.includes(shot.name)) continue;
   if (shot.ops && !token) continue;
   const png = await capture(browserPath, shot, token);
   if (sharp) {
