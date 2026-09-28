@@ -12,7 +12,9 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from functools import lru_cache
+from urllib.parse import quote
 
+import httpx
 import jwt
 from fastapi import HTTPException
 from jwt import PyJWKClient
@@ -185,3 +187,34 @@ def _link_or_create(session: Session, identity: VerifiedIdentity) -> DeveloperAc
         if account is None:
             raise
     return account
+
+
+def delete_provider_user(settings: Settings, subject: str) -> bool:
+    """Remove the identity-provider user so the person can no longer sign in anywhere.
+
+    Returns ``True`` when there was nothing to remove or the provider confirmed removal, and
+    ``False`` when it could not be reached (the purge job retries before the account row goes).
+    """
+
+    if not settings.external_auth_enabled or not settings.auth_jwt_secret:
+        return True
+    token = jwt.encode(
+        {
+            "role": "service_role",
+            "aud": settings.auth_audience,
+            "iss": settings.auth_issuer,
+            "exp": int(datetime.now(UTC).timestamp()) + 60,
+        },
+        settings.auth_jwt_secret,
+        algorithm="HS256",
+    )
+    base = (settings.auth_admin_url or settings.auth_issuer).rstrip("/")
+    try:
+        response = httpx.delete(
+            f"{base}/admin/users/{quote(subject, safe='')}",
+            headers={"Authorization": f"Bearer {token}"},
+            timeout=5,
+        )
+    except httpx.HTTPError:
+        return False
+    return response.status_code in (200, 204, 404)

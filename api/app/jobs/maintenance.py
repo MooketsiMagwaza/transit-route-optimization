@@ -19,6 +19,8 @@ from app.models import (
     GrafanaNotification,
     MaintenanceRun,
     PasswordResetToken,
+    ConsentRecord,
+    DeveloperAccount,
     RevokedAuthSession,
     UploadIntent,
 )
@@ -121,6 +123,31 @@ def cleanup_uploads(session, now: datetime) -> tuple[int, dict]:
     return removed, {"deleted": removed, "failed": failed}
 
 
+def purge_deleted_accounts(session, now: datetime) -> tuple[int, dict]:
+    """Remove anonymised accounts once their grace period ends (database cascades do the rest)."""
+
+    settings = get_settings()
+    cutoff = now - timedelta(days=settings.deleted_account_grace_days)
+    doomed = list(
+        session.execute(
+            select(DeveloperAccount)
+            .where(DeveloperAccount.deleted_at < cutoff)
+            .execution_options(include_deleted=True)
+        ).scalars()
+    )
+    purged = 0
+    for account in doomed:
+        session.delete(account)
+        purged += 1
+    return purged, {"purged": purged, "graceDays": settings.deleted_account_grace_days}
+
+
+def cleanup_consent(session, now: datetime) -> tuple[int, dict]:
+    cutoff = now - timedelta(days=get_settings().consent_retention_days)
+    removed = session.execute(delete(ConsentRecord).where(ConsentRecord.created_at < cutoff)).rowcount
+    return removed, {"cutoff": cutoff.isoformat()}
+
+
 def route_freshness(session, now: datetime) -> tuple[int, dict]:
     from app.services.route_freshness import mark_stale_routes
 
@@ -129,6 +156,8 @@ def route_freshness(session, now: datetime) -> tuple[int, dict]:
 
 
 JOBS = {
+    "purge-deleted-accounts": purge_deleted_accounts,
+    "cleanup-consent": cleanup_consent,
     "route-freshness": route_freshness,
     "cleanup-uploads": cleanup_uploads,
     "cleanup-auth": cleanup_auth,

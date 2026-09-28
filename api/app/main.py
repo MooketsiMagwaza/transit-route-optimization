@@ -17,6 +17,7 @@ from app.routers import (
     health,
     moderation,
     pathfinding,
+    privacy,
     public_v1,
     routes,
     uploads,
@@ -52,6 +53,8 @@ app.include_router(community.router)
 app.include_router(developer.router)
 app.include_router(public_v1.router)
 app.include_router(uploads.router)
+app.include_router(privacy.consent_router)
+app.include_router(privacy.account_router)
 app.middleware("http")(metrics_middleware)
 app.middleware("http")(request_boundary_middleware)
 app.mount("/metrics", make_asgi_app())

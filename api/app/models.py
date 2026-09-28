@@ -442,6 +442,22 @@ class AuthAttempt(Base):
     )
 
 
+class ConsentRecord(Base):
+    """A visitor's privacy choice. Holds no address, agent string, or account link."""
+
+    __tablename__ = "ConsentRecord"
+    __table_args__ = (Index("ix_consent_record_created", "createdAt"),)
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    visitor_id: Mapped[str] = mapped_column("visitorId", String(64), nullable=False, index=True)
+    choice: Mapped[str] = mapped_column(String(12), nullable=False)
+    policy_version: Mapped[str] = mapped_column("policyVersion", String(20), nullable=False)
+    source: Mapped[str] = mapped_column(String(24), nullable=False, default="marketing")
+    created_at: Mapped[datetime] = mapped_column(
+        "createdAt", DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+
+
 # Records that people delete (or that carry user content) are hidden, not destroyed, so a
 # mistaken or malicious deletion is recoverable. Queries opt in with include_deleted=True.
 SOFT_DELETE_MODELS = (Route, CommunityPost, RouteContribution, DeveloperAccount)

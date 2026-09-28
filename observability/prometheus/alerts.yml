@@ -62,3 +62,44 @@ groups:
         annotations:
           summary: PostgreSQL WAL archiving is failing
           description: The archive command has failed in the last 15 minutes. Point-in-time recovery has a gap and WAL is accumulating on the primary until archiving recovers.
+      - alert: TselaMaintenanceJobFailed
+        expr: tsela_maintenance_last_run_failed == 1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: 'Maintenance job {{ $labels.job }} failed'
+          description: The latest run of this job failed. Check the scheduler or backup container logs and the MaintenanceRun row.
+      - alert: TselaHourlyJobMissed
+        expr: time() - tsela_maintenance_last_success_timestamp_seconds{job=~"cleanup-auth|cleanup-uploads"} > 10800
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: 'Hourly job {{ $labels.job }} has not succeeded for three hours'
+          description: The scheduler may be down or the job is failing.
+      - alert: TselaDailyJobMissed
+        expr: time() - tsela_maintenance_last_success_timestamp_seconds{job=~"prune-usage|key-rotation-audit|route-freshness|purge-deleted-accounts|logical-backup|backup-verify|backup-retention"} > 108000
+        for: 10m
+        labels:
+          severity: critical
+        annotations:
+          summary: 'Daily job {{ $labels.job }} has not succeeded for 30 hours'
+          description: A daily lifecycle or backup job missed its window. For backups this means the newest recovery point is more than a day old.
+      - alert: TselaWeeklyJobMissed
+        expr: time() - tsela_maintenance_last_success_timestamp_seconds{job=~"base-backup|cleanup-consent"} > 777600
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: 'Weekly job {{ $labels.job }} has not succeeded for nine days'
+          description: A weekly job missed its window.
+      - alert: TselaSchedulerSilent
+        expr: absent(tsela_maintenance_last_success_timestamp_seconds{job="cleanup-auth"})
+        for: 2h
+        labels:
+          severity: critical
+        annotations:
+          summary: The maintenance scheduler has not recorded a single run
+          description: No cleanup-auth run has ever succeeded, or the scheduler container is not running.
+
