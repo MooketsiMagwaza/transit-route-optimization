@@ -16,9 +16,27 @@ CATALOG_PATH = Path(__file__).resolve().parents[2] / "docs-site" / "content" / "
 PUBLIC_PREFIX = "/v1"
 HTTP_METHODS = {"get", "post", "put", "patch", "delete"}
 REQUIRED_FIELDS = (
-    "slug", "operationId", "group", "method", "path", "title", "summary", "stability", "since",
-    "auth", "quotaCost", "idempotency", "parameters", "response", "errors", "pagination",
-    "caching", "timeout", "freshness", "examples", "sandbox",
+    "slug",
+    "operationId",
+    "group",
+    "method",
+    "path",
+    "title",
+    "summary",
+    "stability",
+    "since",
+    "auth",
+    "quotaCost",
+    "idempotency",
+    "parameters",
+    "response",
+    "errors",
+    "pagination",
+    "caching",
+    "timeout",
+    "freshness",
+    "examples",
+    "sandbox",
 )
 
 if not CATALOG_PATH.is_file():

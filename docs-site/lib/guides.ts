@@ -1,4 +1,4 @@
-/** Public developer guides. Internal engineering and operations material lives in the admin handbook. */
+/** Public developer guides. Only material meant for external developers belongs in this file. */
 
 export type GuideSection = {
   title: string;

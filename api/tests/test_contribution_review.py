@@ -54,9 +54,15 @@ def test_duplicates_are_found_by_name_or_by_shared_corridor() -> None:
         KnownRoute(2, "Village to Rank", (Point(-24.5, 25.7), Point(-24.55, 25.75))),
     ]
 
-    same_corridor = find_duplicates("Something completely different", [BROADHURST, BBS_MALL, MAIN_MALL], known)
-    similar_name = find_duplicates("broadhurst route 1!", [Point(-24.8, 26.1), Point(-24.85, 26.15)], known)
-    unrelated = find_duplicates("Airport shuttle", [Point(-24.8, 26.1), Point(-24.85, 26.15)], known)
+    same_corridor = find_duplicates(
+        "Something completely different", [BROADHURST, BBS_MALL, MAIN_MALL], known
+    )
+    similar_name = find_duplicates(
+        "broadhurst route 1!", [Point(-24.8, 26.1), Point(-24.85, 26.15)], known
+    )
+    unrelated = find_duplicates(
+        "Airport shuttle", [Point(-24.8, 26.1), Point(-24.85, 26.15)], known
+    )
 
     assert [d["routeId"] for d in same_corridor] == [1]
     assert same_corridor[0]["reasons"] == ["same corridor"]
@@ -67,7 +73,9 @@ def test_duplicates_are_found_by_name_or_by_shared_corridor() -> None:
 def test_review_flags_duplicates_without_blocking_and_serialises() -> None:
     known = [KnownRoute(1, "Broadhurst Route 1", (BROADHURST, BBS_MALL, MAIN_MALL))]
 
-    result = review_contribution("Broadhurst Route 1 again", [BROADHURST, BBS_MALL, MAIN_MALL], known)
+    result = review_contribution(
+        "Broadhurst Route 1 again", [BROADHURST, BBS_MALL, MAIN_MALL], known
+    )
 
     assert result.ok
     assert result.duplicates and "may duplicate" in result.warnings[-1]

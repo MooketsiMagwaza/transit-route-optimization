@@ -346,7 +346,12 @@ def reject_contribution(
     contribution.reviewed_at = datetime.now(UTC)
     contribution.reviewed_by_id = admin.id
     record_event(
-        session, admin, "contribution.reject", "contribution", contribution.id, reason=payload.reason
+        session,
+        admin,
+        "contribution.reject",
+        "contribution",
+        contribution.id,
+        reason=payload.reason,
     )
     session.commit()
     return _contribution_read(contribution)

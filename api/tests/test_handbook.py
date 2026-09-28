@@ -72,7 +72,9 @@ def test_manifest_matches_the_docs_directory() -> None:
     assert missing == [], "handbook manifest names files that do not exist"
     listed = {page.file for page in handbook.PAGES}
     unclassified = {p.name for p in DOCS_DIR.glob("*.md")} - listed - UNLISTED_ALLOWED
-    assert unclassified == set(), f"docs not assigned to the handbook or public guide: {unclassified}"
+    assert unclassified == set(), (
+        f"docs not assigned to the handbook or public guide: {unclassified}"
+    )
 
 
 def test_public_documentation_never_mentions_the_handbook() -> None:
@@ -83,7 +85,8 @@ def test_public_documentation_never_mentions_the_handbook() -> None:
         pytest.skip("docs-site is not present")
     offenders = [
         str(path.relative_to(site))
-        for path in list(site.glob("app/**/*.ts*")) + list(site.glob("lib/**/*.ts*"))
+        for path in list(site.glob("app/**/*.ts*"))
+        + list(site.glob("lib/**/*.ts*"))
         + list(site.glob("content/**/*"))
         if path.is_file() and "/api/admin/handbook" in path.read_text(encoding="utf-8")
     ]

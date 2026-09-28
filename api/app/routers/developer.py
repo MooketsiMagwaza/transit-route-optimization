@@ -29,6 +29,7 @@ from app.schemas import (
     PasswordResetRequest,
     UsageSummary,
 )
+from app.services import throttle  # noqa: E402  (kept beside the router that uses it)
 from app.services.identity import (
     AuthContext,
     IdentityError,
@@ -49,8 +50,6 @@ from app.services.security import (
     verify_password,
 )
 
-from app.services import throttle  # noqa: E402  (kept beside the router that uses it)
-
 router = APIRouter(prefix="/api/developer", tags=["Developer access"])
 
 
@@ -70,7 +69,7 @@ def get_current_account(
     session: Session = Depends(get_db),
     settings: Settings = Depends(get_settings),
 ) -> DeveloperAccount:
-    """Authenticate a bearer token from the identity provider or, in development, a local session."""
+    """Authenticate a provider bearer token or, in development, a local session token."""
 
     token = _bearer_token(authorization)
     if settings.external_auth_enabled and looks_like_jwt(token):
@@ -108,9 +107,7 @@ def _require_local_auth(settings: Settings) -> None:
     """Password sign-in is owned by the identity provider once local auth is switched off."""
 
     if not settings.local_auth_enabled:
-        raise HTTPException(
-            status_code=410, detail="Sign in with the identity provider instead"
-        )
+        raise HTTPException(status_code=410, detail="Sign in with the identity provider instead")
 
 
 @router.post("/register", response_model=DeveloperAuthResponse, status_code=status.HTTP_201_CREATED)
@@ -157,9 +154,7 @@ def login(
     address = throttle.client_ip(request, settings)
     throttle.enforce(session, "login-ip", address, limit=60, window_seconds=900)
     # Per address and email together, so one attacker cannot lock a victim out from elsewhere.
-    throttle.enforce(
-        session, "login", f"{address}|{payload.email}", limit=10, window_seconds=900
-    )
+    throttle.enforce(session, "login", f"{address}|{payload.email}", limit=10, window_seconds=900)
     account = session.scalar(
         select(DeveloperAccount).where(DeveloperAccount.email == payload.email.strip().lower())
     )

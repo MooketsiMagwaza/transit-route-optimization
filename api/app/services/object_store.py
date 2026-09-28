@@ -39,7 +39,9 @@ def _sign(key: bytes, message: str) -> bytes:
 
 
 def _signing_key(secret: str, day: str, region: str) -> bytes:
-    return _sign(_sign(_sign(_sign(("AWS4" + secret).encode(), day), region), SERVICE), "aws4_request")
+    return _sign(
+        _sign(_sign(_sign(("AWS4" + secret).encode(), day), region), SERVICE), "aws4_request"
+    )
 
 
 def _encode(value: str) -> str:
@@ -69,7 +71,10 @@ def presign(
     path = "/" + "/".join(
         _encode(part) for part in (settings.object_store_bucket, *object_key.split("/"))
     )
-    headers = {"host": endpoint.netloc, **{k.lower(): v.strip() for k, v in (signed_headers or {}).items()}}
+    headers = {
+        "host": endpoint.netloc,
+        **{k.lower(): v.strip() for k, v in (signed_headers or {}).items()},
+    }
     header_names = ";".join(sorted(headers))
     query = {
         "X-Amz-Algorithm": ALGORITHM,
@@ -91,7 +96,9 @@ def presign(
         string_to_sign.encode(),
         hashlib.sha256,
     ).hexdigest()
-    url = f"{endpoint.scheme}://{endpoint.netloc}{path}?{canonical_query}&X-Amz-Signature={signature}"
+    url = (
+        f"{endpoint.scheme}://{endpoint.netloc}{path}?{canonical_query}&X-Amz-Signature={signature}"
+    )
     return SignedRequest(
         url=url,
         method=method,
@@ -100,7 +107,9 @@ def presign(
     )
 
 
-def _internal(settings: Settings, method: str, object_key: str, extra: dict[str, str] | None = None):
+def _internal(
+    settings: Settings, method: str, object_key: str, extra: dict[str, str] | None = None
+):
     """Presign against the internal endpoint for server-to-store calls."""
 
     internal = settings.model_copy(
@@ -117,7 +126,9 @@ def object_head(settings: Settings, object_key: str) -> tuple[int, str] | None:
     if response.status_code == 404:
         return None
     response.raise_for_status()
-    return int(response.headers.get("content-length", "0")), response.headers.get("content-type", "")
+    return int(response.headers.get("content-length", "0")), response.headers.get(
+        "content-type", ""
+    )
 
 
 def object_prefix(settings: Settings, object_key: str, length: int = 16) -> bytes | None:

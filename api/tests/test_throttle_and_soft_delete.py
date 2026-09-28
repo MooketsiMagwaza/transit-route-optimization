@@ -108,12 +108,18 @@ def client():
         ("POST", "/api/routes", {"name": "Injected route"}),
         ("PATCH", "/api/routes/1", {"name": "Renamed"}),
         ("DELETE", "/api/routes/1", None),
-        ("POST", "/api/routes/1/nodes", {"name": "Stop", "lat": -24.6, "long": 25.9, "orderNum": 1}),
+        (
+            "POST",
+            "/api/routes/1/nodes",
+            {"name": "Stop", "lat": -24.6, "long": 25.9, "orderNum": 1},
+        ),
         ("DELETE", "/api/routes/1/nodes/1", None),
         ("POST", "/api/routes/1/optimize", {"apply": True}),
     ],
 )
-def test_route_and_stop_writes_reject_anonymous_and_non_admin_callers(client, method, path, body) -> None:
+def test_route_and_stop_writes_reject_anonymous_and_non_admin_callers(
+    client, method, path, body
+) -> None:
     anonymous = client.request(method, path, json=body)
     assert anonymous.status_code == 401
 
