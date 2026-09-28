@@ -102,4 +102,12 @@ groups:
         annotations:
           summary: The maintenance scheduler has not recorded a single run
           description: No cleanup-auth run has ever succeeded, or the scheduler container is not running.
+      - alert: TselaDatabaseMetricsDown
+        expr: up{job="tsela-postgres"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: Database metrics are unavailable
+          description: Prometheus cannot scrape the PostgreSQL exporter, so database, replication, and archive alerts are blind.
 

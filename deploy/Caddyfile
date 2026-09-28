@@ -1,0 +1,51 @@
+# TLS termination and routing for a single host. Caddy obtains and renews certificates
+# automatically. For a local rehearsal set TSELA_DOMAIN=localhost and CADDY_EXTRA_GLOBAL=local_certs.
+{
+	email {$ACME_EMAIL}
+	{$CADDY_EXTRA_GLOBAL}
+}
+
+(secure_headers) {
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		-Server
+	}
+	encode zstd gzip
+}
+
+{$TSELA_DOMAIN} {
+	import secure_headers
+	reverse_proxy marketing:3000
+}
+
+app.{$TSELA_DOMAIN} {
+	import secure_headers
+	reverse_proxy rider:3002
+}
+
+docs.{$TSELA_DOMAIN} {
+	import secure_headers
+	reverse_proxy docs:3003
+}
+
+ops.{$TSELA_DOMAIN} {
+	import secure_headers
+	reverse_proxy admin:3001
+}
+
+api.{$TSELA_DOMAIN} {
+	import secure_headers
+	# Metrics and the alert webhook are for the private network only. Everything else is
+	# authenticated by the API itself (API key, session, admin role and MFA), never by the edge.
+	@private path /metrics /metrics/* /api/admin/observability/*
+	respond @private 404
+	request_body {
+		max_size 1MB
+	}
+	reverse_proxy api:8000 {
+		health_uri /api/health
+		health_interval 15s
+	}
+}
