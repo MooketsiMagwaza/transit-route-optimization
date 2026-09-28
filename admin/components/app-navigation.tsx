@@ -10,6 +10,7 @@ const items: Array<{ href: string; label: string; icon: IconName }> = [
   { href: "/routes", label: "Routes", icon: "routes" },
   { href: "/accounts", label: "Accounts", icon: "accounts" },
   { href: "/observability", label: "Alerts", icon: "alerts" },
+  { href: "/moderation", label: "Moderation", icon: "guide" },
   { href: "/handbook", label: "Handbook", icon: "docs" },
 ];
 

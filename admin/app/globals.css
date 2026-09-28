@@ -2228,3 +2228,32 @@ body { background-color:var(--surface-0); background-image:linear-gradient(rgba(
   .handbook-toc { position: static; order: -1; }
   .handbook-article { padding: 20px 16px; }
 }
+
+/* Moderation */
+.mod-tabs { margin: 20px 0 16px; display: flex; flex-wrap: wrap; gap: 8px; }
+.mod-tabs button { min-height: 44px; padding: 0 16px; display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface-1); color: var(--text-secondary); font-weight: 600; cursor: pointer; }
+.mod-tabs button.active { border-color: var(--text-primary); background: var(--text-primary); color: #fff; }
+.mod-tabs b { min-width: 22px; padding: 1px 7px; border-radius: 999px; background: var(--blue); color: #fff; font-size: 0.75rem; text-align: center; }
+.mod-list { display: grid; gap: 12px; }
+.mod-card { padding: 18px; display: grid; gap: 10px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface-1); }
+.mod-card header { display: flex; justify-content: space-between; gap: 12px; align-items: start; }
+.mod-card h3 { margin: 0; font-size: 1.05rem; }
+.mod-card small { color: var(--text-secondary); }
+.mod-card p { margin: 0; line-height: 1.6; }
+.mod-card footer { display: flex; flex-wrap: wrap; gap: 8px; }
+.mod-pill { padding: 2px 10px; border-radius: 999px; background: var(--surface-2); font-size: 0.75rem; font-weight: 700; text-transform: capitalize; white-space: nowrap; }
+.mod-pill.field_verified, .mod-pill.published { background: #dcfce7; color: #166534; }
+.mod-pill.stale, .mod-pill.rejected { background: #fee2e2; color: #991b1b; }
+.mod-issues { margin: 0; padding-left: 18px; color: #92400e; font-size: 0.875rem; }
+.mod-issues.blocking { color: #991b1b; }
+.mod-duplicates { padding: 10px 12px; display: grid; gap: 4px; border-radius: var(--radius-sm); background: #fffbeb; font-size: 0.875rem; }
+.mod-detail { overflow-wrap: anywhere; font-family: var(--font-mono); font-size: 0.75rem; }
+
+/* Accessibility baseline: visible focus, reduced motion, comfortable touch targets, skip link. */
+:focus-visible { outline: 3px solid var(--blue, #445cff); outline-offset: 2px; }
+.btn { min-height: 44px; }
+.skip-link { position: absolute; z-index: 1000; top: -64px; left: 12px; padding: 10px 14px; border-radius: 10px; background: #111; color: #fff; font-weight: 700; text-decoration: none; }
+.skip-link:focus { top: 12px; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+}

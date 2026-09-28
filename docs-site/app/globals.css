@@ -373,3 +373,10 @@ button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid 
 .auth-notice { padding: 11px 13px; border: 1px solid var(--portal-success-line); border-radius: 8px; background: var(--portal-success-soft); color: var(--portal-success-text); font-size: 13px; line-height: 1.45; }
 .auth-google { margin-top: 12px; min-height: 44px; display: flex; align-items: center; justify-content: center; border: 2px solid var(--portal-ink); border-radius: 10px; background: var(--portal-surface-raised); color: var(--portal-ink); font-weight: 700; text-decoration: none; }
 .auth-google:hover { background: var(--portal-lime-soft); }
+
+.your-data { margin: 8px 0 72px; padding-top: 32px; border-top: 1px solid var(--portal-line); display: grid; grid-template-columns: .7fr 1.3fr; gap: 35px; align-items: start; }
+.your-data h2 { margin: 7px 0 8px; font-size: 26px; letter-spacing: -.035em; }
+.your-data p:not(.section-kicker) { color: var(--portal-muted); max-width: 560px; line-height: 1.65; }
+.your-data-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.console-signout.danger { border-color: var(--portal-red); color: var(--portal-red); }
+@media (max-width: 880px) { .your-data { grid-template-columns: 1fr; gap: 16px; } }

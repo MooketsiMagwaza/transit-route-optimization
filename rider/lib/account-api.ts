@@ -21,7 +21,7 @@ async function call<T>(path: string, options: RequestInit = {}, authenticated = 
   if (!response.ok) {
     const payload: unknown = await response.json().catch(() => null);
     const detail = typeof payload === "object" && payload && "detail" in payload ? String(payload.detail) : `Request failed (${response.status})`;
-    throw new Error(detail);
+    throw Object.assign(new Error(detail), { status: response.status });
   }
   if (response.status === 204) return undefined as T;
   return response.json() as Promise<T>;
@@ -33,6 +33,7 @@ export const accountApi = {
   me: () => call<Account>("/api/developer/me", {}, true),
   requestRecovery: (email: string) => call<{ message: string; debugToken?: string }>("/api/developer/password-recovery", { method: "POST", body: JSON.stringify({ email }) }),
   resetPassword: (token: string, password: string) => call<void>("/api/developer/password-reset", { method: "POST", body: JSON.stringify({ token, password }) }),
+  reportContent: (body: { targetType: "post" | "contribution"; targetId: number; reason: string; note?: string }) => call<{ accepted: boolean }>("/api/community/reports", { method: "POST", body: JSON.stringify(body) }, true),
   posts: (query = "", routeId?: number) => call<CommunityPost[]>(`/api/community/posts?query=${encodeURIComponent(query)}${routeId ? `&routeId=${routeId}` : ""}`, {}, true),
-  createPost: (body: { routeId?: number; kind: "tip" | "discussion"; title: string; body: string }) => call<CommunityPost>("/api/community/posts", { method: "POST", body: JSON.stringify(body) }, true),
+  createPost: (body: { routeId?: number; kind: "tip" | "discussion"; title: string; body: string }, idempotencyKey?: string) => call<CommunityPost>("/api/community/posts", { method: "POST", body: JSON.stringify(body), headers: idempotencyKey ? { "Idempotency-Key": idempotencyKey } : {} }, true),
 };

@@ -1,6 +1,8 @@
 """Authenticated community route drawing, tips, and discussion endpoints."""
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+import re
+
+from fastapi import APIRouter, Depends, Header, HTTPException, Query, status
 from pydantic import Field, field_validator
 from sqlalchemy import func, or_, select
 from sqlalchemy.exc import IntegrityError
@@ -12,6 +14,7 @@ from app.models import (
     CommunityPost,
     ContentReport,
     DeveloperAccount,
+    IdempotencyRecord,
     Route,
     RouteContribution,
 )
@@ -165,9 +168,25 @@ def list_posts(
 @router.post("/posts", response_model=CommunityPostRead, status_code=status.HTTP_201_CREATED)
 def create_post(
     payload: CommunityPostCreate,
+    idempotency_key: str | None = Header(default=None, alias="Idempotency-Key"),
     account: DeveloperAccount = Depends(get_current_account),
     session: Session = Depends(get_db),
 ) -> CommunityPostRead:
+    """Create a post. A repeated Idempotency-Key returns the original post, never a second one."""
+
+    if idempotency_key is not None and not re.fullmatch(r"[A-Za-z0-9_-]{8,64}", idempotency_key):
+        raise HTTPException(status_code=422, detail="Idempotency-Key must be 8-64 letters or digits")
+    if idempotency_key:
+        previous = session.scalar(
+            select(IdempotencyRecord).where(
+                IdempotencyRecord.account_id == account.id,
+                IdempotencyRecord.scope == "community.post",
+                IdempotencyRecord.key == idempotency_key,
+            )
+        )
+        original = session.get(CommunityPost, previous.result_id) if previous else None
+        if original is not None:
+            return post_read(original)
     throttle.enforce(session, "post", str(account.id), limit=20, window_seconds=3600)
     if payload.route_id is not None and session.get(Route, payload.route_id) is None:
         raise HTTPException(status_code=404, detail="Route not found")
@@ -180,7 +199,32 @@ def create_post(
         status="published",
     )
     session.add(post)
-    session.commit()
+    session.flush()
+    if idempotency_key:
+        session.add(
+            IdempotencyRecord(
+                account_id=account.id,
+                scope="community.post",
+                key=idempotency_key,
+                result_id=post.id,
+            )
+        )
+    try:
+        session.commit()
+    except IntegrityError:
+        # A concurrent request with the same key won the race; return its post.
+        session.rollback()
+        winner = session.scalar(
+            select(IdempotencyRecord).where(
+                IdempotencyRecord.account_id == account.id,
+                IdempotencyRecord.scope == "community.post",
+                IdempotencyRecord.key == idempotency_key,
+            )
+        )
+        original = session.get(CommunityPost, winner.result_id) if winner else None
+        if original is None:
+            raise
+        return post_read(original)
     session.refresh(post)
     return post_read(post)
 

@@ -42,8 +42,9 @@ function RiderDock() {
 export function SurfaceShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="public-surface">
+      <a className="skip-link" href="#main">Skip to content</a>
       <RiderDock />
-      <main className="public-main">{children}</main>
+      <main className="public-main" id="main" tabIndex={-1}>{children}</main>
     </div>
   );
 }

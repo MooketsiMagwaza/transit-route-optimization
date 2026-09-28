@@ -13,6 +13,9 @@ async function request<T>(path: string, options?: RequestInit, token?: string | 
     headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) },
     ...options,
   });
+  if (typeof window !== "undefined" && res.headers.get("x-tsela-served-from") === "cache") {
+    window.dispatchEvent(new CustomEvent("tsela:stale", { detail: { cachedAt: res.headers.get("x-tsela-cached-at") } }));
+  }
   if (!res.ok) {
     const payload: unknown = await res.json().catch(() => null);
     const errorMessage =
@@ -37,9 +40,14 @@ async function request<T>(path: string, options?: RequestInit, token?: string | 
 // ── Types ────────────────────────────────────────────────────────────────────
 export interface Route {
   id: number;
+  publicId?: string;
   name: string;
   description?: string | null;
   createdAt: string;
+  updatedAt?: string;
+  source?: string;
+  verificationStatus?: "unverified" | "field_verified" | "stale";
+  verifiedAt?: string | null;
 }
 
 export interface Node {

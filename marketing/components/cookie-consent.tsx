@@ -4,8 +4,11 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { API_URL } from "../lib/urls";
 
 const KEY = "tsela-privacy-choice-v1";
+const VISITOR_KEY = "tsela-visitor-id";
+const POLICY_VERSION = "2026-09-19";
 
 export function CookieConsent() {
   const [visible, setVisible] = useState(false);
@@ -18,8 +21,22 @@ export function CookieConsent() {
   }, []);
 
   function choose(value: "necessary" | "optional") {
-    try { localStorage.setItem(KEY, value); } catch { /* the choice simply will not persist */ }
+    let visitorId = "";
+    try {
+      localStorage.setItem(KEY, value);
+      visitorId = localStorage.getItem(VISITOR_KEY) ?? crypto.randomUUID().replaceAll("-", "");
+      localStorage.setItem(VISITOR_KEY, visitorId);
+    } catch { /* the choice simply will not persist */ }
     setVisible(false);
+    // A consent record is evidence of what was shown and chosen: no address, agent, or account.
+    if (visitorId) {
+      void fetch(`${API_URL}/api/privacy/consent`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ choice: value, policyVersion: POLICY_VERSION, visitorId, source: "marketing" }),
+        keepalive: true,
+      }).catch(() => undefined);
+    }
   }
 
   if (!visible) return null;
