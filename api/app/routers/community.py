@@ -19,6 +19,7 @@ from app.models import (
     RouteContribution,
 )
 from app.routers.developer import get_current_account
+from app.routers.moderation import known_routes
 from app.schemas import (
     ApiModel,
     CommunityPostCreate,
@@ -27,13 +28,12 @@ from app.schemas import (
     ContributionPreviewResponse,
     RouteContributionCreate,
     RouteContributionRead,
+    normalize_plain_text,
 )
 from app.services import throttle
 from app.services.audit import record_event
-from app.services.road_geometry import RoadGeometryError, fetch_road_geometry
-from app.routers.moderation import known_routes
-from app.schemas import normalize_plain_text
 from app.services.contribution_review import Point, review_contribution
+from app.services.road_geometry import RoadGeometryError, fetch_road_geometry
 from app.services.service_area import all_inside_contribution_area
 
 router = APIRouter(prefix="/api/community", tags=["Community"])
@@ -175,7 +175,9 @@ def create_post(
     """Create a post. A repeated Idempotency-Key returns the original post, never a second one."""
 
     if idempotency_key is not None and not re.fullmatch(r"[A-Za-z0-9_-]{8,64}", idempotency_key):
-        raise HTTPException(status_code=422, detail="Idempotency-Key must be 8-64 letters or digits")
+        raise HTTPException(
+            status_code=422, detail="Idempotency-Key must be 8-64 letters or digits"
+        )
     if idempotency_key:
         previous = session.scalar(
             select(IdempotencyRecord).where(

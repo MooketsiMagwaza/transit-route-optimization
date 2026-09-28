@@ -201,6 +201,7 @@ class ApiKey(Base):
         """Space-separated scopes such as ``routes:read``; empty means no access."""
 
         return self.scopes.split()
+
     usage_events: Mapped[list["ApiUsage"]] = relationship(
         back_populates="api_key", cascade="all, delete-orphan"
     )

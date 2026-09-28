@@ -28,8 +28,13 @@ def _settings(**overrides) -> Settings:
 
 
 def test_presigned_urls_are_short_lived_scoped_and_never_contain_the_secret() -> None:
-    signed = presign(_settings(), "PUT", "route_evidence/7/abc.jpg", now=MOMENT,
-                     signed_headers={"Content-Type": "image/jpeg"})
+    signed = presign(
+        _settings(),
+        "PUT",
+        "route_evidence/7/abc.jpg",
+        now=MOMENT,
+        signed_headers={"Content-Type": "image/jpeg"},
+    )
     parts = urlsplit(signed.url)
     query = parse_qs(parts.query)
 
@@ -77,7 +82,12 @@ def test_the_real_bytes_must_match_the_declared_type(content_type, prefix, expec
 
 
 def test_intent_requests_are_validated_before_anything_is_signed() -> None:
-    good = {"purpose": "route_evidence", "contentType": "image/png", "sizeBytes": 1000, "sha256": "a" * 64}
+    good = {
+        "purpose": "route_evidence",
+        "contentType": "image/png",
+        "sizeBytes": 1000,
+        "sha256": "a" * 64,
+    }
     assert UploadIntentCreate.model_validate(good).content_type == "image/png"
     for field, value in (
         ("purpose", "avatar-of-anyone"),

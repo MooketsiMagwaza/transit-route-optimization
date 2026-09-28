@@ -15,13 +15,13 @@ from app.database import SessionLocal
 from app.models import (
     ApiKey,
     ApiUsage,
-    DeveloperSession,
-    GrafanaNotification,
-    MaintenanceRun,
-    PasswordResetToken,
     ConsentRecord,
     DeveloperAccount,
+    DeveloperSession,
+    GrafanaNotification,
     IdempotencyRecord,
+    MaintenanceRun,
+    PasswordResetToken,
     RevokedAuthSession,
     UploadIntent,
 )
@@ -149,7 +149,9 @@ def purge_deleted_accounts(session, now: datetime) -> tuple[int, dict]:
 
 def cleanup_consent(session, now: datetime) -> tuple[int, dict]:
     cutoff = now - timedelta(days=get_settings().consent_retention_days)
-    removed = session.execute(delete(ConsentRecord).where(ConsentRecord.created_at < cutoff)).rowcount
+    removed = session.execute(
+        delete(ConsentRecord).where(ConsentRecord.created_at < cutoff)
+    ).rowcount
     return removed, {"cutoff": cutoff.isoformat()}
 
 

@@ -63,14 +63,18 @@ class MaintenanceCollector:
                 found = session.execute(
                     text(
                         'SELECT "jobName", '
-                        "extract(epoch FROM max(\"finishedAt\") FILTER (WHERE status = 'succeeded')), "
-                        '(array_agg(status ORDER BY "startedAt" DESC))[1] = \'failed\' '
+                        "extract(epoch FROM max(\"finishedAt\") "
+                        "FILTER (WHERE status = 'succeeded')), "
+                        "(array_agg(status ORDER BY \"startedAt\" DESC))[1] = 'failed' "
                         'FROM "MaintenanceRun" GROUP BY "jobName"'
                     )
                 ).all()
         except Exception:  # noqa: BLE001 - metrics must never break the scrape
             return []
-        rows = [(name, float(ts) if ts is not None else None, bool(failed)) for name, ts, failed in found]
+        rows = [
+            (name, float(ts) if ts is not None else None, bool(failed))
+            for name, ts, failed in found
+        ]
         MaintenanceCollector._cache = (now, rows)
         return rows
 

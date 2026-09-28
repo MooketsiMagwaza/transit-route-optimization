@@ -75,7 +75,9 @@ def test_untrusted_tokens_are_rejected(token: str) -> None:
 
 
 def test_unsigned_tokens_are_rejected() -> None:
-    unsigned = jwt.encode({"sub": "x", "aud": "authenticated", "iss": ISSUER}, None, algorithm="none")
+    unsigned = jwt.encode(
+        {"sub": "x", "aud": "authenticated", "iss": ISSUER}, None, algorithm="none"
+    )
 
     with pytest.raises(IdentityError):
         verify_access_token(unsigned, _settings())
@@ -198,7 +200,11 @@ def test_operators_need_an_mfa_verified_provider_session() -> None:
 
 def test_non_admin_roles_are_rejected_before_mfa_is_considered() -> None:
     with pytest.raises(HTTPException) as caught:
-        require_admin(_request(AuthContext("external", "aal2")), SimpleNamespace(role="developer"), Settings(_env_file=None))
+        require_admin(
+            _request(AuthContext("external", "aal2")),
+            SimpleNamespace(role="developer"),
+            Settings(_env_file=None),
+        )
 
     assert caught.value.detail == "Administrator access is required"
 

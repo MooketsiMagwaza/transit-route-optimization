@@ -104,10 +104,18 @@ def verify_access_token(token: str, settings: Settings) -> VerifiedIdentity:
     subject = str(claims["sub"])
     if not subject or len(subject) > 64:
         raise IdentityError("The sign-in token is not valid")
-    app_metadata = claims.get("app_metadata") if isinstance(claims.get("app_metadata"), dict) else {}
-    user_metadata = claims.get("user_metadata") if isinstance(claims.get("user_metadata"), dict) else {}
+    app_metadata = (
+        claims.get("app_metadata") if isinstance(claims.get("app_metadata"), dict) else {}
+    )
+    user_metadata = (
+        claims.get("user_metadata") if isinstance(claims.get("user_metadata"), dict) else {}
+    )
     email = claims.get("email")
-    name = user_metadata.get("full_name") or user_metadata.get("name") or user_metadata.get("display_name")
+    name = (
+        user_metadata.get("full_name")
+        or user_metadata.get("name")
+        or user_metadata.get("display_name")
+    )
     return VerifiedIdentity(
         subject=subject,
         email=email.strip().lower() if isinstance(email, str) and email.strip() else None,

@@ -204,7 +204,9 @@ def delete_my_account(
     session.query(DeveloperSession).filter(DeveloperSession.account_id == account_id).delete()
     for key in session.scalars(select(ApiKey).where(ApiKey.account_id == account_id)):
         key.revoked_at = key.revoked_at or now
-    for post in session.scalars(select(CommunityPost).where(CommunityPost.account_id == account_id)):
+    for post in session.scalars(
+        select(CommunityPost).where(CommunityPost.account_id == account_id)
+    ):
         post.status = "hidden"
         post.hidden_reason = "Author deleted their account"
         post.deleted_at = now
@@ -217,7 +219,9 @@ def delete_my_account(
             item.status = "rejected"
             item.review_note = "Author deleted their account"
             item.deleted_at = now
-    for upload in session.scalars(select(UploadIntent).where(UploadIntent.account_id == account_id)):
+    for upload in session.scalars(
+        select(UploadIntent).where(UploadIntent.account_id == account_id)
+    ):
         if upload.status != "deleted":
             upload.status = "rejected"  # the cleanup job removes the stored object
     record_event(
@@ -230,4 +234,3 @@ def delete_my_account(
         graceDays=settings.deleted_account_grace_days,
     )
     session.commit()
-

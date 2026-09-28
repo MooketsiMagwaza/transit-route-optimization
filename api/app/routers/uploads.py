@@ -115,10 +115,7 @@ def create_intent(
         raise HTTPException(status_code=429, detail="Daily upload limit reached")
 
     # The key never contains user-supplied text: purpose/account/uuid only.
-    key = (
-        f"{payload.purpose}/{account.id}/{uuid.uuid4().hex}."
-        f"{ALLOWED_TYPES[payload.content_type]}"
-    )
+    key = f"{payload.purpose}/{account.id}/{uuid.uuid4().hex}.{ALLOWED_TYPES[payload.content_type]}"
     try:
         signed = presign(
             settings,
@@ -126,7 +123,7 @@ def create_intent(
             key,
             signed_headers={
                 "content-type": payload.content_type,
-                # Signing the length makes the store refuse a body that differs from the declaration.
+                # A signed length makes the store refuse a body that differs from the declaration.
                 "content-length": str(payload.size_bytes),
                 "x-amz-checksum-sha256": _b64_of_hex(payload.sha256),
             },
