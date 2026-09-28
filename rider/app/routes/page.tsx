@@ -4,6 +4,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { TrustNotice } from "@/components/trust-notice";
 import { AllRoutesMap } from "@/components/all-routes-map";
 import { apiClient, Node, Route, RouteGeometry } from "@/lib/api-client";
 import { routeColor } from "@/lib/map-config";
@@ -78,6 +79,7 @@ export default function RoutesPage() {
                 {geometries[selectedRoute.id]?.distanceMeters ? `${(geometries[selectedRoute.id].distanceMeters! / 1000).toFixed(1)} km · ` : ""}
                 {selectedStops.length} known stops · {geometries[selectedRoute.id]?.isRoadAligned ? "road-aligned preview" : "stop preview"}
               </p>
+              <TrustNotice route={selectedRoute} />
               <div className="route-endpoints">
                 <div><span>Starts near</span><strong>{selectedStops[0]?.name ?? "Not recorded"}</strong></div>
                 <div><span>Ends near</span><strong>{selectedStops[selectedStops.length - 1]?.name ?? "Not recorded"}</strong></div>

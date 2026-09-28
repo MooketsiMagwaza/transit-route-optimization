@@ -13,6 +13,8 @@ const ALLOWED_METHODS: Record<string, readonly string[]> = {
   me: ["GET"],
   keys: ["GET", "POST"],
   usage: ["GET"],
+  export: ["GET"],
+  account: ["DELETE"],
 };
 
 function isAllowed(path: string[], method: string) {

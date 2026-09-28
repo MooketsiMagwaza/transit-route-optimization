@@ -442,6 +442,25 @@ class AuthAttempt(Base):
     )
 
 
+class IdempotencyRecord(Base):
+    """Remembers the result of a request so a replay returns it instead of repeating the action."""
+
+    __tablename__ = "IdempotencyRecord"
+    __table_args__ = (
+        Index("uq_idempotency_key", "accountId", "scope", "key", unique=True),
+        Index("ix_idempotency_created", "createdAt"),
+    )
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    account_id: Mapped[int] = mapped_column("accountId", Integer, nullable=False)
+    scope: Mapped[str] = mapped_column(String(40), nullable=False)
+    key: Mapped[str] = mapped_column(String(64), nullable=False)
+    result_id: Mapped[int] = mapped_column("resultId", Integer, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        "createdAt", DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+
+
 class ConsentRecord(Base):
     """A visitor's privacy choice. Holds no address, agent string, or account link."""
 

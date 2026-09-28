@@ -21,6 +21,7 @@ from app.models import (
     PasswordResetToken,
     ConsentRecord,
     DeveloperAccount,
+    IdempotencyRecord,
     RevokedAuthSession,
     UploadIntent,
 )
@@ -42,8 +43,12 @@ def cleanup_auth(session, now: datetime) -> tuple[int, dict]:
     from app.services.throttle import prune as prune_attempts
 
     attempts = prune_attempts(session)
-    return sessions + resets + revoked + attempts, {
+    idempotency = session.execute(
+        delete(IdempotencyRecord).where(IdempotencyRecord.created_at < now - timedelta(days=7))
+    ).rowcount
+    return sessions + resets + revoked + attempts + idempotency, {
         "prunedAttempts": attempts,
+        "prunedIdempotencyKeys": idempotency,
         "expiredSessions": sessions,
         "expiredResetTokens": resets,
         "expiredRevocations": revoked,

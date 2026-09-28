@@ -5,7 +5,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Account, ApiKey, CreatedApiKey, destroyBrowserSession, developerApi, Usage } from "../lib/developer-api";
+import { Account, ApiKey, CreatedApiKey, deleteMyAccount, destroyBrowserSession, developerApi, exportMyData, Usage } from "../lib/developer-api";
 import { API_URL } from "../lib/urls";
 
 export function DeveloperConsole() {
@@ -74,6 +74,19 @@ export function DeveloperConsole() {
     } finally { setChangingKeyId(null); }
   }
 
+  async function removeAccount() {
+    const typed = window.prompt(`This removes your name, email, keys and posts now. Type ${account?.email ?? "your email"} to confirm.`);
+    if (!typed) return;
+    setError("");
+    try {
+      await deleteMyAccount(typed);
+      await destroyBrowserSession();
+      router.replace("/?deleted=1");
+    } catch (deleteError: unknown) {
+      setError(deleteError instanceof Error ? deleteError.message : "Could not delete the account");
+    }
+  }
+
   function downloadSecret(key: CreatedApiKey) {
     const contents = [
       "# Tsela API credential — store this file in a secret manager and never commit it.",
@@ -97,5 +110,6 @@ export function DeveloperConsole() {
     <section className="console-live-grid"><article><span className="console-badge">INTERNAL</span><h2>Application gateway</h2><code>{API_URL}/api</code><p>Used by Tsela&apos;s own applications. It is not part of the public developer contract or the production public ingress.</p></article><article><span className="console-badge live">PROTECTED</span><h2>Public v1</h2><code>{API_URL}/v1</code><p>Use the documented endpoints and send your credential in the <code>X-API-Key</code> header.</p></article></section>
     <section className="keys-section"><div className="keys-heading"><div><p className="section-kicker">API KEYS</p><h2>Your credentials</h2></div><div className="create-key-inline"><input value={keyName} onChange={(event) => setKeyName(event.target.value)} aria-label="API key name"/><button className="console-primary" onClick={createKey} disabled={creating || !keyName.trim()}>{creating ? "Creating…" : "Create key"}</button></div></div>{error && <div className="auth-error">{error}</div>}{createdKey && <div className="one-time-key"><span>Save this key now — only a keyed digest is stored, so the secret cannot be shown again.</span><code>{createdKey.key}</code><div className="one-time-actions"><button onClick={() => navigator.clipboard.writeText(createdKey.key)}>Copy key</button><button onClick={() => downloadSecret(createdKey)}>Download .env</button><button onClick={() => setCreatedKey(null)}>Dismiss</button></div></div>}<div className="key-list">{keys.length === 0 ? <p>No keys yet. Name your application and create the first one.</p> : keys.map((key) => <div key={key.id}><span className={key.revokedAt ? "revoked" : "active"}/><strong>{key.name}</strong><code>{key.prefix}…</code><small>{key.revokedAt ? `Revoked ${new Date(key.revokedAt).toLocaleDateString()}` : `${key.hourlyLimit}/hour · ${key.monthlyQuota.toLocaleString()}/month`}</small><div className="key-actions">{!key.revokedAt && <><button onClick={() => rotateKey(key)} disabled={changingKeyId === key.id}>{changingKeyId === key.id ? "Working…" : "Rotate"}</button><button className="danger" onClick={() => revokeKey(key)} disabled={changingKeyId === key.id}>Revoke</button></>}</div></div>)}</div></section>
     <section className="usage-paths"><div><p className="section-kicker">REQUEST ACTIVITY</p><h2>Endpoints this month</h2></div><div>{usage && Object.keys(usage.recentPaths).length > 0 ? Object.entries(usage.recentPaths).map(([path, count]) => <p key={path}><code>{path}</code><strong>{count}</strong></p>) : <p className="empty-usage">Use a key against <code>/v1/routes</code> and activity will appear here.</p>}</div></section>
+    <section className="your-data" aria-labelledby="your-data-title"><div><p className="section-kicker">PRIVACY</p><h2 id="your-data-title">Your data</h2><p>Download everything Tsela holds about you, or delete your account. Deleting removes your name, email, keys, and posts immediately and cannot be undone.</p></div><div className="your-data-actions"><button className="console-signout" onClick={() => { setError(""); exportMyData().catch((exportError: unknown) => setError(exportError instanceof Error ? exportError.message : "Could not export")); }}>Export my data</button><button className="console-signout danger" onClick={() => void removeAccount()}>Delete my account</button></div></section>
   </>;
 }

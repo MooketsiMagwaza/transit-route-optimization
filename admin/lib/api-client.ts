@@ -36,15 +36,21 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
         : null;
     throw new Error(errorMessage ?? detailMessage ?? `HTTP ${res.status}`);
   }
+  if (res.status === 204) return undefined as T;
   return res.json() as Promise<T>;
 }
 
 // ── Types ────────────────────────────────────────────────────────────────────
 export interface Route {
   id: number;
+  publicId?: string;
   name: string;
   description?: string | null;
   createdAt: string;
+  updatedAt?: string;
+  source?: string;
+  verificationStatus?: "unverified" | "field_verified" | "stale";
+  verifiedAt?: string | null;
 }
 
 export interface Node {
@@ -157,6 +163,55 @@ export interface AdminSystemMetrics {
   collectedAt: string;
 }
 
+export interface ModerationSummary {
+  openReports: number;
+  pendingContributions: number;
+  hiddenPosts: number;
+  staleRoutes: number;
+}
+
+export interface ModerationReport {
+  id: number;
+  targetType: string;
+  targetId: number;
+  reason: string;
+  note: string | null;
+  status: string;
+  createdAt: string;
+  targetTitle: string | null;
+  targetExcerpt: string | null;
+  reportCount: number;
+}
+
+export interface ContributionReview {
+  id: number;
+  name: string;
+  notes: string | null;
+  contributorAlias: string | null;
+  status: string;
+  createdAt: string;
+  stopCount: number;
+  validation: {
+    blocking?: string[];
+    warnings?: string[];
+    duplicates?: { routeId: number; routeName: string; reasons: string[]; sharedStopShare: number }[];
+  };
+  reviewNote: string | null;
+  publishedRouteId: number | null;
+}
+
+export interface AuditEvent {
+  id: number;
+  occurredAt: string;
+  actorId: number | null;
+  actorRole: string | null;
+  action: string;
+  targetType: string;
+  targetId: number | null;
+  detail: Record<string, unknown>;
+  requestId: string | null;
+}
+
 export interface HandbookPageSummary {
   slug: string;
   title: string;
@@ -250,6 +305,21 @@ export const apiClient = {
     system: () => request<AdminSystemMetrics>("/api/admin/system", { cache: "no-store" }),
     accounts: () => request<AdminAccount[]>("/api/admin/accounts", { cache: "no-store" }),
     notifications: () => request<GrafanaNotification[]>("/api/admin/notifications", { cache: "no-store" }),
+  },
+  moderation: {
+    summary: () => request<ModerationSummary>("/api/admin/moderation/summary", { cache: "no-store" }),
+    reports: (status = "open") => request<ModerationReport[]>(`/api/admin/moderation/reports?status=${status}`, { cache: "no-store" }),
+    resolveReport: (id: number, action: "hide_content" | "dismiss", note?: string) =>
+      request<void>(`/api/admin/moderation/reports/${id}/resolve`, { method: "POST", body: JSON.stringify({ action, note }) }),
+    contributions: (status = "pending_review") =>
+      request<ContributionReview[]>(`/api/admin/moderation/contributions?status=${status}`, { cache: "no-store" }),
+    approve: (id: number, overrideDuplicate = false, note?: string) =>
+      request<ContributionReview>(`/api/admin/moderation/contributions/${id}/approve`, { method: "POST", body: JSON.stringify({ overrideDuplicate, note }) }),
+    reject: (id: number, reason: string) =>
+      request<ContributionReview>(`/api/admin/moderation/contributions/${id}/reject`, { method: "POST", body: JSON.stringify({ reason }) }),
+    verifyRoute: (id: number, status: "field_verified" | "unverified", note?: string) =>
+      request<void>(`/api/admin/moderation/routes/${id}/verify`, { method: "POST", body: JSON.stringify({ status, note }) }),
+    audit: () => request<AuditEvent[]>("/api/admin/moderation/audit", { cache: "no-store" }),
   },
   handbook: {
     index: () => request<HandbookPageSummary[]>("/api/admin/handbook", { cache: "no-store" }),
