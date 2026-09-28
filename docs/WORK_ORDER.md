@@ -1,8 +1,8 @@
 # Current work orders and continuation handoff
 
 - **Snapshot date:** 2026-09-28
-- **Repository baseline:** branch `feat/work-orders-local-completion`, ten commits ahead of `main` (174 files), **not pushed and not merged**. `main` is still the 2026-09-19 reconciliation.
-- **Merge policy:** make reviewable commits on a feature branch, then squash-merge one tested change into `main`. Never add co-author trailers. This branch deviates from "one work order per branch": it carries WO-06 to WO-21 as one commit per work order so the owner can review or split them; squash by commit rather than as a single change.
+- **Repository baseline:** branch `feat/work-orders-local-completion`, merged into `main` on 2026-09-28 through a pull request (209 files). Before the merge `main` was the 2026-09-19 reconciliation.
+- **Merge policy:** make reviewable commits on a feature branch, then squash-merge one tested change into `main`. Never add co-author trailers. This branch deviates from "one work order per branch": it carries WO-06 to WO-21 as one commit per work order so the owner can review or split them; squash by commit rather than as a single change. The owner asked for the branch to be merged as it stood on 2026-09-28; it went in as a rebase merge, so every commit is kept on `main` and each work order can still be reviewed or reverted on its own.
 
 **Product state:** strong local foundation with most of the production controls now written and locally tested; **not approved for production**. Several controls have unit tests but have not yet run against real infrastructure (see [What has and has not been run](#what-has-and-has-not-been-run)).
 
@@ -165,7 +165,7 @@ Ordered by what unblocks what. Each item names the risk I expect, so the next se
 1. ~~Identity in Docker~~ **Done.** GoTrue starts after the role bootstrap fix.
 2. ~~Prove the identity flow~~ **Done**, including the `email_verified` assumption (GoTrue does put it in `user_metadata`, so linking an existing local account by verified email works). It found finding 9. Still open: Google, which needs the owner's OAuth client ID, secret, and callback URLs.
 3. **Recovery profile and drills.** Start `objects`, `recovery-init`, `db-standby`, and `backup`; run `ops/backups/run-drills.sh all` and keep the evidence. Risks: the pinned MinIO and `mc` image tags were chosen from memory and may not exist; standby replication depends on the mounted `pg_hba.conf`; `pg_restore` may need a role or extension adjustment. Then: uploads against the real store (the first attempt at a hand-written SigV4 signature usually needs one correction, most likely around the signed content-length header), the alert-delivery drill (this also proves finding 1), the capacity baseline, and an automated accessibility scan (axe-core over headless Edge) of every public page in both themes.
-4. ~~Tidy and commit~~ **Done.** The map fix, identity fix, scheduler health, and smoke tests are committed separately; the map fix is confirmed in the production Docker builds; the portal already serves its CSS fixes. Nothing is pushed or merged.
+4. ~~Tidy and commit~~ **Done.** The map fix, identity fix, scheduler health, and smoke tests are committed separately; the map fix is confirmed in the production Docker builds; the portal already serves its CSS fixes. All of it is on `main`.
 5. **Marketing home page and design system** (WO-20, WO-22): agree the direction with the owner, then build the home page second pass first, then the shared tokens.
 6. **Then, and only then:** run Trivy and `npm audit`, regenerate the README gallery, and decide with the owner how to merge (see below).
 
@@ -180,7 +180,7 @@ The project is safe to pause when all of the following are true. Ticked items we
 - [ ] Grafana opens at `http://localhost:3004`, uses the provisioned Tsela dashboard, and **a Prometheus alert reaches the admin feed** (alert drill).
 - [ ] The high/critical repository security scan passes or any finding is recorded here with owner and reason.
 - [ ] The restore and point-in-time recovery drills have passed and their evidence is kept.
-- [ ] The selected work order is committed in logical slices, reviewed, and squash-merged to `main`.
+- [x] The work is committed in logical slices and merged to `main` with its history kept. No second person has reviewed it.
 - [ ] `main` is pushed, the working tree is clean, and no Dependabot PR or remote bot branch remains open.
 
 At that point, stop all optional local services if machine resources matter:
@@ -194,11 +194,11 @@ This preserves volumes. Do not use `down -v`; that would remove local data.
 ## Resume procedure
 
 1. Read this file, [LAUNCH_CHECKLIST.md](LAUNCH_CHECKLIST.md), and the design document for the item you are taking.
-2. `git switch feat/work-orders-local-completion` (or `main` if it has been merged) and confirm the working tree is clean.
+2. `git switch main`, pull, and confirm the working tree is clean. Take a new branch for the next work order.
 3. Start only required services with `docker compose up -d`; add `--profile identity` or `--profile recovery` only for those items.
 4. Reproduce the last check that passed before changing code: `pytest api/tests`, the four `npm run lint && npm run build`, and the smoke test.
 5. Implement and verify in small commits, update this register and the relevant runbook.
-6. Merge only with the owner's say-so: nothing on this branch has been pushed or merged.
+6. Merge only with the owner's say-so.
 
 ## Recommended next phase
 
