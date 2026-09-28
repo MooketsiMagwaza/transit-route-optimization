@@ -195,7 +195,16 @@ Developer
 
 ## Run the complete stack
 
-Everything runs in Docker; there is nothing else to install. You need Docker Desktop (or Docker Engine with the Compose plugin), a few GB of free memory, and these ports free on your machine: 3000 to 3004, 8000, 9090 and 6000.
+Everything runs in Docker. There is nothing else to install: no Node, no Python, no database.
+
+### What you need
+
+- **Docker Desktop** (Windows, macOS) or **Docker Engine with the Compose plugin** (Linux). On Windows use the WSL 2 backend.
+- **Memory:** give Docker at least 6 GB (Docker Desktop, Settings, Resources). The Next.js builds are memory-hungry.
+- **Free ports** on your machine: 3000, 3001, 3002, 3003, 3004, 8000, 9090 and 6000. Docker reports `port is already allocated` if one is taken.
+- **Internet access** for the first build (base images and packages) and for the map background, which uses OpenStreetMap tiles.
+
+### Start it
 
 ```bash
 git clone https://github.com/MooketsiMagwaza/transit-route-optimization.git
@@ -203,7 +212,15 @@ cd transit-route-optimization
 docker compose up -d --build
 ```
 
-The first run builds five images, which takes several minutes (longer on a slow machine). Database migrations and the Gaborone seed run automatically before the API starts. When `docker compose ps` shows the services as healthy, open:
+The first run builds five images, which takes several minutes (longer on a slow machine). After that, database migrations and the Gaborone seed run by themselves before the API accepts traffic, which adds about a minute on a fresh database. Later starts take under a minute and need no `--build`.
+
+Check that it is up. Every service should say `healthy` or `Up`:
+
+```bash
+docker compose ps
+```
+
+Then open these in a browser on the same machine:
 
 | What | Address |
 | --- | --- |
@@ -211,30 +228,62 @@ The first run builds five images, which takes several minutes (longer on a slow 
 | Rider app | http://localhost:3002 |
 | Operations dashboard | http://localhost:3001 (sign in with the demo account) |
 | Developer portal and API guide | http://localhost:3003 (sign in with the demo account) |
-| API | http://localhost:8000/api/health |
+| API health | http://localhost:8000/api/health |
 | Grafana | http://localhost:3004 (`admin` / `admin`) |
 | Prometheus | http://localhost:9090 |
 
 The demo account is `demo@tsela.local` with password `TselaDemo2026!`. It exists only in this local Compose stack. See [docs/DEMO_CREDENTIALS.md](docs/DEMO_CREDENTIALS.md).
 
-Day to day:
+Every port is bound to `127.0.0.1`, and the apps are built with `localhost` addresses. The stack is meant to be opened on the machine that runs it. Opening it from another device on the network is not supported.
+
+### Stop, restart, reset
 
 ```bash
-docker compose stop          # pause, keeping your data
-docker compose up -d         # start again (no rebuild needed)
-docker compose down          # remove the containers, keep the data
-docker compose down -v       # remove the containers AND all data, for a clean slate
+docker compose stop
 ```
 
-Optional: real sign-up, email confirmation and two-factor sign-in through a self-hosted identity provider, with a local inbox at http://localhost:8025.
+Pauses everything and keeps your data. `docker compose up -d` starts it again.
+
+```bash
+docker compose down
+```
+
+Removes the containers and keeps the data (database, Grafana, Prometheus).
+
+```bash
+docker compose down -v
+```
+
+Removes the containers **and all data**, for a completely clean slate. The next `docker compose up -d` builds a fresh database and reseeds it.
+
+After pulling new changes, rebuild with `docker compose up -d --build`.
+
+### Optional: real sign-up and two-factor sign-in
+
+The default stack signs you in with the demo account. To try real sign-up, email confirmation, password recovery and authenticator-app codes through a self-hosted identity provider (Supabase Auth), add the `identity` profile. Confirmation emails land in a local inbox at http://localhost:8025.
 
 ```bash
 docker compose --profile identity up -d
 ```
 
-Not working yet: the `recovery` and `drill` profiles (backups, standby, object storage). Their pinned MinIO images no longer exist; see `docs/WORK_ORDER.md`. Photo uploads need that object store, so they are unavailable until it is replaced.
+`python scripts/smoke_identity.py` (needs Python 3) walks the whole flow against it (sign-up, email, sign-in, recovery, two-factor, logout, deletion) and cleans up after itself.
 
-Untested: Apple Silicon Macs. The database image is `postgis/postgis`, and if the `db` container will not start on an M-series Mac, add `platform: linux/amd64` under `db` in `compose.yaml`.
+### Troubleshooting
+
+| Symptom | What to do |
+| --- | --- |
+| `port is already allocated` | Something else is using that port. Stop it, or stop the old copy of this stack with `docker compose down`. |
+| A service is `unhealthy` or `Restarting` | Look at its log with `docker compose logs <service>` (for example `api`). The first start migrates and seeds the database, and the API is given up to three minutes before it is called unhealthy. |
+| `container name ... is already in use` | Container names are fixed, so only one copy of the stack can exist at a time. Run `docker compose down` in the other copy first. |
+| The build is very slow, or fails with out-of-memory errors | Raise Docker's memory limit to 6 GB or more and run the command again. |
+| Pages load but data does not, or the browser says `NetworkError` | Open the sites through `localhost` (or `127.0.0.1`) on the machine running Docker. The API only accepts those origins. |
+| The map background is blank | It uses the public OpenStreetMap tile servers and needs internet access. |
+| Start over from nothing | `docker compose down -v`, then `docker compose up -d --build`. |
+
+### Not working yet
+
+- The `recovery` and `drill` profiles (backups, standby database, object storage). Their pinned MinIO images no longer exist; see [docs/WORK_ORDER.md](docs/WORK_ORDER.md). Photo uploads need that object store, so they are unavailable until it is replaced.
+- **Apple Silicon Macs are untested.** The database image is `postgis/postgis`. If the `db` container will not start on an M-series Mac, add `platform: linux/amd64` under `db` in `compose.yaml`.
 
 ## Local development
 
