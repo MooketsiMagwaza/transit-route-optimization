@@ -90,7 +90,7 @@ export default function GuidePage() {
         ))}
       </div></section>
 
-      <section className="guide-tool-notes"><article><span>MAP CONTROLS</span><h3>Tap places, not coordinates.</h3><p>Drag to pan, zoom with the controls, and tap the map to place a start or destination. On route details, tap a stop marker to see its name and order.</p></article><article><span>DATA CONFIDENCE</span><h3>Read the map with local context.</h3><p>Routes and stops are community-sourced starter data, not a live operator feed. A published line can still change on the street.</p></article></section>
+      <section className="guide-tool-notes"><article><span>Map controls</span><h3>Tap places, not coordinates.</h3><p>Drag to pan, zoom with the controls, and tap the map to place a start or destination. On route details, tap a stop marker to see its name and order.</p></article><article><span>How much to trust the map</span><h3>Read the map with local context.</h3><p>Routes and stops are community-sourced starter data, not a live operator feed. A published line can still change on the street.</p></article></section>
 
       <section className="field-tips-section guide-field-tips">
         <div className="field-tips-heading"><span className="page-eyebrow">Field notes</span><h2>Small habits that make a trip easier.</h2><p>Adapted from the supplied YourBotswana “Botswana Public Transport” blog export. The account is historical and subjective; tips are presented as practical context, not live service facts.</p></div>

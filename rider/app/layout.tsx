@@ -16,7 +16,7 @@ export const metadata: Metadata = {
   appleWebApp: { capable: true, title: "Tsela", statusBarStyle: "default" },
 };
 
-export const viewport: Viewport = { themeColor: "#fffdf3", width: "device-width", initialScale: 1 };
+export const viewport: Viewport = { themeColor: "#f2f2f7", width: "device-width", initialScale: 1 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
