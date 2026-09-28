@@ -11,8 +11,10 @@ from __future__ import annotations
 
 import json
 import logging
+import os
 import time
 from datetime import UTC, datetime
+from pathlib import Path
 
 from app.jobs.maintenance import JOBS, run
 
@@ -30,6 +32,9 @@ SCHEDULE: dict[str, int] = {
     "cleanup-consent": WEEK,
 }
 TICK_SECONDS = 30
+# Touched after every tick. The container health check reads its age, because the scheduler
+# serves no HTTP and the API image's own health check would always fail against it.
+HEARTBEAT_PATH = Path(os.environ.get("SCHEDULER_HEARTBEAT_PATH", "/tmp/scheduler-heartbeat"))
 
 
 def slot_for(now: datetime, interval: int) -> int:
@@ -73,6 +78,7 @@ def main() -> None:
     finished: dict[str, int] = {}
     while True:
         tick(finished)
+        HEARTBEAT_PATH.touch()
         time.sleep(TICK_SECONDS)
 
 
