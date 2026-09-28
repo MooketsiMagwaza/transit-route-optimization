@@ -26,3 +26,11 @@ Paid integrations remain disabled until they have a per-request timeout, retry b
 
 CI runs tests and linting. The security workflow runs CodeQL, Trivy vulnerability/secret/misconfiguration scanning, Python dependency auditing, and npm audits on pull requests, `main`, and a weekly refresh. Dependabot opens bounded updates for Python, npm, Actions, and Docker. Findings are triaged; a green scanner is evidence, not a guarantee.
 
+## Additional controls (implemented)
+
+- **Write endpoints require an administrator.** Route, stop, and optimisation writes were previously open on the internal `/api` surface; they now require the admin role, and tests assert `401` for anonymous and `403` for non-admin callers on each.
+- **Shared throttling.** Sign-in (per address and per address plus email), registration, recovery, reset, consent, posting, reporting, and contribution are limited through a database window, so limits hold across replicas. Identities are stored as keyed digests. `TRUSTED_PROXY_HOPS` controls how many `X-Forwarded-For` entries are trusted; the default of zero uses the socket address so a client cannot spoof its own.
+- **Uploads.** Allowlisted image types, a signed length and checksum, magic-number verification after upload, ownership checks, and cleanup.
+- **Documentation sandbox.** The portal's "Try it" panel calls a dedicated read-only key held only in the server's environment; it rebuilds each request from the catalog (no caller-supplied URL), allowlists parameters, allows only `GET`, rate limits per session, and redacts the key from any response. The key is refused in production if it is the published local value.
+- **Internal material.** The handbook is served only to administrators by the API, from an allowlisted manifest, so no path is ever built from caller input.
+- **Edge.** The production Caddy configuration blocks `/metrics` and the alert webhook from the public internet and caps body sizes.

@@ -33,6 +33,19 @@ hiding navigation is never treated as authorization.
 | Grafana | http://localhost:3004 | 3004 |
 | Prometheus | http://localhost:9090 | 9090 |
 
+## Optional local profiles
+
+```bash
+docker compose --profile identity up -d      # self-hosted Supabase Auth and a local mail inbox
+docker compose --profile recovery up -d      # standby, object store, encrypted backups
+```
+
+- Mailpit (the inbox that receives confirmation and recovery email) is at http://localhost:8025.
+- The object store console is at http://localhost:9001 (`MINIO_ROOT_USER` / `MINIO_ROOT_PASSWORD`, defaults in `compose.yaml`, local only).
+- Put `AUTH_PUBLIC_URL=http://localhost:9999` in a git-ignored `.env` and rebuild the web images to make sign-in use the provider. Without it the apps keep the local demo sign-in.
+- Grant an operator: `docker compose exec api python -m app.cli grant-role you@example.com admin`.
+- The developer portal's sandbox uses `DOCS_SANDBOX_API_KEY`, defaulting to a published local value that production refuses.
+
 ## Grafana local login
 
 | Field | Value |

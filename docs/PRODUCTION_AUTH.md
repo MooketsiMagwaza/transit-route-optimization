@@ -64,3 +64,20 @@ Supabase's restore guidance notes that auth users are in the database dump while
 6. Disable local password login in production and remove debug recovery output.
 7. Require MFA and role checks on the operations dashboard.
 8. Run account export, deletion, session revocation, and restore drills before launch.
+
+## Implementation status
+
+Implemented and tested at the API level:
+
+- **Dual-read migration path.** The API accepts identity-provider access tokens and, while `LOCAL_AUTH_ENABLED` is true, local opaque sessions. Production settings refuse to start with local auth enabled or without `AUTH_ISSUER` and a signing secret or JWKS URL.
+- **Verification.** Signature, issuer, audience, and expiry are all required. The algorithm is chosen from the configured key type, never from the token, so `alg: none` and HS256-against-a-public-key confusion are rejected. Tested with valid, expired, wrong-audience, wrong-issuer, wrong-signature, missing-expiry, unsigned, and malformed tokens.
+- **Account mapping.** The immutable `sub` maps to `DeveloperAccount.externalSubject`. Authorization (role, disabled state) always comes from Tsela's tables, never from claims. An unverified email match never links an existing account; a verified one does, and keeps the existing role.
+- **Operator MFA.** In production an administrator request is refused unless the token carries `aal2` (TOTP verified). It fails closed: a missing or local context is refused too. The operations sign-in enrols or verifies TOTP.
+- **Revocation.** Logout records the provider session ID so the access token stops working before it expires; an administrator can disable an account (sessions and keys end at once) and re-enable it.
+- **Recovery.** With the provider enabled, recovery and confirmation emails are sent by the provider through SMTP (Mailpit locally). The local recovery endpoints answer `410` once local auth is off.
+- **Roles.** Granted only by `python -m app.cli grant-role`, never by a claim.
+- **Account deletion** removes the provider user as well.
+
+Compose provides `--profile identity` (GoTrue, a bootstrap job, Mailpit). Set `AUTH_PUBLIC_URL=http://localhost:9999` in `.env` and rebuild to switch the three sign-in screens to the provider. Google stays off until `GOOGLE_OAUTH_ENABLED=true` and real client credentials are supplied; creating a Google OAuth client is a step only the account owner can do.
+
+Known limits: the rider and operations apps hold the provider access token in browser storage rather than in an HttpOnly cookie behind a backend-for-frontend (the developer portal already uses a cookie). Access tokens last twelve hours locally with no silent refresh. Moving both apps to cookie sessions is the next hardening step.

@@ -250,3 +250,18 @@ $api = "http://localhost:8000"
 Invoke-RestMethod "$api/api/health"
 Invoke-RestMethod "$api/api/routes"
 ```
+
+## Request lifecycle (implemented)
+
+- **Scopes.** Every API key carries a space-separated scope list. `routes:read` is required by both `/v1` endpoints and is granted to every new key. A key without the scope receives `403`; an unknown scope cannot be required (`require_scope` refuses it at start-up).
+- **Shared limits.** Hourly and monthly counts are read from `ApiUsage`, so every API replica enforces the same limits without process-local state. A request is counted only after the key, its scope, and both quotas pass; `401`, `403`, and `429` responses are not counted.
+- **Final accounting.** After the response, the admitted row is updated with the final status, latency in milliseconds, and the correlation ID. A row left at status `0` marks a request that was admitted but never finalised (a crash).
+- **Headers.** Responses carry `X-Request-ID`, `X-API-Version`, `X-RateLimit-Limit/Remaining/Reset` (rolling hour), and `X-Quota-Limit/Remaining` (calendar month). `Retry-After` on `429` is computed from the real reset time, not a constant.
+- **Idempotency.** Every current `/v1` endpoint is a safe `GET`. Idempotency is therefore required only for writes, and the first such write endpoint already exists internally: `POST /api/community/posts` honours an `Idempotency-Key` header and returns the original post for a repeated key. Any future public `POST` must do the same before it ships.
+- **Version policy.** The major version is in the path. Within a major version only additions ship (endpoints, optional parameters, response fields). Removing or changing a field, or tightening validation, is a new major version. Preview endpoints may change with 30 days' notice; a deprecated endpoint stays for at least 180 days and returns `Deprecation` and `Sunset` headers. The policy is published on the developer guide's versioning page.
+- **Audit export.** `GET /api/admin/usage/export?days=30` (administrators) streams admitted requests as CSV, neutralising spreadsheet formulas in text cells. Secrets are never in it.
+- **Bounded telemetry.** Prometheus labels use route templates (`/v1/routes/{route_id}/geometry`), never raw paths, keys, or IDs.
+- **Documentation drift.** `docs-site/content/api-catalog.json` is the single source for the endpoint pages. `api/tests/test_public_contract_docs.py` compares it with the generated OpenAPI document and fails CI for an undocumented route, a documented route that does not exist, or a parameter, constraint, field, or error status that differs.
+- **Write protection.** Creating, editing, deleting, and optimising routes and stops requires an administrator. Reads stay public.
+
+Cost per request is still an estimate until measured: run `scripts/load-baseline.py` and record the result in [Cost and capacity](COST_AND_CAPACITY.md).

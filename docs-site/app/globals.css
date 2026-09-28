@@ -335,10 +335,6 @@ button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid 
 .try-it-progress span { width: 16px; height: 16px; border: 3px solid var(--portal-line); border-top-color: var(--portal-blue); border-radius: 50%; animation: spin .8s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 .try-it-result { margin-top: 16px; }
-.header-list { margin: 8px 0; display: grid; gap: 2px; font: 12px/1.5 ui-monospace, "Cascadia Code", Consolas, monospace; }
-.header-list > div { display: flex; flex-wrap: wrap; gap: 4px 10px; }
-.header-list dt { color: var(--portal-muted); }
-.header-list dd { margin: 0; color: var(--portal-copy); overflow-wrap: anywhere; }
 
 /* Tsela skin over stock Fumadocs chrome: crisp borders, lime current-page marker. */
 .tsela-fumadocs :is(nav, aside) a[aria-current="page"], .tsela-fumadocs #nd-sidebar a[data-active="true"] { color: var(--portal-ink); background: var(--portal-lime-soft); font-weight: 700; }
@@ -380,3 +376,13 @@ button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid 
 .your-data-actions { display: flex; flex-wrap: wrap; gap: 10px; }
 .console-signout.danger { border-color: var(--portal-red); color: var(--portal-red); }
 @media (max-width: 880px) { .your-data { grid-template-columns: 1fr; gap: 16px; } }
+
+.reference-body .header-list { margin: 10px 0; padding: 0; display: grid; }
+.reference-body .header-list > div { padding: 5px 0; display: grid; grid-template-columns: minmax(160px, 240px) minmax(0, 1fr); gap: 4px 16px; align-items: baseline; border-bottom: 1px solid var(--portal-line); font: 12px/1.5 ui-monospace, "Cascadia Code", Consolas, monospace; }
+.reference-body .header-list dt, .reference-body .header-list dd { margin: 0; padding: 0; }
+.reference-body .header-list dt { color: var(--portal-muted); }
+.reference-body .header-list dd { color: var(--portal-copy); overflow-wrap: anywhere; }
+@media (max-width: 640px) { .reference-body .header-list > div { grid-template-columns: 1fr; } }
+/* In dark mode the near-white ink would make every frame glare; use the quieter line colour. */
+.dark .code-block, .dark .fact-grid, .dark .try-it, .dark .auth-card { border-color: var(--portal-control-line); }
+.dark .auth-card { box-shadow: 6px 6px 0 var(--portal-blue); }

@@ -14,7 +14,7 @@ It's also a working example of building a small platform properly: separate depl
 
 ## Product gallery
 
-These are real 1440×960 captures from the authenticated local Compose stack on 19 September 2026—not mockups. The [capture manifest](docs/assets/screenshots/manifest.json) records every included route and final URL. Run `node scripts/capture-readme-gallery.cjs` while the stack is healthy to refresh the gallery. Developer-documentation images are intentionally excluded until [WO-15](docs/WORK_ORDER.md) completes the internal/public split and restrained Fumadocs reskin.
+These are real 1440×960 captures from the authenticated local Compose stack on 19 September 2026—not mockups. The [capture manifest](docs/assets/screenshots/manifest.json) records every included route and final URL. Run `node scripts/capture-readme-gallery.cjs` while the stack is healthy to refresh the gallery. Developer-documentation images stay excluded until the split and reskin have had a design review; run the capture with `INCLUDE_DOCS=true` afterwards.
 
 ### Rider experience
 
@@ -120,6 +120,9 @@ These are real 1440×960 captures from the authenticated local Compose stack on 
 - [Launch checklist](docs/LAUNCH_CHECKLIST.md) — the evidence required before this can be called production-ready
 - [Work-order register](docs/WORK_ORDER.md) — current execution state, acceptance criteria, rest point, and resume procedure
 - [Work-order audit](docs/WORK_ORDER_AUDIT.md) — maps the full product conversation to completed, blocked, and outstanding work
+- [Route trust and moderation](docs/TRUST_AND_MODERATION.md) — provenance, review pipeline, reports, and the append-only audit trail
+- [Privacy operations](docs/PRIVACY_OPERATIONS.md) — data inventory, consent, export, deletion, retention, and third parties
+- [Release runbook](docs/RELEASE_RUNBOOK.md) — pinned images, health-gated deploys, rollback, launch records, and drills
 - [Brand direction](docs/BRAND.md) — Tsela naming and draft visual system
 - [Cost and capacity](docs/COST_AND_CAPACITY.md) — hourly limits and measurement model
 - [Community service area](docs/SERVICE_AREA.md) — contribution bounds, enforcement, and polygon migration note
@@ -133,6 +136,16 @@ These are real 1440×960 captures from the authenticated local Compose stack on 
 - **Optimization:** Google OR-Tools
 - **Observability:** Prometheus, Grafana, Tempo, OpenTelemetry, and PostgreSQL Exporter
 - **Runtime:** Docker Compose locally; Kubernetes production scaffold
+
+### Optional profiles
+
+```bash
+docker compose --profile identity up -d    # self-hosted Supabase Auth (GoTrue) and a local mail inbox on :8025
+docker compose --profile recovery up -d    # streaming standby, S3-compatible store, encrypted backups
+ops/backups/run-drills.sh all              # restore and point-in-time recovery drills, with JSON evidence
+```
+
+The primary always archives WAL, and a scheduler container runs the lifecycle jobs (cleanup, retention, key-expiry audit, route freshness, account purge). Prometheus rules are delivered through Grafana into the operations dashboard's alert feed. See the [release runbook](docs/RELEASE_RUNBOOK.md) for production.
 
 The Next.js applications are web clients only. FastAPI owns all HTTP APIs and database access.
 
@@ -150,6 +163,8 @@ The development stack now exposes the five product surfaces independently:
 | PostgreSQL | localhost:6000 | PostGIS and pgRouting database |
 | Prometheus | http://localhost:9090 | Metrics storage, service health, and alert evaluation |
 | Grafana | http://localhost:3004 | Operational dashboards and alert investigation |
+| Mailpit (`identity` profile) | http://localhost:8025 | Local inbox for confirmation and recovery email |
+| Object store console (`recovery` profile) | http://localhost:9001 | Private buckets for uploads and encrypted backups |
 
 FastAPI's generated Swagger, ReDoc, and OpenAPI HTTP routes are disabled by default. The protected Fumadocs reference is the developer documentation surface. Enable `API_DOCS_ENABLED=true` only for an isolated development environment where public interactive docs are acceptable.
 

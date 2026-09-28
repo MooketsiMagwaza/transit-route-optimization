@@ -41,3 +41,14 @@ Do not persist derived balances or duplicate current usage. API usage is derived
 5. Add database constraints and partial indexes for active records.
 6. Remove legacy public IDs only after telemetry shows no callers and a rollback window has elapsed.
 
+## Governance invariants (implemented)
+
+- **Stable public IDs.** Routes, stops, accounts, contributions, and posts have a random UUID `publicId`. Integer keys remain internal and in current URL paths; public payloads expose `publicId` (routes already do) so integrations can store an identifier that never changes.
+- **`updatedAt`.** These tables and API keys carry `updatedAt`, maintained by a database trigger as well as the ORM, so any writer, including a hand-run SQL fix, updates it.
+- **Recoverable deletion.** Routes, posts, contributions, and accounts use `deletedAt`, hidden from every read by one ORM filter (`include_deleted=True` opts in). Administrators can restore a route.
+- **Personal data is the exception.** Account deletion anonymises at once and purges after 30 days; see [Privacy operations](PRIVACY_OPERATIONS.md).
+- **Tenant ownership.** Uploads, keys, posts, and idempotency records are looked up with the authenticated account ID; another account's object looks like it does not exist.
+- **Append-only audit.** `AuditEvent` rejects `UPDATE`, `DELETE`, and `TRUNCATE` in the database.
+- **Provenance.** Routes record `source`, `verificationStatus`, `verifiedAt`, and `verifiedById`; see [Route trust](TRUST_AND_MODERATION.md).
+- **Migration rule.** Expand, then contract: a release's migrations must work with the previous release's code. Add `deletedAt`-style columns nullable or defaulted; never rename or drop in the same release that stops using the old name.
+- **Indexes are justified by queries.** Partial indexes cover live rows; usage, attempts, idempotency, reports, and audit have time-ordered indexes for their retention jobs. Check them against reality with `SELECT relname, idx_scan FROM pg_stat_user_indexes ORDER BY idx_scan` after representative traffic, and drop any that stay at zero.
