@@ -33,7 +33,10 @@ services:
       - wal_archive:/wal_archive
       - ./ops/recovery/pg_hba.conf:/etc/postgresql/pg_hba.conf:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U transitsym -d transit"]
+      # Ask over TCP. Without -h, pg_isready uses the Unix socket, which the temporary server that
+      # runs during first-time initialisation also answers, so the database looked ready and the
+      # API crashed with "connection refused" when that server shut down and the real one started.
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U transitsym -d transit"]
       interval: 5s
       timeout: 5s
       retries: 12
@@ -86,6 +89,10 @@ services:
       interval: 10s
       timeout: 5s
       retries: 6
+      # First boot on an empty database runs every migration and the seed, which takes longer than
+      # the retries alone allow. Failures inside this window do not count, so `docker compose up`
+      # does not report the API unhealthy (and refuse to start the apps) while it is still setting up.
+      start_period: 180s
 
   scheduler:
     image: tsela/api:local

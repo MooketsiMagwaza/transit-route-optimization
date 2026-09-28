@@ -195,11 +195,46 @@ Developer
 
 ## Run the complete stack
 
+Everything runs in Docker; there is nothing else to install. You need Docker Desktop (or Docker Engine with the Compose plugin), a few GB of free memory, and these ports free on your machine: 3000 to 3004, 8000, 9090 and 6000.
+
 ```bash
-docker compose up --build
+git clone https://github.com/MooketsiMagwaza/transit-route-optimization.git
+cd transit-route-optimization
+docker compose up -d --build
 ```
 
-Alembic migrations and the idempotent Gaborone seed run automatically before the API starts. Open marketing at http://localhost:3000, operations at http://localhost:3001, the rider app at http://localhost:3002, and the developer portal at http://localhost:3003. Sign in with the local demo credentials shown there to open the dashboard and endpoint reference. Grafana is available at http://localhost:3004 and Prometheus at http://localhost:9090.
+The first run builds five images, which takes several minutes (longer on a slow machine). Database migrations and the Gaborone seed run automatically before the API starts. When `docker compose ps` shows the services as healthy, open:
+
+| What | Address |
+| --- | --- |
+| Marketing site | http://localhost:3000 |
+| Rider app | http://localhost:3002 |
+| Operations dashboard | http://localhost:3001 (sign in with the demo account) |
+| Developer portal and API guide | http://localhost:3003 (sign in with the demo account) |
+| API | http://localhost:8000/api/health |
+| Grafana | http://localhost:3004 (`admin` / `admin`) |
+| Prometheus | http://localhost:9090 |
+
+The demo account is `demo@tsela.local` with password `TselaDemo2026!`. It exists only in this local Compose stack. See [docs/DEMO_CREDENTIALS.md](docs/DEMO_CREDENTIALS.md).
+
+Day to day:
+
+```bash
+docker compose stop          # pause, keeping your data
+docker compose up -d         # start again (no rebuild needed)
+docker compose down          # remove the containers, keep the data
+docker compose down -v       # remove the containers AND all data, for a clean slate
+```
+
+Optional: real sign-up, email confirmation and two-factor sign-in through a self-hosted identity provider, with a local inbox at http://localhost:8025.
+
+```bash
+docker compose --profile identity up -d
+```
+
+Not working yet: the `recovery` and `drill` profiles (backups, standby, object storage). Their pinned MinIO images no longer exist; see `docs/WORK_ORDER.md`. Photo uploads need that object store, so they are unavailable until it is replaced.
+
+Untested: Apple Silicon Macs. The database image is `postgis/postgis`, and if the `db` container will not start on an M-series Mac, add `platform: linux/amd64` under `db` in `compose.yaml`.
 
 ## Local development
 
