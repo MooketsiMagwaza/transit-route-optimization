@@ -3,10 +3,11 @@
  * Edit this file only. `node design/sync.mjs` copies it into each app (marketing, rider, admin,
  * docs-site), and `node design/sync.mjs --check` fails when a copy has drifted.
  *
- * The look follows iOS: a light grouped-grey canvas, white rounded surfaces with hairline
- * separators, system blue for the one thing to tap, large confident titles, and a true-black dark
- * mode. Contrast was checked against WCAG AA: ink on the canvas is above 15:1, secondary ink above
- * 4.5:1, white on the accent blue is 4.7:1, and each status colour reads on its own tint.
+ * The look is iOS in structure (grouped rounded surfaces, hairlines, large titles, a floating tab
+ * bar) with a personality of its own: a warm off-white canvas, "Go" lime for the one thing to tap,
+ * plum for brand ink, soft clay icons, and a chunky geometric display face. Contrast was checked
+ * against WCAG AA: ink on the canvas is above 15:1, secondary ink above 5:1, plum on white above
+ * 9:1, and dark ink on the lime action colour above 13:1.
  *
  * Components read these names and never hard-code a colour, radius, or font size.
  */
@@ -15,27 +16,32 @@
   color-scheme: light;
 
   /* Surfaces */
-  --c-bg: #f2f2f7;
+  --c-bg: #f6f4f0;
   --c-surface: #ffffff;
-  --c-fill: rgba(120, 120, 128, 0.12);
-  --c-fill-2: rgba(120, 120, 128, 0.08);
-  --c-glass: rgba(249, 249, 251, 0.82);
-  --c-overlay: rgba(0, 0, 0, 0.32);
+  --c-fill: #ece9e4;
+  --c-fill-2: #f3f1ed;
+  --c-glass: rgba(255, 254, 252, 0.84);
+  --c-overlay: rgba(31, 26, 36, 0.36);
 
   /* Ink */
-  --c-ink: #1c1c1e;
-  --c-ink-2: #6c6c70;
-  --c-ink-3: #8e8e93;
-  --c-line: rgba(60, 60, 67, 0.16);
-  --c-line-strong: rgba(60, 60, 67, 0.32);
+  --c-ink: #1f1a24;
+  --c-ink-2: #665f6e;
+  --c-ink-3: #9a93a3;
+  --c-line: rgba(50, 30, 60, 0.12);
+  --c-line-strong: rgba(50, 30, 60, 0.28);
 
-  /* Accent: the one colour that means "you can act here" */
-  --c-accent: #0071e3;
-  --c-accent-hover: #0068d1;
-  --c-accent-soft: rgba(0, 113, 227, 0.12);
-  --c-accent-text: #0066cc;
-  --c-on-accent: #ffffff;
-  --c-focus: #0071e3;
+  /* Action: the one colour that means "you can tap this" */
+  --c-accent: #e2f550;
+  --c-accent-hover: #d4e83a;
+  --c-accent-soft: #f2f9c6;
+  --c-on-accent: #1f1a24;
+
+  /* Brand: plum, for links, emphasis, and anything that should feel like Tsela */
+  --c-brand: #5b2a86;
+  --c-brand-ink: #3b1859;
+  --c-brand-soft: #efe6f8;
+  --c-accent-text: #5b2a86;
+  --c-focus: #5b2a86;
 
   /* Status */
   --c-good: #1d7a34;
@@ -54,9 +60,9 @@
   --c-route-6: #d81e5b;
   --c-route-7: #3f8f1f;
 
-  /* Type: system fonts, so nothing is downloaded and every device looks native */
+  /* Type: a chunky geometric face for titles, the system face for everything you read */
   --font-ui: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-display: "Poppins", -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --font-mono: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace;
   --fs-xs: 0.75rem;
   --fs-sm: 0.8125rem;
@@ -72,9 +78,9 @@
 
   /* Shape and spacing */
   --r-sm: 10px;
-  --r-md: 12px;
-  --r-lg: 16px;
-  --r-xl: 22px;
+  --r-md: 14px;
+  --r-lg: 18px;
+  --r-xl: 24px;
   --r-pill: 999px;
   --s-1: 4px;
   --s-2: 8px;
@@ -86,41 +92,43 @@
   --s-8: 72px;
 
   /* Elevation: surfaces are flat; only floating things (tab bar, popovers) cast a shadow */
-  --sh-1: 0 0 0 0.5px rgba(0, 0, 0, 0.05);
-  --sh-2: 0 8px 30px rgba(0, 0, 0, 0.12), 0 0 0 0.5px rgba(0, 0, 0, 0.06);
+  --sh-1: 0 0 0 0.5px rgba(50, 30, 60, 0.06);
+  --sh-2: 0 8px 30px rgba(50, 30, 60, 0.14), 0 0 0 0.5px rgba(50, 30, 60, 0.06);
 
   /* Motion */
   --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
   --dur: 180ms;
 }
 
-/* Dark: true black, like iOS. Applied by `.dark`, `[data-theme="dark"]`, or the system setting where an app opts in. */
+/* Dark: a deep aubergine rather than pure black. Applied by `.dark` or `[data-theme="dark"]`. */
 .dark,
 [data-theme="dark"] {
   color-scheme: dark;
-  --c-bg: #000000;
-  --c-surface: #1c1c1e;
-  --c-fill: rgba(120, 120, 128, 0.24);
-  --c-fill-2: rgba(120, 120, 128, 0.16);
-  --c-glass: rgba(28, 28, 30, 0.82);
+  --c-bg: #14101a;
+  --c-surface: #1f1a26;
+  --c-fill: rgba(255, 255, 255, 0.1);
+  --c-fill-2: rgba(255, 255, 255, 0.06);
+  --c-glass: rgba(31, 26, 38, 0.84);
   --c-overlay: rgba(0, 0, 0, 0.6);
-  --c-ink: #f5f5f7;
-  --c-ink-2: #a1a1a6;
-  --c-ink-3: #6e6e73;
-  --c-line: rgba(84, 84, 88, 0.6);
-  --c-line-strong: rgba(84, 84, 88, 0.9);
-  --c-accent-hover: #1a86ff;
-  --c-accent-soft: rgba(10, 132, 255, 0.24);
-  --c-accent-text: #4da3ff;
-  --c-focus: #4da3ff;
-  --c-good: #32d74b;
-  --c-good-soft: #10331a;
-  --c-warn: #ff9f0a;
-  --c-warn-soft: #3a2607;
-  --c-bad: #ff6961;
-  --c-bad-soft: #3d1614;
-  --sh-1: 0 0 0 0.5px rgba(255, 255, 255, 0.08);
-  --sh-2: 0 10px 40px rgba(0, 0, 0, 0.6), 0 0 0 0.5px rgba(255, 255, 255, 0.1);
+  --c-ink: #f5f2f8;
+  --c-ink-2: #b3aabd;
+  --c-ink-3: #7d7488;
+  --c-line: rgba(255, 255, 255, 0.14);
+  --c-line-strong: rgba(255, 255, 255, 0.3);
+  --c-accent-soft: rgba(226, 245, 80, 0.16);
+  --c-brand: #c9a6f2;
+  --c-brand-ink: #e6d4fb;
+  --c-brand-soft: rgba(201, 166, 242, 0.18);
+  --c-accent-text: #d9b8ff;
+  --c-focus: #d9b8ff;
+  --c-good: #62d47c;
+  --c-good-soft: #163420;
+  --c-warn: #ffb35c;
+  --c-warn-soft: #3a2a12;
+  --c-bad: #ff8a80;
+  --c-bad-soft: #3d1a1c;
+  --sh-1: 0 0 0 0.5px rgba(255, 255, 255, 0.1);
+  --sh-2: 0 10px 40px rgba(0, 0, 0, 0.6), 0 0 0 0.5px rgba(255, 255, 255, 0.12);
 }
 
 @media (prefers-reduced-motion: reduce) {

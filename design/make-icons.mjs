@@ -1,4 +1,4 @@
-// Draws Tsela's app icons (the white route mark on a system-blue tile) and writes them as PNG files.
+// Draws Tsela's app icons (the plum route mark on a lime tile) and writes them as PNG files.
 //
 //   node design/make-icons.mjs
 //
@@ -12,8 +12,8 @@ import { fileURLToPath } from "node:url";
 import { deflateSync } from "node:zlib";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
-const TILE = [0, 113, 227];
-const MARK = [255, 255, 255];
+const TILE = [226, 245, 80];
+const MARK = [74, 34, 112];
 
 // The mark, in the 64-unit space of design/logo.svg.
 const DOTS = [[20, 45, 6], [44, 19, 6]];

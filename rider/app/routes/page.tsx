@@ -5,6 +5,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { TrustNotice } from "@/components/trust-notice";
+import { ClayIcon } from "@/components/tsela-icon";
 import { AllRoutesMap } from "@/components/all-routes-map";
 import { apiClient, Node, Route, RouteGeometry } from "@/lib/api-client";
 import { routeColor } from "@/lib/map-config";
@@ -95,7 +96,7 @@ export default function RoutesPage() {
           ) : (
             <>
               <div className="network-title-row"><div><span className="page-eyebrow">Gaborone network</span><h1>Explore every route</h1></div><span className="route-count-pill">{visibleRoutes.length}</span></div>
-              <label className="route-search"><span aria-hidden="true">⌕</span><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search a route, area or stop" aria-label="Search routes and stops" /></label>
+              <label className="route-search"><span aria-hidden="true"><ClayIcon name="search" size={22} /></span><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search a route, area or stop" aria-label="Search routes and stops" /></label>
               <p className="network-help">Search any mapped route or stop. Choose one route to remove the rest and inspect its complete stop sequence.</p>
               {!query && recentRoutes.length > 0 && <div className="recent-route-row"><span>Recently viewed</span>{recentRoutes.map((route) => <button key={route.id} onClick={() => selectRoute(route.id)}>{route.name}</button>)}</div>}
               <div className="network-route-list">
