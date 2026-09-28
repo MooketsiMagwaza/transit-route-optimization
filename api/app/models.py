@@ -1,12 +1,45 @@
 """SQLAlchemy models for routes, accounts, credentials, usage, and community data."""
 
+import uuid
 from datetime import datetime
 
 from geoalchemy2 import Geometry
-from sqlalchemy import JSON, DateTime, Float, ForeignKey, Index, Integer, String, Text, func
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy import (
+    JSON,
+    DateTime,
+    Float,
+    ForeignKey,
+    Index,
+    Integer,
+    String,
+    Text,
+    Uuid,
+    event,
+    func,
+)
+from sqlalchemy.orm import Mapped, Session, mapped_column, relationship, with_loader_criteria
 
 from app.database import Base
+
+
+def _public_id() -> Mapped[uuid.UUID]:
+    """Opaque, stable identifier safe to expose; internal integer keys stay internal."""
+
+    return mapped_column("publicId", Uuid, nullable=False, unique=True, default=uuid.uuid4)
+
+
+def _updated_at() -> Mapped[datetime]:
+    return mapped_column(
+        "updatedAt",
+        DateTime(timezone=True),
+        server_default=func.now(),
+        onupdate=func.now(),
+        nullable=False,
+    )
+
+
+def _deleted_at() -> Mapped[datetime | None]:
+    return mapped_column("deletedAt", DateTime(timezone=True))
 
 
 class Route(Base):
@@ -18,6 +51,22 @@ class Route(Base):
     created_at: Mapped[datetime] = mapped_column(
         "createdAt", DateTime(timezone=True), server_default=func.now(), nullable=False
     )
+    public_id: Mapped[uuid.UUID] = _public_id()
+    updated_at: Mapped[datetime] = _updated_at()
+    deleted_at: Mapped[datetime | None] = _deleted_at()
+    # Provenance and freshness: where the line came from and when a person last confirmed it.
+    source: Mapped[str] = mapped_column(
+        String(30), nullable=False, default="community", server_default="community"
+    )
+    verification_status: Mapped[str] = mapped_column(
+        "verificationStatus",
+        String(20),
+        nullable=False,
+        default="unverified",
+        server_default="unverified",
+    )
+    verified_at: Mapped[datetime | None] = mapped_column("verifiedAt", DateTime(timezone=True))
+    verified_by_id: Mapped[int | None] = mapped_column("verifiedById", Integer)
 
     nodes: Mapped[list["Node"]] = relationship(
         back_populates="route", cascade="all, delete-orphan", passive_deletes=True
@@ -43,6 +92,8 @@ class Node(Base):
     geom: Mapped[object | None] = mapped_column(
         Geometry(geometry_type="POINT", srid=4326, spatial_index=False), nullable=True
     )
+    public_id: Mapped[uuid.UUID] = _public_id()
+    updated_at: Mapped[datetime] = _updated_at()
 
     route: Mapped[Route] = relationship(back_populates="nodes")
 
@@ -66,6 +117,9 @@ class DeveloperAccount(Base):
     created_at: Mapped[datetime] = mapped_column(
         "createdAt", DateTime(timezone=True), server_default=func.now(), nullable=False
     )
+    public_id: Mapped[uuid.UUID] = _public_id()
+    updated_at: Mapped[datetime] = _updated_at()
+    deleted_at: Mapped[datetime | None] = _deleted_at()
 
     sessions: Mapped[list["DeveloperSession"]] = relationship(
         back_populates="account", cascade="all, delete-orphan"
@@ -138,6 +192,7 @@ class ApiKey(Base):
     scopes: Mapped[str] = mapped_column(
         String(200), nullable=False, default="routes:read", server_default="routes:read"
     )
+    updated_at: Mapped[datetime] = _updated_at()
 
     account: Mapped[DeveloperAccount] = relationship(back_populates="api_keys")
 
@@ -191,6 +246,17 @@ class RouteContribution(Base):
     created_at: Mapped[datetime] = mapped_column(
         "createdAt", DateTime(timezone=True), server_default=func.now(), nullable=False
     )
+    public_id: Mapped[uuid.UUID] = _public_id()
+    updated_at: Mapped[datetime] = _updated_at()
+    deleted_at: Mapped[datetime | None] = _deleted_at()
+    # Automated checks run at submission (duplicates, shape); moderators see the result.
+    validation: Mapped[dict] = mapped_column(JSON, nullable=False, default=dict)
+    reviewed_at: Mapped[datetime | None] = mapped_column("reviewedAt", DateTime(timezone=True))
+    reviewed_by_id: Mapped[int | None] = mapped_column("reviewedById", Integer)
+    review_note: Mapped[str | None] = mapped_column("reviewNote", Text)
+    published_route_id: Mapped[int | None] = mapped_column(
+        "publishedRouteId", ForeignKey("Route.id", ondelete="SET NULL")
+    )
 
 
 class PasswordResetToken(Base):
@@ -236,6 +302,10 @@ class CommunityPost(Base):
     created_at: Mapped[datetime] = mapped_column(
         "createdAt", DateTime(timezone=True), server_default=func.now(), nullable=False
     )
+    public_id: Mapped[uuid.UUID] = _public_id()
+    updated_at: Mapped[datetime] = _updated_at()
+    deleted_at: Mapped[datetime | None] = _deleted_at()
+    hidden_reason: Mapped[str | None] = mapped_column("hiddenReason", String(200))
 
     account: Mapped[DeveloperAccount] = relationship(back_populates="community_posts")
 
@@ -305,3 +375,83 @@ class UploadIntent(Base):
     )
     verified_at: Mapped[datetime | None] = mapped_column("verifiedAt", DateTime(timezone=True))
     deleted_at: Mapped[datetime | None] = mapped_column("deletedAt", DateTime(timezone=True))
+
+
+class ContentReport(Base):
+    """A report of a post or route contribution, resolved by a moderator."""
+
+    __tablename__ = "ContentReport"
+    __table_args__ = (
+        Index("ix_content_report_status_time", "status", "createdAt"),
+        Index("ix_content_report_target", "targetType", "targetId"),
+        Index("uq_content_report_once", "reporterId", "targetType", "targetId", unique=True),
+    )
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    reporter_id: Mapped[int] = mapped_column("reporterId", Integer, nullable=False)
+    target_type: Mapped[str] = mapped_column("targetType", String(20), nullable=False)
+    target_id: Mapped[int] = mapped_column("targetId", Integer, nullable=False)
+    reason: Mapped[str] = mapped_column(String(20), nullable=False)
+    note: Mapped[str | None] = mapped_column(String(500))
+    # open -> actioned | dismissed
+    status: Mapped[str] = mapped_column(String(16), nullable=False, default="open")
+    created_at: Mapped[datetime] = mapped_column(
+        "createdAt", DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+    resolved_at: Mapped[datetime | None] = mapped_column("resolvedAt", DateTime(timezone=True))
+    resolved_by_id: Mapped[int | None] = mapped_column("resolvedById", Integer)
+
+
+class AuditEvent(Base):
+    """Append-only record of moderation and administrative decisions.
+
+    The actor is stored as a plain integer, not a foreign key, so deleting an account never
+    updates this table. A database trigger rejects every UPDATE and DELETE.
+    """
+
+    __tablename__ = "AuditEvent"
+    __table_args__ = (
+        Index("ix_audit_event_time", "occurredAt"),
+        Index("ix_audit_event_target", "targetType", "targetId"),
+    )
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    occurred_at: Mapped[datetime] = mapped_column(
+        "occurredAt", DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+    actor_id: Mapped[int | None] = mapped_column("actorId", Integer)
+    actor_role: Mapped[str | None] = mapped_column("actorRole", String(24))
+    action: Mapped[str] = mapped_column(String(60), nullable=False)
+    target_type: Mapped[str] = mapped_column("targetType", String(30), nullable=False)
+    target_id: Mapped[int | None] = mapped_column("targetId", Integer)
+    detail: Mapped[dict] = mapped_column(JSON, nullable=False, default=dict)
+    request_id: Mapped[str | None] = mapped_column("requestId", String(64))
+
+
+class AuthAttempt(Base):
+    """One counted sign-in, registration, or recovery attempt for shared rate limiting."""
+
+    __tablename__ = "AuthAttempt"
+    __table_args__ = (Index("ix_auth_attempt_lookup", "scope", "identityHash", "occurredAt"),)
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    scope: Mapped[str] = mapped_column(String(24), nullable=False)
+    identity_hash: Mapped[str] = mapped_column("identityHash", String(64), nullable=False)
+    occurred_at: Mapped[datetime] = mapped_column(
+        "occurredAt", DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+
+
+# Records that people delete (or that carry user content) are hidden, not destroyed, so a
+# mistaken or malicious deletion is recoverable. Queries opt in with include_deleted=True.
+SOFT_DELETE_MODELS = (Route, CommunityPost, RouteContribution, DeveloperAccount)
+
+
+@event.listens_for(Session, "do_orm_execute")
+def _hide_soft_deleted(state) -> None:
+    if not state.is_select or state.execution_options.get("include_deleted", False):
+        return
+    for model in SOFT_DELETE_MODELS:
+        state.statement = state.statement.options(
+            with_loader_criteria(model, lambda cls: cls.deleted_at.is_(None), include_aliases=True)
+        )

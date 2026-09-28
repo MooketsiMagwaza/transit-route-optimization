@@ -1,5 +1,6 @@
 """Validated API contracts; all community-authored fields are bounded plain text."""
 
+import uuid
 from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
@@ -47,9 +48,14 @@ class RouteUpdate(ApiModel):
 
 class RouteRead(ApiModel):
     id: int
+    public_id: uuid.UUID = Field(serialization_alias="publicId")
     name: str
     description: str | None
     created_at: datetime = Field(serialization_alias="createdAt")
+    updated_at: datetime = Field(serialization_alias="updatedAt")
+    source: str
+    verification_status: str = Field(serialization_alias="verificationStatus")
+    verified_at: datetime | None = Field(default=None, serialization_alias="verifiedAt")
 
 
 class NodeCreate(ApiModel):

@@ -15,6 +15,7 @@ from app.routers import (
     developer,
     handbook,
     health,
+    moderation,
     pathfinding,
     public_v1,
     routes,
@@ -43,6 +44,7 @@ app.add_middleware(
 app.include_router(health.router)
 app.include_router(admin.router)
 app.include_router(handbook.router)
+app.include_router(moderation.router)
 app.include_router(routes.router)
 app.include_router(pathfinding.router)
 app.include_router(dashboard.router)

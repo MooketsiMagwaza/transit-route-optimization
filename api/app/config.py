@@ -35,6 +35,10 @@ class Settings(BaseSettings):
     default_monthly_api_quota: int = 10000
     default_hourly_api_limit: int = 100
     invalid_key_attempts_per_hour: int = 20
+    # Proxy hops to trust when reading X-Forwarded-For; 0 uses the socket address.
+    trusted_proxy_hops: int = 0
+    # Distinct reporters that automatically hide a post until a moderator reviews it.
+    auto_hide_report_threshold: int = 3
     token_hash_secret: str = LOCAL_TOKEN_HASH_SECRET
     max_request_body_bytes: int = 1_000_000
     estimated_cost_per_1000_requests_usd: float | None = None

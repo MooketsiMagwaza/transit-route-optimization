@@ -114,6 +114,7 @@ export const GUIDES: Guide[] = [
       {
         title: "Changelog",
         bullets: [
+          "2026-09: Route objects gain publicId, updatedAt, source, verificationStatus, and verifiedAt so you can tell how fresh and how trusted a route is. These are additive fields.",
           "2026-09: API keys carry scopes; the routes:read scope is required on every /v1 endpoint.",
           "2026-09: Responses report X-RateLimit-* and X-Quota-* headers and X-API-Version. Retry-After now reflects the real reset time.",
           "2026-09: /v1/routes orders by newest first with a stable tiebreaker so offset pagination never repeats or skips a route.",

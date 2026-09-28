@@ -34,13 +34,18 @@
         "schema": "RouteRead[]",
         "description": "A JSON array of routes. An empty array means no route matched.",
         "example": [
-          { "id": 3, "name": "Broadhurst Route 1", "description": "Community-sourced Gaborone starter corridor.", "createdAt": "2026-09-12T08:42:12Z" }
+          { "id": 3, "publicId": "0d3f6a52-6c1e-4e0b-9d3b-2f7c1b1c8a11", "name": "Broadhurst Route 1", "description": "Community-sourced Gaborone starter corridor.", "createdAt": "2026-09-12T08:42:12Z", "updatedAt": "2026-09-20T10:15:00Z", "source": "community", "verificationStatus": "unverified", "verifiedAt": null }
         ],
         "fields": [
-          { "name": "id", "type": "integer", "description": "Stable numeric route identifier used by other endpoints." },
+          { "name": "id", "type": "integer", "description": "Numeric route identifier used in the path of other endpoints." },
+          { "name": "publicId", "type": "string (UUID)", "description": "Opaque identifier that never changes and is safe to store. Prefer it as your own foreign key." },
           { "name": "name", "type": "string", "description": "Human-readable route name." },
           { "name": "description", "type": "string | null", "description": "Short plain-text description, when one exists." },
-          { "name": "createdAt", "type": "string (ISO 8601, UTC)", "description": "When the route was first published." }
+          { "name": "createdAt", "type": "string (ISO 8601, UTC)", "description": "When the route was first published." },
+          { "name": "updatedAt", "type": "string (ISO 8601, UTC)", "description": "When any part of the route record last changed." },
+          { "name": "source", "type": "string", "description": "Where the route came from: community for a reviewed rider contribution." },
+          { "name": "verificationStatus", "type": "string", "description": "unverified, field_verified (a person confirmed it on the road), or stale (the confirmation is more than 180 days old)." },
+          { "name": "verifiedAt", "type": "string (ISO 8601, UTC) | null", "description": "When the route was last field-verified, or null if it never was." }
         ]
       },
       "errors": [
