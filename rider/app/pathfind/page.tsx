@@ -5,6 +5,7 @@
 import { useRef, useState } from "react";
 import Link from "next/link";
 import { NearbyRoutesMap } from "@/components/nearby-routes-map";
+import { TselaArt } from "@/components/tsela-art";
 import { ClayIcon } from "@/components/tsela-icon";
 import { apiClient, NearbyRoute, Node, PathfindNoRoute, PathfindResult, RouteGeometry } from "@/lib/api-client";
 import { routeColor } from "@/lib/map-config";
@@ -180,7 +181,7 @@ export default function PathfindPage() {
 
           {stage !== "results" && <>
             <div className="discovery-results-header"><div><span className="panel-kicker">{stage === "origin" ? "Starting point" : "Destination"}</span><h2>{selection ? (nearestName ? `Near ${nearestName}` : "Place selected") : "Choose a place"}</h2></div><span className="route-count-pill">{nearbyRoutes.length}</span></div>
-            {stage === "origin" && <button className="gps-button" type="button" onClick={useMyLocation} disabled={locationLoading}><ClayIcon name="pin" size={24} />{locationLoading ? "Finding your location…" : "Use my current location"}</button>}
+            {stage === "origin" && <button className="gps-button" type="button" onClick={useMyLocation} disabled={locationLoading}><ClayIcon name="pin" size={30} />{locationLoading ? "Finding your location…" : "Use my current location"}</button>}
             {locationError && <div className="alert alert-error">{locationError}</div>}
             <div className="radius-picker" aria-label="Search area"><span>Search area</span><div>{RADIUS_OPTIONS.map((radius) => <button type="button" className={radiusMeters === radius ? "active" : ""} onClick={() => chooseRadius(radius)} key={radius}>{radius >= 1000 ? `${radius / 1000} km` : `${radius} m`}</button>)}</div></div>
             <div className="nearby-route-list">
@@ -195,7 +196,7 @@ export default function PathfindPage() {
             {journeyError && <div className="alert alert-error journey-error">{journeyError}</div>}
           </>}
 
-          {stage === "results" && result && <div className="journey-result-panel">{isNoRoute(result) ? <div className="result-empty"><span>Try another way</span><h2>No mapped combi journey yet</h2><p>{result.message}</p></div> : <><span className="panel-kicker">Recommended journey</span><div className="journey-result-time"><strong>{result.totalTimeMinutes}</strong><span>min estimate</span></div><div className="journey-summary-row"><div><strong>{result.transfers}</strong><span>{result.transfers === 1 ? "transfer" : "transfers"}</span></div><div><strong>{Math.round(result.walkingDistanceMeters / 10) * 10} m</strong><span>walking</span></div><div><strong>{result.path.length}</strong><span>mapped stops</span></div></div><div className="plain-instruction"><span>Hop on</span><strong>Near {result.path[0]?.name}</strong><span>Ask to stop</span><strong>Near {result.path[result.path.length - 1]?.name}</strong></div><div className="compact-stop-list">{result.path.map((node, index) => <div key={node.id}><i className={index === 0 ? "first" : index === result.path.length - 1 ? "last" : ""} /><span>{node.name}</span></div>)}</div></>}</div>}
+          {stage === "results" && result && <div className="journey-result-panel">{isNoRoute(result) ? <div className="result-empty"><TselaArt name="map" /><span>Try another way</span><h2>No mapped combi journey yet</h2><p>{result.message}</p></div> : <><span className="panel-kicker">Recommended journey</span><div className="journey-result-time"><strong>{result.totalTimeMinutes}</strong><span>min estimate</span></div><div className="journey-summary-row"><div><strong>{result.transfers}</strong><span>{result.transfers === 1 ? "transfer" : "transfers"}</span></div><div><strong>{Math.round(result.walkingDistanceMeters / 10) * 10} m</strong><span>walking</span></div><div><strong>{result.path.length}</strong><span>mapped stops</span></div></div><div className="plain-instruction"><span>Hop on</span><strong>Near {result.path[0]?.name}</strong><span>Ask to stop</span><strong>Near {result.path[result.path.length - 1]?.name}</strong></div><div className="compact-stop-list">{result.path.map((node, index) => <div key={node.id}><i className={index === 0 ? "first" : index === result.path.length - 1 ? "last" : ""} /><span>{node.name}</span></div>)}</div></>}</div>}
         </aside>
       </section>
       <div className="rider-trust-note"><span>About the lines</span><p>Road-following previews are routing estimates. Community contributions and field-recorded GPS traces are reviewed before becoming published routes.</p><Link href="/routes">Explore all routes →</Link></div>

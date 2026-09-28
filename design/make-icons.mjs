@@ -1,4 +1,4 @@
-// Draws Tsela's app icons (the plum route mark on a lime tile) and writes them as PNG files.
+// Draws Tsela's app icons (an ink route with a blue destination on a green tile) and writes them as PNG files.
 //
 //   node design/make-icons.mjs
 //
@@ -12,8 +12,9 @@ import { fileURLToPath } from "node:url";
 import { deflateSync } from "node:zlib";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
-const TILE = [226, 245, 80];
-const MARK = [74, 34, 112];
+const TILE = [63, 208, 139];
+const MARK = [29, 27, 22];
+const BLUE = [26, 102, 230];
 
 // The mark, in the 64-unit space of design/logo.svg.
 const DOTS = [[20, 45, 6], [44, 19, 6]];
@@ -30,13 +31,18 @@ function distanceToSegment(px, py, [ax, ay], [bx, by]) {
   return Math.hypot(px - (ax + t * dx), py - (ay + t * dy));
 }
 
-function inMark(x, y) {
-  for (const [cx, cy, r] of DOTS) if (Math.hypot(x - cx, y - cy) <= r) return true;
-  if (x < 12 || x > 52 || y < 12 || y > 52) return false;
+// Which colour is at a point in the mark: 0 none, 1 ink, 2 blue (the destination).
+function paint(x, y) {
+  const [ex, ey, er] = DOTS[1];
+  const toEnd = Math.hypot(x - ex, y - ey);
+  if (toEnd <= er) return toEnd > er - 2.5 ? 1 : 2;
+  const [sx, sy, sr] = DOTS[0];
+  if (Math.hypot(x - sx, y - sy) <= sr) return 1;
+  if (x < 12 || x > 52 || y < 12 || y > 52) return 0;
   for (let i = 0; i < curvePoints.length - 1; i++) {
-    if (distanceToSegment(x, y, curvePoints[i], curvePoints[i + 1]) <= STROKE / 2) return true;
+    if (distanceToSegment(x, y, curvePoints[i], curvePoints[i + 1]) <= STROKE / 2) return 1;
   }
-  return false;
+  return 0;
 }
 
 function render(size, viewMin, viewSize) {
@@ -44,17 +50,18 @@ function render(size, viewMin, viewSize) {
   const SAMPLES = 3;
   for (let py = 0; py < size; py++) {
     for (let px = 0; px < size; px++) {
-      let hit = 0;
+      const sum = [0, 0, 0];
       for (let sy = 0; sy < SAMPLES; sy++) {
         for (let sx = 0; sx < SAMPLES; sx++) {
           const x = viewMin + ((px + (sx + 0.5) / SAMPLES) / size) * viewSize;
           const y = viewMin + ((py + (sy + 0.5) / SAMPLES) / size) * viewSize;
-          if (inMark(x, y)) hit++;
+          const which = paint(x, y);
+          const color = which === 1 ? MARK : which === 2 ? BLUE : TILE;
+          for (let c = 0; c < 3; c++) sum[c] += color[c];
         }
       }
-      const cover = hit / (SAMPLES * SAMPLES);
       const at = (py * size + px) * 3;
-      for (let c = 0; c < 3; c++) pixels[at + c] = Math.round(TILE[c] * (1 - cover) + MARK[c] * cover);
+      for (let c = 0; c < 3; c++) pixels[at + c] = Math.round(sum[c] / (SAMPLES * SAMPLES));
     }
   }
   return pixels;

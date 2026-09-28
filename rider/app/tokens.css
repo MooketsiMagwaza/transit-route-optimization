@@ -3,11 +3,11 @@
  * Edit this file only. `node design/sync.mjs` copies it into each app (marketing, rider, admin,
  * docs-site), and `node design/sync.mjs --check` fails when a copy has drifted.
  *
- * The look is iOS in structure (grouped rounded surfaces, hairlines, large titles, a floating tab
- * bar) with a personality of its own: a warm off-white canvas, "Go" lime for the one thing to tap,
- * plum for brand ink, soft clay icons, and a chunky geometric display face. Contrast was checked
- * against WCAG AA: ink on the canvas is above 15:1, secondary ink above 5:1, plum on white above
- * 9:1, and dark ink on the lime action colour above 13:1.
+ * The look is a friendly modern transit app: a warm cream canvas, white cards that float on soft
+ * shadows, Tsela green as the brand, one clear blue for the thing to tap, and black ink line
+ * work with a green spot colour for every illustration. Contrast was checked against WCAG AA:
+ * ink on cream is above 15:1, secondary ink above 5:1, brand green on white above 5:1, and dark
+ * white on the blue action colour above 5:1. Bright green fills always carry dark ink.
  *
  * Components read these names and never hard-code a colour, radius, or font size.
  */
@@ -16,36 +16,37 @@
   color-scheme: light;
 
   /* Surfaces */
-  --c-bg: #f6f4f0;
+  --c-bg: #f3f0e4;
   --c-surface: #ffffff;
-  --c-fill: #ece9e4;
-  --c-fill-2: #f3f1ed;
-  --c-glass: rgba(255, 254, 252, 0.84);
-  --c-overlay: rgba(31, 26, 36, 0.36);
+  --c-fill: #ebe7d8;
+  --c-fill-2: #f7f4ea;
+  --c-glass: rgba(255, 255, 255, 0.9);
+  --c-overlay: rgba(29, 27, 22, 0.4);
 
   /* Ink */
-  --c-ink: #1f1a24;
-  --c-ink-2: #665f6e;
-  --c-ink-3: #9a93a3;
-  --c-line: rgba(50, 30, 60, 0.12);
-  --c-line-strong: rgba(50, 30, 60, 0.28);
+  --c-ink: #1d1b16;
+  --c-ink-2: #625e52;
+  --c-ink-3: #948f80;
+  --c-line: rgba(29, 27, 22, 0.12);
+  --c-line-strong: rgba(29, 27, 22, 0.3);
 
-  /* Action: the one colour that means "you can tap this" */
-  --c-accent: #e2f550;
-  --c-accent-hover: #d4e83a;
-  --c-accent-soft: #f2f9c6;
-  --c-on-accent: #1f1a24;
+  /* Action: the one colour that means "tap this" */
+  --c-accent: #1a66e6;
+  --c-accent-hover: #1257cc;
+  --c-accent-soft: #e0ebff;
+  --c-on-accent: #ffffff;
 
-  /* Brand: plum, for links, emphasis, and anything that should feel like Tsela */
-  --c-brand: #5b2a86;
-  --c-brand-ink: #3b1859;
-  --c-brand-soft: #efe6f8;
-  --c-accent-text: #5b2a86;
-  --c-focus: #5b2a86;
+  /* Brand green: links, active states, and tints. --c-spot is the bright illustration green. */
+  --c-brand: #0f7a48;
+  --c-brand-ink: #0a5c35;
+  --c-brand-soft: #dcf4e6;
+  --c-spot: #3fd08b;
+  --c-accent-text: #0f7a48;
+  --c-focus: #0f7a48;
 
   /* Status */
-  --c-good: #1d7a34;
-  --c-good-soft: #e4f5e8;
+  --c-good: #0f7a48;
+  --c-good-soft: #dcf4e6;
   --c-warn: #a24a00;
   --c-warn-soft: #fdf0dd;
   --c-bad: #c4001a;
@@ -79,8 +80,8 @@
   /* Shape and spacing */
   --r-sm: 10px;
   --r-md: 14px;
-  --r-lg: 18px;
-  --r-xl: 24px;
+  --r-lg: 20px;
+  --r-xl: 28px;
   --r-pill: 999px;
   --s-1: 4px;
   --s-2: 8px;
@@ -91,44 +92,47 @@
   --s-7: 48px;
   --s-8: 72px;
 
-  /* Elevation: surfaces are flat; only floating things (tab bar, popovers) cast a shadow */
-  --sh-1: 0 0 0 0.5px rgba(50, 30, 60, 0.06);
-  --sh-2: 0 8px 30px rgba(50, 30, 60, 0.14), 0 0 0 0.5px rgba(50, 30, 60, 0.06);
+  /* Elevation: cards float on a soft, low shadow; the tab bar and popovers float higher */
+  --sh-1: 0 1px 2px rgba(40, 45, 30, 0.06), 0 6px 18px rgba(40, 45, 30, 0.07);
+  --sh-2: 0 10px 32px rgba(40, 45, 30, 0.16), 0 1px 2px rgba(40, 45, 30, 0.08);
 
   /* Motion */
   --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
   --dur: 180ms;
 }
 
-/* Dark: a deep aubergine rather than pure black. Applied by `.dark` or `[data-theme="dark"]`. */
+/* Dark: deep green-black. Applied by `.dark` or `[data-theme="dark"]`. */
 .dark,
 [data-theme="dark"] {
   color-scheme: dark;
-  --c-bg: #14101a;
-  --c-surface: #1f1a26;
-  --c-fill: rgba(255, 255, 255, 0.1);
-  --c-fill-2: rgba(255, 255, 255, 0.06);
-  --c-glass: rgba(31, 26, 38, 0.84);
+  --c-bg: #0f1512;
+  --c-surface: #182019;
+  --c-fill: rgba(255, 255, 255, 0.09);
+  --c-fill-2: rgba(255, 255, 255, 0.05);
+  --c-glass: rgba(24, 32, 25, 0.9);
   --c-overlay: rgba(0, 0, 0, 0.6);
-  --c-ink: #f5f2f8;
-  --c-ink-2: #b3aabd;
-  --c-ink-3: #7d7488;
-  --c-line: rgba(255, 255, 255, 0.14);
-  --c-line-strong: rgba(255, 255, 255, 0.3);
-  --c-accent-soft: rgba(226, 245, 80, 0.16);
-  --c-brand: #c9a6f2;
-  --c-brand-ink: #e6d4fb;
-  --c-brand-soft: rgba(201, 166, 242, 0.18);
-  --c-accent-text: #d9b8ff;
-  --c-focus: #d9b8ff;
-  --c-good: #62d47c;
-  --c-good-soft: #163420;
+  --c-ink: #f2f0e6;
+  --c-ink-2: #b4b3a4;
+  --c-ink-3: #7c7b6e;
+  --c-line: rgba(255, 255, 240, 0.14);
+  --c-line-strong: rgba(255, 255, 240, 0.3);
+  --c-accent: #4d8dff;
+  --c-accent-hover: #6aa0ff;
+  --c-accent-soft: rgba(110, 160, 255, 0.2);
+  --c-on-accent: #0b1220;
+  --c-brand: #6fe0a6;
+  --c-brand-ink: #a5f0c8;
+  --c-brand-soft: rgba(111, 224, 166, 0.16);
+  --c-accent-text: #6fe0a6;
+  --c-focus: #6fe0a6;
+  --c-good: #6fe0a6;
+  --c-good-soft: rgba(111, 224, 166, 0.16);
   --c-warn: #ffb35c;
   --c-warn-soft: #3a2a12;
   --c-bad: #ff8a80;
   --c-bad-soft: #3d1a1c;
-  --sh-1: 0 0 0 0.5px rgba(255, 255, 255, 0.1);
-  --sh-2: 0 10px 40px rgba(0, 0, 0, 0.6), 0 0 0 0.5px rgba(255, 255, 255, 0.12);
+  --sh-1: 0 1px 2px rgba(0, 0, 0, 0.4), 0 6px 18px rgba(0, 0, 0, 0.3);
+  --sh-2: 0 10px 40px rgba(0, 0, 0, 0.6), 0 0 0 0.5px rgba(255, 255, 255, 0.1);
 }
 
 @media (prefers-reduced-motion: reduce) {

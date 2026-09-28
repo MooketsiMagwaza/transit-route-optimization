@@ -1,7 +1,7 @@
 /** Rider workflows plus attributed, time-sensitive local guidance from the supplied blog export. */
 
 import Link from "next/link";
-import { ClayIcon } from "@/components/tsela-icon";
+import { TselaArt } from "@/components/tsela-art";
 
 const fieldTips = [
   { title: "Leave a time buffer", copy: "Combis may wait for passengers or pause along a corridor. Do not plan a tight connection when arrival time matters." },
@@ -70,7 +70,7 @@ export default function GuidePage() {
     <div className="rider-guide-page">
       <header className="rider-guide-hero">
         <div><span className="page-eyebrow">Field guide / Gaborone</span><h1>Know the route.<br />Ride with context.</h1><p>A practical, community-minded guide to finding a combi, reading the map, and knowing what to confirm before boarding.</p><div className="guide-hero-actions"><Link className="btn btn-dark" href="/plan">Plan a trip →</Link><Link className="btn btn-secondary" href="/routes">Explore routes</Link></div></div>
-        <aside><ClayIcon name="guide" size={56} /><span className="panel-kicker">Before you board</span><strong>Confirm three things locally.</strong><ol><li><span>01</span>Direction and final stop</li><li><span>02</span>Current fare</li><li><span>03</span>Where to get off</li></ol></aside>
+        <aside><TselaArt name="guide" /><span className="panel-kicker">Before you board</span><strong>Confirm three things locally.</strong><ol><li><span>01</span>Direction and final stop</li><li><span>02</span>Current fare</li><li><span>03</span>Where to get off</li></ol></aside>
       </header>
 
       <section className="guide-context-band"><span>BW</span><div><strong>Community map, not a live timetable</strong><p>The starter corridors are shared examples. Confirm stop order, direction, fares, and current service with local operators before travel.</p></div></section>

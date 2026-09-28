@@ -15,6 +15,7 @@ const apps = ["marketing", "rider", "admin", "docs-site"];
 const files = [
   { from: "design/tokens.css", to: (app) => `${app}/app/tokens.css` },
   { from: "design/tsela-icon.tsx", to: (app) => `${app}/components/tsela-icon.tsx` },
+  { from: "design/tsela-art.tsx", to: (app) => `${app}/components/tsela-art.tsx` },
 ];
 
 const check = process.argv.includes("--check");
