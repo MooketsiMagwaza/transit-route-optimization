@@ -5,6 +5,19 @@ global:
 rule_files:
   - /etc/prometheus/alerts.yml
 
+# Deliver every rule in alerts.yml through Grafana's built-in Alertmanager, whose default
+# notification policy posts to the Tsela admin webhook. Without this block the rules are
+# evaluated but nobody is told.
+alerting:
+  alertmanagers:
+    - scheme: http
+      path_prefix: /api/alertmanager/grafana
+      basic_auth:
+        username: admin
+        password_file: /etc/prometheus/grafana-password
+      static_configs:
+        - targets: ["grafana:3000"]
+
 scrape_configs:
   - job_name: tsela-api
     metrics_path: /metrics/

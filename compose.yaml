@@ -168,6 +168,9 @@ services:
       - ./observability/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - ./observability/prometheus/alerts.yml:/etc/prometheus/alerts.yml:ro
       - prometheus_data:/prometheus
+    configs:
+      - source: grafana_alert_password
+        target: /etc/prometheus/grafana-password
     ports:
       - "127.0.0.1:9090:9090"
     depends_on:
@@ -467,6 +470,10 @@ services:
       - ./ops/recovery/pitr-restore.sh:/pitr-restore.sh:ro
     tmpfs:
       - /var/lib/postgresql/data
+
+configs:
+  grafana_alert_password:
+    content: ${GRAFANA_ADMIN_PASSWORD:-admin}
 
 volumes:
   transit_system:
