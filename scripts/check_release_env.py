@@ -16,7 +16,7 @@ REQUIRED = (
     "MINIO_ROOT_USER", "MINIO_ROOT_PASSWORD", "UPLOADS_ACCESS_KEY", "UPLOADS_SECRET_KEY",
     "BACKUPS_ACCESS_KEY", "BACKUPS_SECRET_KEY", "SMTP_HOST", "SMTP_PORT",
 )
-MIN_SECRET_LENGTH = {
+MINIMUM_LENGTH = {
     "AUTH_JWT_SECRET": 48, "TOKEN_HASH_SECRET": 32, "BACKUP_ENCRYPTION_PASSPHRASE": 32,
     "POSTGRES_PASSWORD": 16, "REPLICATION_PASSWORD": 16, "BACKUP_DB_PASSWORD": 16,
     "AUTH_DB_PASSWORD": 16, "MINIO_ROOT_PASSWORD": 16, "UPLOADS_SECRET_KEY": 16,
@@ -50,8 +50,8 @@ def problems(values: dict[str, str]) -> list[str]:
         lowered = value.lower()
         if any(marker.lower() in lowered for marker in PUBLISHED_DEFAULTS):
             found.append(f"{key} still looks like a placeholder or published default")
-        if len(value) < MIN_SECRET_LENGTH.get(key, 1):
-            found.append(f"{key} must be at least {MIN_SECRET_LENGTH[key]} characters")
+        if len(value) < MINIMUM_LENGTH.get(key, 1):
+            found.append(f"{key} must be at least {MINIMUM_LENGTH[key]} characters")
     for first, second in DISTINCT_PAIRS:
         if values.get(first) and values.get(first) == values.get(second):
             found.append(f"{first} and {second} must differ so a leaked upload key cannot read backups")
