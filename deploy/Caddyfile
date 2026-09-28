@@ -49,3 +49,19 @@ api.{$TSELA_DOMAIN} {
 		health_interval 15s
 	}
 }
+
+auth.{$TSELA_DOMAIN} {
+	import secure_headers
+	# Self-hosted Supabase Auth (GoTrue): sign-in, recovery, Google callback, and MFA.
+	reverse_proxy auth:9999
+}
+
+objects.{$TSELA_DOMAIN} {
+	import secure_headers
+	# Presigned upload and download URLs point here. The signature covers this hostname, so the
+	# Host header must reach the object store unchanged (Caddy preserves it).
+	request_body {
+		max_size 6MB
+	}
+	reverse_proxy objects:9000
+}

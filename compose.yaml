@@ -48,7 +48,9 @@ services:
     restart: unless-stopped
     environment:
       DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-transitsym}:${POSTGRES_PASSWORD:-metro}@db:5432/${POSTGRES_DB:-transit}?connect_timeout=3
-      CORS_ORIGINS: http://localhost:3000,http://localhost:3001,http://localhost:3002,http://localhost:3003
+      # Local development only: browsers treat localhost and 127.0.0.1 as different origins, and
+      # a blocked response shows up as a bare "NetworkError" in Firefox.
+      CORS_ORIGINS: http://localhost:3000,http://localhost:3001,http://localhost:3002,http://localhost:3003,http://127.0.0.1:3000,http://127.0.0.1:3001,http://127.0.0.1:3002,http://127.0.0.1:3003
       DEVELOPER_PORTAL_URL: http://localhost:3003
       API_DOCS_ENABLED: "false"
       DEMO_ACCOUNT_ENABLED: "true"
@@ -91,6 +93,13 @@ services:
     container_name: transit-scheduler
     restart: unless-stopped
     command: ["python", "-m", "app.jobs.scheduler"]
+    healthcheck:
+      # Healthy while the loop is ticking (it touches this file every 30 seconds).
+      test: ["CMD", "python", "-c", "import os, sys, time; sys.exit(0 if time.time() - os.path.getmtime('/tmp/scheduler-heartbeat') < 120 else 1)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 40s
     environment:
       DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-transitsym}:${POSTGRES_PASSWORD:-metro}@db:5432/${POSTGRES_DB:-transit}?connect_timeout=3
       TOKEN_HASH_SECRET: ${TOKEN_HASH_SECRET:-local-development-token-hash-secret-change-me}
