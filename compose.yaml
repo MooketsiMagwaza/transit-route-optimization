@@ -39,6 +39,7 @@ services:
       retries: 12
 
   api:
+    image: tsela/api:local
     build:
       context: ./api
       additional_contexts:
@@ -61,6 +62,11 @@ services:
       LOCAL_AUTH_ENABLED: ${LOCAL_AUTH_ENABLED:-true}
       SANDBOX_API_KEY: ${DOCS_SANDBOX_API_KEY:-tos_live_local_docs_sandbox_key_not_for_production}
       HANDBOOK_DIR: /app/handbook
+      AUTH_ADMIN_URL: http://auth:9999
+      OBJECT_STORE_ENDPOINT: http://objects:9000
+      OBJECT_STORE_PUBLIC_ENDPOINT: ${OBJECT_STORE_PUBLIC_ENDPOINT:-}
+      OBJECT_STORE_ACCESS_KEY: ${UPLOADS_ACCESS_KEY:-tsela-uploads-app}
+      OBJECT_STORE_SECRET_KEY: ${UPLOADS_SECRET_KEY:-local-uploads-secret-key}
       GRAFANA_PUBLIC_URL: http://localhost:3004
       PROMETHEUS_PUBLIC_URL: http://localhost:9090
       PROMETHEUS_INTERNAL_URL: http://prometheus:9090
@@ -78,6 +84,24 @@ services:
       interval: 10s
       timeout: 5s
       retries: 6
+
+  scheduler:
+    image: tsela/api:local
+    pull_policy: never
+    container_name: transit-scheduler
+    restart: unless-stopped
+    command: ["python", "-m", "app.jobs.scheduler"]
+    environment:
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-transitsym}:${POSTGRES_PASSWORD:-metro}@db:5432/${POSTGRES_DB:-transit}?connect_timeout=3
+      TOKEN_HASH_SECRET: ${TOKEN_HASH_SECRET:-local-development-token-hash-secret-change-me}
+      DEPLOYMENT_ENVIRONMENT: local-compose
+      OBJECT_STORE_ENDPOINT: http://objects:9000
+      OBJECT_STORE_PUBLIC_ENDPOINT: ${OBJECT_STORE_PUBLIC_ENDPOINT:-}
+      OBJECT_STORE_ACCESS_KEY: ${UPLOADS_ACCESS_KEY:-tsela-uploads-app}
+      OBJECT_STORE_SECRET_KEY: ${UPLOADS_SECRET_KEY:-local-uploads-secret-key}
+    depends_on:
+      api:
+        condition: service_healthy
 
   marketing:
     build:

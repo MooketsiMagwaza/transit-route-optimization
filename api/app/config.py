@@ -53,6 +53,11 @@ class Settings(BaseSettings):
     auth_jwt_secret: str = ""
     auth_jwks_url: str = ""
     auth_audience: str = "authenticated"
+    # Internal address of the provider admin API (defaults to the issuer) for user deletion.
+    auth_admin_url: str = ""
+    # Personal data is removed at once; the anonymised row is purged after this many days.
+    deleted_account_grace_days: int = 30
+    consent_retention_days: int = 1095
     # Opaque local sessions (development). Must be off in production.
     local_auth_enabled: bool = True
     # Operators must present an MFA-verified (aal2) token. Defaults to on in production.
