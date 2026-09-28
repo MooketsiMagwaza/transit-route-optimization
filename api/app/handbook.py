@@ -118,6 +118,27 @@ PAGES: tuple[HandbookPage, ...] = (
         "SSRF, JSON boundaries, roles, cost caps, and automated checks.",
     ),
     HandbookPage(
+        "release-runbook",
+        "RELEASE_RUNBOOK.md",
+        "Release runbook",
+        "Operations",
+        "Releasing, rolling back, launch records, and the drills that must have run.",
+    ),
+    HandbookPage(
+        "privacy-operations",
+        "PRIVACY_OPERATIONS.md",
+        "Privacy operations",
+        "Identity and security",
+        "Data inventory, consent, export, deletion, retention, and third parties.",
+    ),
+    HandbookPage(
+        "trust-and-moderation",
+        "TRUST_AND_MODERATION.md",
+        "Route trust and moderation",
+        "Product data",
+        "Provenance, contribution review, reports, and the append-only audit trail.",
+    ),
+    HandbookPage(
         "backup-and-recovery",
         "BACKUP_AND_DISASTER_RECOVERY.md",
         "Backup and recovery",

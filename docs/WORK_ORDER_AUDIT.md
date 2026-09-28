@@ -31,18 +31,16 @@ backup recovery, field route data, or multi-host Kubernetes are ready.
 
 ### Blocked by owner-provided production inputs
 
-- **WO-06:** Supabase/Google identity needs the actual project, domains, SMTP,
-  OAuth client and operator MFA policy. Local demo authentication must not be
-  relabeled as production authentication.
+- **WO-06 (Google only):** the provider integration, token verification, account mapping, and operator MFA are implemented. Google sign-in still needs a Google OAuth client with exact callback URLs, and production needs an SMTP provider and a public auth domain. Local demo authentication must not be relabeled as production authentication.
 
-### Explicitly outstanding
+### Implemented on the integration branch, awaiting real-infrastructure proof
 
-- **WO-07–WO-15:** production data recovery, API lifecycle, route trust,
-  community moderation, product-quality UX, release engineering, compliance,
-  living documentation and the internal/public documentation split.
-- **WO-16–WO-21:** scheduled lifecycle automation, adversarial request and
-  abuse-cost controls, data-governance invariants, evidence-gated async/realtime
-  architecture, marketing/brand completion and field-capable PWA behavior.
+WO-07 to WO-18 and WO-21 now have code and, where possible, tests (2026-09-28 baseline: 103 API tests). The detail, including what has and has not been run against Docker, is in [`WORK_ORDER.md`](WORK_ORDER.md). Treat "implemented" as "written and unit-tested", not "operating".
+
+### Added since this audit
+
+- **WO-22:** one design system across the four apps (see the register).
+- Findings from verification that changed the plan: Prometheus rules were never delivered to anyone, route writes were unauthenticated, and rider maps could lose their route lines.
 
 ## Request coverage matrix
 

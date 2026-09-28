@@ -102,3 +102,27 @@ Validate extensions, roles, grants, row counts, migration version, and applicati
 - **After every material schema/auth/storage change:** repeat the relevant drill.
 
 A backup is not considered successful until a restore has been proven. Store drill results, duration, chosen recovery point, failed steps, and follow-up owner in OpenProject.
+
+## Local recovery profile and drills (implemented)
+
+The runbook above describes production practice; the repository also ships a working, testable version for a single Docker host. It uses PostgreSQL's own tools and any S3-compatible store instead of pgBackRest, because a hobby deployment should not need more moving parts than it can rehearse.
+
+**Always on.** The primary archives WAL to its own volume (`archive_mode=on`, `archive_timeout=300`), which bounds the recovery point to about five minutes of activity. `TselaWalArchiveFailing` alerts within minutes if archiving stops.
+
+**`--profile recovery`** adds a streaming hot standby (`db-standby`, port 6001, using a replication slot), an S3-compatible object store (`objects`; buckets for uploads and for backups with separate credentials and object versioning), and the `backup` runner:
+
+| Job | Schedule (Africa/Gaborone) | What it does |
+| --- | --- | --- |
+| `logical` | 04:00 daily | `pg_dump` tar archive, `pg_restore --list` check, AES-256 encryption, checksum, off-host copy |
+| `base` | 04:30 Sundays | `pg_basebackup` including the WAL it needs, encrypted, checksummed, copied off-host |
+| `verify` | 05:00 daily | Downloads the newest off-host archive, verifies the checksum, decrypts it, and lists it |
+| `prune` | after each logical run | 30 daily + 12 monthly archives, 4 base backups, 30 days of WAL |
+
+Each job writes its outcome to `MaintenanceRun`; a failure or a missed window alerts through Prometheus and Grafana into the admin feed. Nothing leaves the host unencrypted, and the encryption passphrase must be stored outside the host.
+
+**Drills** (`ops/backups/run-drills.sh restore|pitr|all`) each write JSON evidence to `ops/backups/evidence/`:
+
+- *Logical restore* downloads the newest off-host archive, checks its checksum, decrypts it, and restores it into an empty scratch server that shares no volume with the primary, then checks that routes, stops, the migration revision, and PostGIS are present.
+- *Point-in-time recovery* takes a base backup, writes a `before-target` marker, records the instant, writes an `after-target` marker, forces the WAL into the archive, and recovers a scratch server to that instant from the base backup plus archived WAL. It passes only if `before-target` exists and `after-target` does not.
+
+What this does **not** prove: recovery across separate machines (the standby and the primary share one host), recovery after losing the encryption passphrase (it is unrecoverable by design), or restoring the object store's uploads. Put the off-host bucket on a different provider before relying on it.

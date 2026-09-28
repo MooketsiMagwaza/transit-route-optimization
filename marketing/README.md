@@ -4,6 +4,10 @@ The editorial Next.js surface on port 3000 demonstrates the rider journey and ro
 
 The homepage uses a server-rendered SVG route preview instead of downloading an interactive map. It demonstrates the Broadhurst-to-Main-Mall product flow while keeping the marketing route fast, stable, and usable without JavaScript. The full MapLibre experience remains in the rider application, where interaction is valuable.
 
+## Design
+
+One tokenised stylesheet (`app/globals.css`) shared in spirit with the rider app: warm paper, black structure, cobalt actions, lime accents, occasional pink labels. Hard shadows are reserved for interactive elements so sections stay calm. There is a sticky header with a real mobile menu, a skip link, visible focus, a compact privacy banner, and reduced-motion support. The route preview labels are HTML rather than SVG text, so they stay readable at every width. Text sizes never drop below 12px and body text is 16px or larger.
+
 ## Identity and SEO
 
 - `components/brand-mark.tsx` owns the reusable route-loop wordmark.
