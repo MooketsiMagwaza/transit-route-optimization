@@ -37,7 +37,11 @@ def cleanup_auth(session, now: datetime) -> tuple[int, dict]:
     revoked = session.execute(
         delete(RevokedAuthSession).where(RevokedAuthSession.expires_at < now)
     ).rowcount
-    return sessions + resets + revoked, {
+    from app.services.throttle import prune as prune_attempts
+
+    attempts = prune_attempts(session)
+    return sessions + resets + revoked + attempts, {
+        "prunedAttempts": attempts,
         "expiredSessions": sessions,
         "expiredResetTokens": resets,
         "expiredRevocations": revoked,
@@ -117,7 +121,15 @@ def cleanup_uploads(session, now: datetime) -> tuple[int, dict]:
     return removed, {"deleted": removed, "failed": failed}
 
 
+def route_freshness(session, now: datetime) -> tuple[int, dict]:
+    from app.services.route_freshness import mark_stale_routes
+
+    changed = mark_stale_routes(session, now)
+    return changed, {"markedStale": changed}
+
+
 JOBS = {
+    "route-freshness": route_freshness,
     "cleanup-uploads": cleanup_uploads,
     "cleanup-auth": cleanup_auth,
     "prune-usage": prune_usage,

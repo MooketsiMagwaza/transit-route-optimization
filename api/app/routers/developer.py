@@ -49,6 +49,8 @@ from app.services.security import (
     verify_password,
 )
 
+from app.services import throttle  # noqa: E402  (kept beside the router that uses it)
+
 router = APIRouter(prefix="/api/developer", tags=["Developer access"])
 
 
@@ -113,11 +115,15 @@ def _require_local_auth(settings: Settings) -> None:
 
 @router.post("/register", response_model=DeveloperAuthResponse, status_code=status.HTTP_201_CREATED)
 def register(
+    request: Request,
     payload: DeveloperRegisterRequest,
     session: Session = Depends(get_db),
     settings: Settings = Depends(get_settings),
 ) -> DeveloperAuthResponse:
     _require_local_auth(settings)
+    throttle.enforce(
+        session, "register", throttle.client_ip(request, settings), limit=10, window_seconds=3600
+    )
     if session.scalar(select(DeveloperAccount).where(DeveloperAccount.email == payload.email)):
         raise HTTPException(status_code=409, detail="An account already exists for this email")
     account = DeveloperAccount(
@@ -142,11 +148,18 @@ def register(
 
 @router.post("/login", response_model=DeveloperAuthResponse)
 def login(
+    request: Request,
     payload: DeveloperLoginRequest,
     session: Session = Depends(get_db),
     settings: Settings = Depends(get_settings),
 ) -> DeveloperAuthResponse:
     _require_local_auth(settings)
+    address = throttle.client_ip(request, settings)
+    throttle.enforce(session, "login-ip", address, limit=60, window_seconds=900)
+    # Per address and email together, so one attacker cannot lock a victim out from elsewhere.
+    throttle.enforce(
+        session, "login", f"{address}|{payload.email}", limit=10, window_seconds=900
+    )
     account = session.scalar(
         select(DeveloperAccount).where(DeveloperAccount.email == payload.email.strip().lower())
     )
@@ -331,6 +344,7 @@ def usage(
 
 @router.post("/password-recovery", response_model=PasswordRecoveryResponse)
 def request_password_recovery(
+    request: Request,
     payload: PasswordRecoveryRequest,
     session: Session = Depends(get_db),
     settings: Settings = Depends(get_settings),
@@ -338,6 +352,9 @@ def request_password_recovery(
     """Create a one-use recovery token while returning the same response for every email."""
 
     _require_local_auth(settings)
+    address = throttle.client_ip(request, settings)
+    throttle.enforce(session, "recover-ip", address, limit=10, window_seconds=3600)
+    throttle.enforce(session, "recover", payload.email, limit=3, window_seconds=3600)
     account = session.scalar(
         select(DeveloperAccount).where(DeveloperAccount.email == payload.email)
     )
@@ -362,11 +379,15 @@ def request_password_recovery(
 
 @router.post("/password-reset", status_code=status.HTTP_204_NO_CONTENT)
 def reset_password(
+    request: Request,
     payload: PasswordResetRequest,
     session: Session = Depends(get_db),
     settings: Settings = Depends(get_settings),
 ) -> None:
     _require_local_auth(settings)
+    throttle.enforce(
+        session, "reset", throttle.client_ip(request, settings), limit=20, window_seconds=3600
+    )
     now = datetime.now(UTC)
     reset = session.scalar(
         select(PasswordResetToken).where(

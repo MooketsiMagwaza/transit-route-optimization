@@ -1,6 +1,7 @@
 """Published route, stop, batched network, geometry, and optimization endpoints."""
 
 from concurrent.futures import ThreadPoolExecutor
+from datetime import UTC, datetime
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from geoalchemy2 import Geography
@@ -9,7 +10,8 @@ from sqlalchemy.orm import Session
 
 from app.config import get_settings
 from app.database import get_db
-from app.models import Node, Route
+from app.models import DeveloperAccount, Node, Route
+from app.routers.admin import require_admin
 from app.schemas import (
     Coordinate,
     MappedRouteCreate,
@@ -28,6 +30,7 @@ from app.schemas import (
     RouteRead,
     RouteUpdate,
 )
+from app.services.audit import record_event
 from app.services.optimizer import optimize_node_order
 from app.services.road_geometry import RoadGeometryError, fetch_road_geometry
 
@@ -115,7 +118,11 @@ def list_routes(
 
 
 @router.post("", response_model=RouteRead, status_code=status.HTTP_201_CREATED)
-def create_route(payload: RouteCreate, session: Session = Depends(get_db)) -> Route:
+def create_route(
+    payload: RouteCreate,
+    _: DeveloperAccount = Depends(require_admin),
+    session: Session = Depends(get_db),
+) -> Route:
     route = Route(name=payload.name, description=payload.description)
     session.add(route)
     session.commit()
@@ -130,7 +137,9 @@ def create_route(payload: RouteCreate, session: Session = Depends(get_db)) -> Ro
     tags=["Routes", "Stops"],
 )
 def create_mapped_route(
-    payload: MappedRouteCreate, session: Session = Depends(get_db)
+    payload: MappedRouteCreate,
+    _: DeveloperAccount = Depends(require_admin),
+    session: Session = Depends(get_db),
 ) -> MappedRouteResponse:
     route = Route(name=payload.name, description=payload.description)
     session.add(route)
@@ -252,7 +261,12 @@ def get_route_geometry(route_id: int, session: Session = Depends(get_db)) -> Rou
 
 
 @router.patch("/{route_id}", response_model=RouteRead)
-def update_route(route_id: int, payload: RouteUpdate, session: Session = Depends(get_db)) -> Route:
+def update_route(
+    route_id: int,
+    payload: RouteUpdate,
+    _: DeveloperAccount = Depends(require_admin),
+    session: Session = Depends(get_db),
+) -> Route:
     route = get_route_or_404(session, route_id)
     for field, value in payload.model_dump(exclude_unset=True).items():
         setattr(route, field, value)
@@ -262,9 +276,16 @@ def update_route(route_id: int, payload: RouteUpdate, session: Session = Depends
 
 
 @router.delete("/{route_id}")
-def delete_route(route_id: int, session: Session = Depends(get_db)) -> dict[str, str]:
+def delete_route(
+    route_id: int,
+    admin: DeveloperAccount = Depends(require_admin),
+    session: Session = Depends(get_db),
+) -> dict[str, str]:
+    """Soft delete: the route vanishes from every read but an admin can restore it."""
+
     route = get_route_or_404(session, route_id)
-    session.delete(route)
+    route.deleted_at = datetime.now(UTC)
+    record_event(session, admin, "route.delete", "route", route.id, name=route.name)
     session.commit()
     return {"message": "Route deleted successfully"}
 
@@ -286,7 +307,10 @@ def list_nodes(route_id: int, session: Session = Depends(get_db)) -> list[Node]:
     tags=["Stops"],
 )
 def create_node(
-    route_id: int, payload: NodeCreate, session: Session = Depends(get_db)
+    route_id: int,
+    payload: NodeCreate,
+    _: DeveloperAccount = Depends(require_admin),
+    session: Session = Depends(get_db),
 ) -> NodeMutationResponse:
     get_route_or_404(session, route_id)
     session.execute(
@@ -323,6 +347,7 @@ def update_node(
     route_id: int,
     node_id: int,
     payload: NodeUpdate,
+    _: DeveloperAccount = Depends(require_admin),
     session: Session = Depends(get_db),
 ) -> NodeMutationResponse:
     node = get_node_or_404(session, route_id, node_id)
@@ -367,7 +392,12 @@ def update_node(
 
 
 @router.delete("/{route_id}/nodes/{node_id}", tags=["Stops"])
-def delete_node(route_id: int, node_id: int, session: Session = Depends(get_db)) -> dict[str, str]:
+def delete_node(
+    route_id: int,
+    node_id: int,
+    _: DeveloperAccount = Depends(require_admin),
+    session: Session = Depends(get_db),
+) -> dict[str, str]:
     node = get_node_or_404(session, route_id, node_id)
     deleted_order = node.order_num
     session.delete(node)
@@ -388,6 +418,7 @@ def delete_node(route_id: int, node_id: int, session: Session = Depends(get_db))
 def optimize_route(
     route_id: int,
     payload: RouteOptimizationRequest,
+    _: DeveloperAccount = Depends(require_admin),
     session: Session = Depends(get_db),
 ) -> RouteOptimizationResponse:
     get_route_or_404(session, route_id)
