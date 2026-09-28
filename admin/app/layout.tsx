@@ -1,5 +1,7 @@
 // app/layout.tsx
 import type { Metadata, Viewport } from "next";
+import "@fontsource/poppins/latin-600.css";
+import "@fontsource/poppins/latin-700.css";
 import "@/app/globals.css";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { SurfaceShell } from "@/components/surface-shell";
@@ -13,7 +15,7 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-export const viewport: Viewport = { themeColor: "#0f1117", width: "device-width", initialScale: 1 };
+export const viewport: Viewport = { themeColor: "#f3f0e4", width: "device-width", initialScale: 1 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (

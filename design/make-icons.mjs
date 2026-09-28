@@ -1,4 +1,4 @@
-// Draws Tsela's app icons (an ink route with a blue destination on a green tile) and writes them as PNG files.
+// Draws Tsela's app icons (a white route with a bright green destination on a dark green tile) and writes them as PNG files.
 //
 //   node design/make-icons.mjs
 //
@@ -12,9 +12,9 @@ import { fileURLToPath } from "node:url";
 import { deflateSync } from "node:zlib";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
-const TILE = [63, 208, 139];
-const MARK = [29, 27, 22];
-const BLUE = [26, 102, 230];
+const TILE = [20, 108, 46];
+const MARK = [255, 255, 255];
+const BLUE = [61, 220, 132];
 
 // The mark, in the 64-unit space of design/logo.svg.
 const DOTS = [[20, 45, 6], [44, 19, 6]];
@@ -31,7 +31,7 @@ function distanceToSegment(px, py, [ax, ay], [bx, by]) {
   return Math.hypot(px - (ax + t * dx), py - (ay + t * dy));
 }
 
-// Which colour is at a point in the mark: 0 none, 1 ink, 2 blue (the destination).
+// Which colour is at a point in the mark: 0 none, 1 ink, 2 bright green (the destination).
 function paint(x, y) {
   const [ex, ey, er] = DOTS[1];
   const toEnd = Math.hypot(x - ex, y - ey);

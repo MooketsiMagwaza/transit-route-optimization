@@ -1,7 +1,7 @@
 // app/layout.tsx
 import type { Metadata, Viewport } from "next";
-import "@fontsource/poppins/latin-600.css";
-import "@fontsource/poppins/latin-700.css";
+import "@fontsource/bricolage-grotesque/latin-600.css";
+import "@fontsource/bricolage-grotesque/latin-700.css";
 import "@/app/globals.css";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { SurfaceShell } from "@/components/surface-shell";
@@ -18,7 +18,7 @@ export const metadata: Metadata = {
   appleWebApp: { capable: true, title: "Tsela", statusBarStyle: "default" },
 };
 
-export const viewport: Viewport = { themeColor: "#f6f4f0", width: "device-width", initialScale: 1 };
+export const viewport: Viewport = { themeColor: "#ffffff", width: "device-width", initialScale: 1 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (

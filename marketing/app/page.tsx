@@ -4,17 +4,16 @@ import Link from "next/link";
 import { Hero } from "../components/hero";
 import { Showcase } from "../components/showcase";
 import { TselaArt, type ArtName } from "../components/tsela-art";
-import { ClayIcon, type ClayIconName, type ClayTone } from "../components/tsela-icon";
 import { DOCS_URL, RIDER_URL } from "../lib/urls";
 
 // The homepage shows live network numbers, so it renders per request (the data itself is cached for five minutes).
 export const dynamic = "force-dynamic";
 
-const STEPS: { title: string; copy: string; icon: ClayIconName; tone: ClayTone }[] = [
-  { title: "Set your places", copy: "Use your location or tap a familiar spot. Search for where you are going; never type coordinates.", icon: "pin", tone: "green" },
-  { title: "Compare real options", copy: "See where to board, how far you walk, the time, and any transfers. Pick one and the rest step aside.", icon: "routes", tone: "blue" },
-  { title: "Ride one clear route", copy: "Follow the road-following route stop by stop, with a nudge before you need to ask to stop.", icon: "check", tone: "amber" },
-  { title: "Keep the map true", copy: "Riders add tips and corrections. Builders use the same reviewed network through the API.", icon: "community", tone: "teal" },
+const STEPS: { title: string; copy: string }[] = [
+  { title: "Set your places", copy: "Use your location or tap a familiar spot. Search for where you are going; never type coordinates." },
+  { title: "Compare real options", copy: "See where to board, how far you walk, the time, and any transfers. Pick one and the rest step aside." },
+  { title: "Ride one clear route", copy: "Follow the road-following route stop by stop, with a nudge before you need to ask to stop." },
+  { title: "Keep the map true", copy: "Riders add tips and corrections. Builders use the same reviewed network through the API." },
 ];
 
 const GATEWAYS: { kicker: string; title: string; copy: string; action: string; href: string; art: ArtName; primary?: boolean; internal?: boolean }[] = [
@@ -39,7 +38,6 @@ export default function Home() {
           <ol className="steps">
             {STEPS.map((step, index) => (
               <li className="step" key={step.title}>
-                <ClayIcon name={step.icon} tone={step.tone} size={64} />
                 <span className="step-number">Step {index + 1}</span>
                 <h3>{step.title}</h3>
                 <p>{step.copy}</p>

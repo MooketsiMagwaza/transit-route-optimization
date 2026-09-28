@@ -7,7 +7,6 @@ import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { AllRoutesMap } from "@/components/all-routes-map";
 import { TselaArt } from "@/components/tsela-art";
-import { ClayIcon } from "@/components/tsela-icon";
 import { accountApi, Account, clearAccountToken, getAccountToken } from "@/lib/account-api";
 import { apiClient, Node, Route, RouteGeometry } from "@/lib/api-client";
 import { readBookmarkedRouteIds, readRecentRouteIds, subscribeToRouteLibrary } from "@/lib/recent-routes";
@@ -77,16 +76,14 @@ export default function RiderHome() {
       <div className="home-map-frame">{network ? <AllRoutesMap routes={network.routes} nodesByRoute={network.nodes} geometries={network.geometries} selectedRouteId={null} onSelect={(routeId) => router.push(`/routes?route=${routeId}`)} /> : <div className="route-list-skeleton"><span /><span /><span /></div>}</div>
     </aside>}
 
-    <section className="feature-list" aria-labelledby="how-title">
-      <h2 id="how-title">How Tsela works</h2>
-      <div className="feature-row"><ClayIcon name="pin" size={48} /><div><strong>Set your places</strong><span>Use your location or tap a familiar spot on the map.</span></div></div>
-      <div className="feature-row"><ClayIcon name="routes" size={48} tone="blue" /><div><strong>Compare real routes</strong><span>See where to hop on, how far you walk, and any transfers.</span></div></div>
-      <div className="feature-row"><ClayIcon name="check" size={48} tone="amber" /><div><strong>Ride with confidence</strong><span>Follow the stops and get a nudge before yours.</span></div></div>
+    <section className="home-how" aria-labelledby="how-title">
+      <h2 id="how-title">How it works</h2>
+      <p>Set where you are and where you are going. Tsela lists the combi routes that connect them, where to hop on, and how far you walk. Once you board, Live trip tells you when your stop is close.</p>
     </section>
 
     <section className="home-library-grid">
-      <article><div className="home-section-heading"><ClayIcon name="bookmark" size={40} tone="blue" /><div><span>Bookmarks</span><h2>Your saved routes</h2></div><Link href="/routes">Find routes</Link></div>{loading ? <div className="route-list-skeleton"><span/><span/></div> : savedRoutes.length ? <div className="home-route-list">{savedRoutes.map((route) => <Link key={route.id} href={`/routes?route=${route.id}`}><span>★</span><strong>{route.name}</strong><b>→</b></Link>)}</div> : <div className="home-empty"><strong>No bookmarks yet.</strong><p>Open Explore routes and save the corridors you use most.</p><Link href="/routes">Explore the network</Link></div>}</article>
-      <article><div className="home-section-heading"><ClayIcon name="history" size={40} tone="amber" /><div><span>Recent</span><h2>Pick up where you left off</h2></div></div>{loading ? <div className="route-list-skeleton"><span/><span/></div> : recentRoutes.length ? <div className="home-route-list">{recentRoutes.map((route) => <Link key={route.id} href={`/routes?route=${route.id}`}><span>↺</span><strong>{route.name}</strong><b>→</b></Link>)}</div> : <div className="home-empty"><strong>Your route history is clear.</strong><p>Routes you inspect will appear here on this device.</p></div>}</article>
+      <article><div className="home-section-heading"><div><span>Bookmarks</span><h2>Your saved routes</h2></div><Link href="/routes">Find routes</Link></div>{loading ? <div className="route-list-skeleton"><span/><span/></div> : savedRoutes.length ? <div className="home-route-list">{savedRoutes.map((route) => <Link key={route.id} href={`/routes?route=${route.id}`}><span>★</span><strong>{route.name}</strong><b>→</b></Link>)}</div> : <div className="home-empty"><strong>No bookmarks yet.</strong><p>Open Explore routes and save the corridors you use most.</p><Link href="/routes">Explore the network</Link></div>}</article>
+      <article><div className="home-section-heading"><div><span>Recent</span><h2>Pick up where you left off</h2></div></div>{loading ? <div className="route-list-skeleton"><span/><span/></div> : recentRoutes.length ? <div className="home-route-list">{recentRoutes.map((route) => <Link key={route.id} href={`/routes?route=${route.id}`}><span>↺</span><strong>{route.name}</strong><b>→</b></Link>)}</div> : <div className="home-empty"><strong>Your route history is clear.</strong><p>Routes you inspect will appear here on this device.</p></div>}</article>
     </section>
 
     <section className="home-community-callout"><TselaArt name="community" /><div><span className="page-eyebrow">Local knowledge matters</span><h2>Know a turn, stop, or useful tip?</h2><p>Sign in to trace a missing route or help another rider understand what to expect.</p></div><Link href="/community">Open Community</Link></section>

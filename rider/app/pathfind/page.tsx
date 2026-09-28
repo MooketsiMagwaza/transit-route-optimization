@@ -6,7 +6,7 @@ import { useRef, useState } from "react";
 import Link from "next/link";
 import { NearbyRoutesMap } from "@/components/nearby-routes-map";
 import { TselaArt } from "@/components/tsela-art";
-import { ClayIcon } from "@/components/tsela-icon";
+import { TselaIcon } from "@/components/tsela-icon";
 import { apiClient, NearbyRoute, Node, PathfindNoRoute, PathfindResult, RouteGeometry } from "@/lib/api-client";
 import { routeColor } from "@/lib/map-config";
 import { rememberRouteIds } from "@/lib/recent-routes";
@@ -181,7 +181,7 @@ export default function PathfindPage() {
 
           {stage !== "results" && <>
             <div className="discovery-results-header"><div><span className="panel-kicker">{stage === "origin" ? "Starting point" : "Destination"}</span><h2>{selection ? (nearestName ? `Near ${nearestName}` : "Place selected") : "Choose a place"}</h2></div><span className="route-count-pill">{nearbyRoutes.length}</span></div>
-            {stage === "origin" && <button className="gps-button" type="button" onClick={useMyLocation} disabled={locationLoading}><ClayIcon name="pin" size={30} />{locationLoading ? "Finding your location…" : "Use my current location"}</button>}
+            {stage === "origin" && <button className="gps-button" type="button" onClick={useMyLocation} disabled={locationLoading}><TselaIcon name="pin" size={20} />{locationLoading ? "Finding your location…" : "Use my current location"}</button>}
             {locationError && <div className="alert alert-error">{locationError}</div>}
             <div className="radius-picker" aria-label="Search area"><span>Search area</span><div>{RADIUS_OPTIONS.map((radius) => <button type="button" className={radiusMeters === radius ? "active" : ""} onClick={() => chooseRadius(radius)} key={radius}>{radius >= 1000 ? `${radius / 1000} km` : `${radius} m`}</button>)}</div></div>
             <div className="nearby-route-list">
