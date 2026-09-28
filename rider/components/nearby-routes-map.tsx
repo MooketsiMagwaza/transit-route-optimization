@@ -4,8 +4,10 @@
 
 import { useEffect, useRef } from "react";
 import * as maplibregl from "maplibre-gl";
+import "@/lib/maplibre-setup";
 import { GeoJSONSource } from "maplibre-gl";
 import { NearbyRoute, Node, RouteGeometry } from "@/lib/api-client";
+import { bindMapData } from "@/lib/map-sync";
 import { createMapStyle, GABORONE_CENTER, routeColor } from "@/lib/map-config";
 
 type MapPoint = { lat: number; long: number };
@@ -108,17 +110,11 @@ export function NearbyRoutesMap({
   onPin: (coordinate: MapPoint) => void;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const mapRef = useRef<maplibregl.Map | null>(null);
+  const bindingRef = useRef<{ update(): void } | null>(null);
   const stateRef = useRef({
     selection, origin, destination, nearbyRoutes, routeNodes, routeGeometries, radiusMeters,
   });
   const onPinRef = useRef(onPin);
-
-  useEffect(() => {
-    stateRef.current = {
-      selection, origin, destination, nearbyRoutes, routeNodes, routeGeometries, radiusMeters,
-    };
-  }, [selection, origin, destination, nearbyRoutes, routeNodes, routeGeometries, radiusMeters]);
 
   useEffect(() => { onPinRef.current = onPin; }, [onPin]);
 
@@ -131,7 +127,6 @@ export function NearbyRoutesMap({
       center: GABORONE_CENTER,
       zoom: 11.25,
     });
-    mapRef.current = map;
     const resizeObserver = new ResizeObserver(() => map.resize());
     resizeObserver.observe(container);
     map.addControl(new maplibregl.NavigationControl({ showCompass: false }), "bottom-right");
@@ -141,20 +136,8 @@ export function NearbyRoutesMap({
         long: Number(event.lngLat.lng.toFixed(6)),
       });
     });
-    map.on("load", () => {
-      const current = stateRef.current;
-      map.addSource("discovery", {
-        type: "geojson",
-        data: discoveryData(
-          current.selection,
-          current.origin,
-          current.destination,
-          current.nearbyRoutes,
-          current.routeNodes,
-          current.routeGeometries,
-          current.radiusMeters
-        ),
-      });
+    const setup = () => {
+      map.addSource("discovery", { type: "geojson", data: { type: "FeatureCollection", features: [] } });
       map.addLayer({
         id: "search-radius",
         type: "fill",
@@ -206,26 +189,28 @@ export function NearbyRoutesMap({
           },
         });
       }
-    });
+    };
+    const apply = () => {
+      const current = stateRef.current;
+      (map.getSource("discovery") as GeoJSONSource | undefined)?.setData(discoveryData(
+        current.selection, current.origin, current.destination, current.nearbyRoutes,
+        current.routeNodes, current.routeGeometries, current.radiusMeters
+      ));
+      if (current.selection) map.easeTo({ center: [current.selection.long, current.selection.lat], duration: 400 });
+    };
+    bindingRef.current = bindMapData(map, setup, apply);
     return () => {
       resizeObserver.disconnect();
+      bindingRef.current = null;
       map.remove();
-      mapRef.current = null;
     };
   }, []);
 
   useEffect(() => {
-    const map = mapRef.current;
-    if (!map) return;
-    const update = () => {
-      const source = map.getSource("discovery") as GeoJSONSource | undefined;
-      source?.setData(discoveryData(
-        selection, origin, destination, nearbyRoutes, routeNodes, routeGeometries, radiusMeters
-      ));
-      if (selection) map.easeTo({ center: [selection.long, selection.lat], duration: 400 });
+    stateRef.current = {
+      selection, origin, destination, nearbyRoutes, routeNodes, routeGeometries, radiusMeters,
     };
-    if (map.isStyleLoaded()) update();
-    else map.once("load", update);
+    bindingRef.current?.update();
   }, [selection, origin, destination, nearbyRoutes, routeNodes, routeGeometries, radiusMeters]);
 
   return (

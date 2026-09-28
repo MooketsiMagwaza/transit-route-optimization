@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import * as maplibregl from "maplibre-gl";
+import "@/lib/maplibre-setup";
 import { GeoJSONSourceSpecification } from "maplibre-gl";
 import { Node } from "@/lib/api-client";
 import { createMapStyle } from "@/lib/map-config";

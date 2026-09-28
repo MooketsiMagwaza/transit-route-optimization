@@ -41,3 +41,7 @@ __pycache__/
 /ops/backups/evidence/*.json
 /deploy/records/
 /deploy/.current-version
+
+# MapLibre worker copied from node_modules by scripts/copy-maplibre-worker.mjs
+/rider/public/maplibre/
+/admin/public/maplibre/

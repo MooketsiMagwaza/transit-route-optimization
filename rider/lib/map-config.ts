@@ -16,15 +16,17 @@ export function isInsideContributionBounds(point: { lat: number; long: number })
     && point.lat >= CONTRIBUTION_BOUNDS.south && point.lat <= CONTRIBUTION_BOUNDS.north;
 }
 
+// Distinct hues (not shades of grey) so neighbouring routes can be told apart on the muted basemap.
+// The route list shows the same colour beside each name, so colour is never the only cue.
 export const ROUTE_COLORS = [
   "#111111",
   "#7d3cff",
-  "#94b82f",
-  "#656560",
-  "#4f6d7a",
-  "#a44a3f",
-  "#5d3a9b",
-  "#477a55",
+  "#e4572e",
+  "#0b8f8c",
+  "#e0a100",
+  "#2f6bff",
+  "#d81e5b",
+  "#3f8f1f",
 ];
 
 export function routeColor(routeId: number): string {

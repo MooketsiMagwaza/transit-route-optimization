@@ -4,8 +4,10 @@
 
 import { useEffect, useRef } from "react";
 import * as maplibregl from "maplibre-gl";
+import "@/lib/maplibre-setup";
 import { GeoJSONSource, LngLatBounds } from "maplibre-gl";
 import { Node, Route, RouteGeometry } from "@/lib/api-client";
+import { bindMapData } from "@/lib/map-sync";
 import { createMapStyle, GABORONE_CENTER, routeColor } from "@/lib/map-config";
 
 function networkData(
@@ -71,13 +73,11 @@ export function AllRoutesMap({
   onSelect: (routeId: number) => void;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const mapRef = useRef<maplibregl.Map | null>(null);
+  const bindingRef = useRef<{ update(): void } | null>(null);
+  // Always the newest props. The map callbacks read this, never a captured render.
   const stateRef = useRef({ routes, nodesByRoute, geometries, selectedRouteId });
   const onSelectRef = useRef(onSelect);
 
-  useEffect(() => {
-    stateRef.current = { routes, nodesByRoute, geometries, selectedRouteId };
-  }, [routes, nodesByRoute, geometries, selectedRouteId]);
   useEffect(() => { onSelectRef.current = onSelect; }, [onSelect]);
 
   useEffect(() => {
@@ -88,19 +88,10 @@ export function AllRoutesMap({
       center: GABORONE_CENTER,
       zoom: 10.8,
     });
-    mapRef.current = map;
     map.addControl(new maplibregl.NavigationControl({ showCompass: false }), "bottom-right");
-    map.on("load", () => {
-      const current = stateRef.current;
-      map.addSource("network", {
-        type: "geojson",
-        data: networkData(
-          current.routes,
-          current.nodesByRoute,
-          current.geometries,
-          current.selectedRouteId
-        ),
-      });
+
+    const setup = () => {
+      map.addSource("network", { type: "geojson", data: { type: "FeatureCollection", features: [] } });
       map.addLayer({
         id: "network-route-casing",
         type: "line",
@@ -108,7 +99,7 @@ export function AllRoutesMap({
         filter: ["==", ["get", "kind"], "route"],
         paint: {
           "line-color": "#ffffff",
-          "line-width": ["case", ["get", "selected"], 11, 8],
+          "line-width": ["case", ["get", "selected"], 12, 9],
           "line-opacity": 0.95,
         },
       });
@@ -119,8 +110,8 @@ export function AllRoutesMap({
         filter: ["==", ["get", "kind"], "route"],
         paint: {
           "line-color": ["get", "color"],
-          "line-width": ["case", ["get", "selected"], 7, 4],
-          "line-opacity": ["case", ["get", "selected"], 1, 0.78],
+          "line-width": ["case", ["get", "selected"], 7, 5],
+          "line-opacity": ["case", ["get", "selected"], 1, 0.92],
         },
       });
       map.addLayer({
@@ -143,41 +134,34 @@ export function AllRoutesMap({
         const routeId = Number(event.features?.[0]?.properties?.routeId);
         if (Number.isFinite(routeId)) onSelectRef.current(routeId);
       });
-    });
+    };
+
+    const apply = () => {
+      const { routes: shown, nodesByRoute: stops, geometries: lines, selectedRouteId: chosen } = stateRef.current;
+      (map.getSource("network") as GeoJSONSource | undefined)?.setData(networkData(shown, stops, lines, chosen));
+      const coordinates = chosen !== null
+        ? lines[chosen]?.coordinates ?? (stops[chosen] ?? []).map((node) => [node.long, node.lat] as [number, number])
+        : shown.flatMap((route) => lines[route.id]?.coordinates ?? []);
+      if (coordinates.length > 1) {
+        const bounds = coordinates.reduce(
+          (current, coordinate) => current.extend(coordinate),
+          new LngLatBounds(coordinates[0], coordinates[0])
+        );
+        map.fitBounds(bounds, chosen !== null
+          ? { padding: 70, duration: 500, maxZoom: 13.5 }
+          : { padding: 55, duration: 500, maxZoom: 12 });
+      }
+    };
+
+    bindingRef.current = bindMapData(map, setup, apply);
     const observer = new ResizeObserver(() => map.resize());
     observer.observe(containerRef.current);
-    return () => { observer.disconnect(); map.remove(); mapRef.current = null; };
+    return () => { observer.disconnect(); bindingRef.current = null; map.remove(); };
   }, []);
 
   useEffect(() => {
-    const map = mapRef.current;
-    if (!map) return;
-    const update = () => {
-      const source = map.getSource("network") as GeoJSONSource | undefined;
-      source?.setData(networkData(routes, nodesByRoute, geometries, selectedRouteId));
-      if (selectedRouteId !== null) {
-        const coordinates = geometries[selectedRouteId]?.coordinates
-          ?? (nodesByRoute[selectedRouteId] ?? []).map((node) => [node.long, node.lat] as [number, number]);
-        if (coordinates.length > 1) {
-          const bounds = coordinates.reduce(
-            (currentBounds, coordinate) => currentBounds.extend(coordinate),
-            new LngLatBounds(coordinates[0], coordinates[0])
-          );
-          map.fitBounds(bounds, { padding: 70, duration: 500, maxZoom: 13.5 });
-        }
-      } else {
-        const allCoordinates = routes.flatMap((route) => geometries[route.id]?.coordinates ?? []);
-        if (allCoordinates.length > 1) {
-          const bounds = allCoordinates.reduce(
-            (currentBounds, coordinate) => currentBounds.extend(coordinate),
-            new LngLatBounds(allCoordinates[0], allCoordinates[0])
-          );
-          map.fitBounds(bounds, { padding: 55, duration: 500, maxZoom: 12 });
-        }
-      }
-    };
-    if (map.isStyleLoaded()) update();
-    else map.once("load", update);
+    stateRef.current = { routes, nodesByRoute, geometries, selectedRouteId };
+    bindingRef.current?.update();
   }, [routes, nodesByRoute, geometries, selectedRouteId]);
 
   return <div ref={containerRef} className="all-routes-map" aria-label="All Gaborone combi routes" />;
