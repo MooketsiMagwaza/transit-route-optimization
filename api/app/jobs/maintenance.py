@@ -25,6 +25,7 @@ from app.models import (
     RevokedAuthSession,
     UploadIntent,
 )
+from app.services.identity import delete_provider_user
 
 
 def cleanup_auth(session, now: datetime) -> tuple[int, dict]:
@@ -140,11 +141,22 @@ def purge_deleted_accounts(session, now: datetime) -> tuple[int, dict]:
             .execution_options(include_deleted=True)
         ).scalars()
     )
-    purged = 0
+    purged = deferred = 0
     for account in doomed:
+        # Deletion may have happened while the provider was unreachable. Ask again, and keep the
+        # row (and its tombstone) until the provider confirms, so the person cannot come back.
+        if account.external_subject and not delete_provider_user(
+            settings, account.external_subject
+        ):
+            deferred += 1
+            continue
         session.delete(account)
         purged += 1
-    return purged, {"purged": purged, "graceDays": settings.deleted_account_grace_days}
+    return purged, {
+        "purged": purged,
+        "deferred": deferred,
+        "graceDays": settings.deleted_account_grace_days,
+    }
 
 
 def cleanup_consent(session, now: datetime) -> tuple[int, dict]:

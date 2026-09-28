@@ -145,8 +145,12 @@ def revoke_session(session: Session, identity: VerifiedIdentity) -> None:
 def resolve_account(session: Session, identity: VerifiedIdentity) -> DeveloperAccount:
     """Return the account for a verified identity, linking or creating it safely."""
 
+    # Deleted accounts keep their subject as a tombstone; look them up too, so a token issued
+    # before deletion is refused below rather than colliding with (or recreating) the account.
     account = session.scalar(
-        select(DeveloperAccount).where(DeveloperAccount.external_subject == identity.subject)
+        select(DeveloperAccount)
+        .where(DeveloperAccount.external_subject == identity.subject)
+        .execution_options(include_deleted=True)
     )
     if account is None:
         account = _link_or_create(session, identity)

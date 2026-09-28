@@ -197,7 +197,9 @@ def delete_my_account(
     account.display_name = ANONYMISED_NAME
     account.password_hash = "!deleted"
     account.role = "deleted"
-    account.external_subject = None
+    # The provider user is gone, so this ID no longer identifies anyone. It stays on the row so
+    # a token issued before deletion is refused as disabled instead of creating a new account.
+    # The purge job removes it with the row.
     account.disabled_at = now
     account.deleted_at = now
 

@@ -12,9 +12,19 @@ if ! $psql_admin -d postgres -tAc "SELECT 1 FROM pg_database WHERE datname='tsel
   $psql_admin -d postgres -c "CREATE DATABASE tsela_auth"
 fi
 
+# GoTrue's migrations grant privileges to the roles a Supabase project ships with. This database
+# is not a Supabase project, so create them (without login) or the first migration fails with
+# `role "postgres" does not exist`.
 $psql_admin -d tsela_auth <<SQL
 DO \$\$
+DECLARE role_name text;
 BEGIN
+  FOREACH role_name IN ARRAY ARRAY['postgres', 'anon', 'authenticated', 'service_role', 'supabase_admin', 'dashboard_user']
+  LOOP
+    IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = role_name) THEN
+      EXECUTE format('CREATE ROLE %I NOLOGIN', role_name);
+    END IF;
+  END LOOP;
   IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'supabase_auth_admin') THEN
     CREATE ROLE supabase_auth_admin LOGIN NOINHERIT CREATEROLE PASSWORD '${AUTH_DB_PASSWORD}';
   ELSE
