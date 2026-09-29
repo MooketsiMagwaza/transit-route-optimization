@@ -1,6 +1,6 @@
 # Tsela
 
-![Tsela marketing homepage showing the route-first product experience](docs/assets/screenshots/marketing-home.jpg)
+![Tsela marketing homepage showing the route-first product experience](docs/assets/featured/marketing-home.webp)
 
 A Gaborone-first platform for finding your way around an informal transit network that, until now, only lived in people's heads. Tsela turns the combi routes locals already know into a searchable map: pick a place, get real road-following directions, see where to board and where to ask the driver to stop.
 
@@ -14,13 +14,13 @@ It's also a working example of building a small platform properly: separate depl
 
 ## Product gallery
 
-These are real 1440×960 captures from the authenticated local Compose stack on 29 September 2026—not mockups. The [capture manifest](docs/assets/screenshots/manifest.json) records every included route and final URL. Run `INCLUDE_DOCS=true node scripts/capture-readme-gallery.cjs` while the stack is healthy to refresh the gallery.
+These are real 1440×960 captures from the authenticated local Compose stack on 29 September 2026—not mockups. The [capture manifest](docs/assets/screenshots/manifest.json) records every included route and final URL. Run `INCLUDE_DOCS=true node scripts/capture-readme-gallery.cjs` while the stack is healthy to refresh the gallery. The image shown by default in each pair is a WebP copy in `docs/assets/featured/` (`node scripts/convert-featured-to-webp.cjs` regenerates it, roughly half the size of the source JPEG); everything inside a "show all" section stays JPEG in `docs/assets/screenshots/`.
 
 ### Rider experience
 
 | Home | Plan a trip |
 | --- | --- |
-| ![Rider home with profile, trip entry, bookmarks, and recent routes](docs/assets/screenshots/rider-home.jpg) | ![Map-first trip planner](docs/assets/screenshots/rider-plan.jpg) |
+| ![Rider home with profile, trip entry, bookmarks, and recent routes](docs/assets/featured/rider-home.webp) | ![Map-first trip planner](docs/assets/featured/rider-plan.webp) |
 
 <details>
 <summary><strong>All 10 rider pages</strong></summary>
@@ -47,7 +47,7 @@ These are real 1440×960 captures from the authenticated local Compose stack on 
 
 | Platform home | Observability and alerts |
 | --- | --- |
-| ![Operations dashboard with CPU, memory, database, latency, and alert health](docs/assets/screenshots/admin-dashboard.jpg) | ![Prometheus and Grafana observability view](docs/assets/screenshots/admin-observability.jpg) |
+| ![Operations dashboard with CPU, memory, database, latency, and alert health](docs/assets/featured/admin-dashboard.webp) | ![Prometheus and Grafana observability view](docs/assets/featured/admin-observability.webp) |
 
 <details>
 <summary><strong>All 6 operations pages</strong></summary>
@@ -66,7 +66,7 @@ These are real 1440×960 captures from the authenticated local Compose stack on 
 
 | Product | Developers |
 | --- | --- |
-| ![Tsela product services](docs/assets/screenshots/marketing-services.jpg) | ![Tsela developer platform](docs/assets/screenshots/marketing-developers.jpg) |
+| ![Tsela product services](docs/assets/featured/marketing-services.webp) | ![Tsela developer platform](docs/assets/featured/marketing-developers.webp) |
 
 <details>
 <summary><strong>All 12 marketing pages</strong></summary>
@@ -97,7 +97,7 @@ These are real 1440×960 captures from the authenticated local Compose stack on 
 
 | Developer documentation | API console |
 | --- | --- |
-| ![Developer documentation overview with the API reference, guides, and endpoint table](docs/assets/screenshots/docs-overview.jpg) | ![API console showing credentials, monthly usage, and environment status](docs/assets/screenshots/docs-console.jpg) |
+| ![Developer documentation overview with the API reference, guides, and endpoint table](docs/assets/featured/docs-overview.webp) | ![API console showing credentials, monthly usage, and environment status](docs/assets/featured/docs-console.webp) |
 
 <details>
 <summary><strong>All 12 developer-portal pages</strong></summary>
