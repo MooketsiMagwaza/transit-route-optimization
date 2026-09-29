@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-19T19:43:23.457Z",
+  "generatedAt": "2026-09-29T07:07:30.193Z",
   "viewport": "1440x960",
   "pages": [
     {
@@ -179,6 +179,102 @@
       "finalUrl": "http://localhost:3002/account/reset"
     },
     {
+      "group": "docs",
+      "name": "access",
+      "route": "/",
+      "filename": "docs-access.jpg",
+      "title": "Tsela Developers",
+      "finalUrl": "http://localhost:3003/"
+    },
+    {
+      "group": "docs",
+      "name": "recover",
+      "route": "/recover",
+      "filename": "docs-recover.jpg",
+      "title": "Tsela Developers",
+      "finalUrl": "http://localhost:3003/recover"
+    },
+    {
+      "group": "docs",
+      "name": "reset",
+      "route": "/reset",
+      "filename": "docs-reset.jpg",
+      "title": "Tsela Developers",
+      "finalUrl": "http://localhost:3003/reset"
+    },
+    {
+      "group": "docs",
+      "name": "overview",
+      "route": "/reference",
+      "filename": "docs-overview.jpg",
+      "title": "Tsela Developers",
+      "finalUrl": "http://localhost:3003/reference"
+    },
+    {
+      "group": "docs",
+      "name": "routes-list",
+      "route": "/reference/routes/list",
+      "filename": "docs-routes-list.jpg",
+      "title": "List routes | Tsela Developers",
+      "finalUrl": "http://localhost:3003/reference/routes/list"
+    },
+    {
+      "group": "docs",
+      "name": "route-geometry",
+      "route": "/reference/routes/geometry",
+      "filename": "docs-route-geometry.jpg",
+      "title": "Get route geometry | Tsela Developers",
+      "finalUrl": "http://localhost:3003/reference/routes/geometry"
+    },
+    {
+      "group": "docs",
+      "name": "getting-started",
+      "route": "/reference/guides/getting-started",
+      "filename": "docs-getting-started.jpg",
+      "title": "Getting started | Tsela Developers",
+      "finalUrl": "http://localhost:3003/reference/guides/getting-started"
+    },
+    {
+      "group": "docs",
+      "name": "authentication",
+      "route": "/reference/guides/authentication",
+      "filename": "docs-authentication.jpg",
+      "title": "Authentication | Tsela Developers",
+      "finalUrl": "http://localhost:3003/reference/guides/authentication"
+    },
+    {
+      "group": "docs",
+      "name": "errors-and-retries",
+      "route": "/reference/guides/errors-and-retries",
+      "filename": "docs-errors-and-retries.jpg",
+      "title": "Errors and retries | Tsela Developers",
+      "finalUrl": "http://localhost:3003/reference/guides/errors-and-retries"
+    },
+    {
+      "group": "docs",
+      "name": "rate-limits",
+      "route": "/reference/guides/rate-limits",
+      "filename": "docs-rate-limits.jpg",
+      "title": "Rate limits and quotas | Tsela Developers",
+      "finalUrl": "http://localhost:3003/reference/guides/rate-limits"
+    },
+    {
+      "group": "docs",
+      "name": "versioning",
+      "route": "/reference/guides/versioning",
+      "filename": "docs-versioning.jpg",
+      "title": "Versioning and changelog | Tsela Developers",
+      "finalUrl": "http://localhost:3003/reference/guides/versioning"
+    },
+    {
+      "group": "docs",
+      "name": "console",
+      "route": "/console",
+      "filename": "docs-console.jpg",
+      "title": "Tsela Developers",
+      "finalUrl": "http://localhost:3003/console"
+    },
+    {
       "group": "admin",
       "name": "login",
       "route": "/login",
@@ -225,6 +321,14 @@
       "filename": "admin-observability.jpg",
       "title": "Tsela Operations",
       "finalUrl": "http://localhost:3001/observability"
+    },
+    {
+      "group": "docs",
+      "name": "routes-list-dark",
+      "route": "/reference/routes/list",
+      "filename": "docs-routes-list-dark.jpg",
+      "title": "List routes | Tsela Developers",
+      "finalUrl": "http://localhost:3003/reference/routes/list"
     }
   ]
 }

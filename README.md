@@ -14,7 +14,7 @@ It's also a working example of building a small platform properly: separate depl
 
 ## Product gallery
 
-These are real 1440×960 captures from the authenticated local Compose stack on 19 September 2026—not mockups. The [capture manifest](docs/assets/screenshots/manifest.json) records every included route and final URL. Run `node scripts/capture-readme-gallery.cjs` while the stack is healthy to refresh the gallery. Developer-documentation images stay excluded until the split and reskin have had a design review; run the capture with `INCLUDE_DOCS=true` afterwards.
+These are real 1440×960 captures from the authenticated local Compose stack on 29 September 2026—not mockups. The [capture manifest](docs/assets/screenshots/manifest.json) records every included route and final URL. Run `INCLUDE_DOCS=true node scripts/capture-readme-gallery.cjs` while the stack is healthy to refresh the gallery.
 
 ### Rider experience
 
@@ -90,6 +90,37 @@ These are real 1440×960 captures from the authenticated local Compose stack on 
 | Cookie policy | Marketing home |
 | --- | --- |
 | ![Cookie policy](docs/assets/screenshots/marketing-cookies.jpg) | ![Marketing home](docs/assets/screenshots/marketing-home.jpg) |
+
+</details>
+
+### Developer portal
+
+| Developer documentation | API console |
+| --- | --- |
+| ![Developer documentation overview with the API reference, guides, and endpoint table](docs/assets/screenshots/docs-overview.jpg) | ![API console showing credentials, monthly usage, and environment status](docs/assets/screenshots/docs-console.jpg) |
+
+<details>
+<summary><strong>All 12 developer-portal pages</strong></summary>
+
+| Public access | Routes endpoint reference |
+| --- | --- |
+| ![Sign in or create a developer account](docs/assets/screenshots/docs-access.jpg) | ![The published routes endpoint, with parameters, examples, and a live sandbox](docs/assets/screenshots/docs-routes-list.jpg) |
+
+| Route geometry reference | Getting started guide |
+| --- | --- |
+| ![The route geometry endpoint reference](docs/assets/screenshots/docs-route-geometry.jpg) | ![Getting started guide](docs/assets/screenshots/docs-getting-started.jpg) |
+
+| Authentication guide | Errors and retries guide |
+| --- | --- |
+| ![Authentication guide](docs/assets/screenshots/docs-authentication.jpg) | ![Errors and retries guide](docs/assets/screenshots/docs-errors-and-retries.jpg) |
+
+| Rate limits guide | Versioning guide |
+| --- | --- |
+| ![Rate limits guide](docs/assets/screenshots/docs-rate-limits.jpg) | ![Versioning and changelog guide](docs/assets/screenshots/docs-versioning.jpg) |
+
+| Account recovery | Password reset |
+| --- | --- |
+| ![Developer account recovery](docs/assets/screenshots/docs-recover.jpg) | ![Developer password reset](docs/assets/screenshots/docs-reset.jpg) |
 
 </details>
 

@@ -61,15 +61,11 @@ const groups = [
       ["overview", "/reference"],
       ["routes-list", "/reference/routes/list"],
       ["route-geometry", "/reference/routes/geometry"],
-      ["production-architecture", "/reference/guides/production-architecture"],
-      ["backup-recovery", "/reference/guides/backup-recovery"],
-      ["object-storage", "/reference/guides/object-storage"],
+      ["getting-started", "/reference/guides/getting-started"],
       ["authentication", "/reference/guides/authentication"],
-      ["operations", "/reference/guides/operations"],
-      ["security-boundaries", "/reference/guides/security-boundaries"],
-      ["runtime-tracing", "/reference/guides/runtime-and-tracing"],
-      ["data-ux", "/reference/guides/data-and-ux"],
-      ["launch-checklist", "/reference/guides/launch-checklist"],
+      ["errors-and-retries", "/reference/guides/errors-and-retries"],
+      ["rate-limits", "/reference/guides/rate-limits"],
+      ["versioning", "/reference/guides/versioning"],
       ["console", "/console"],
     ],
   },
@@ -103,7 +99,15 @@ async function capturePage(page, group, name, route) {
   if (!response || response.status() >= 400) {
     throw new Error(`${url} returned ${response?.status() ?? "no response"}`);
   }
-  await page.waitForTimeout(route.includes("routes") || route.includes("live") ? 2_600 : 1_100);
+  // Map-bearing pages need the MapLibre canvas to exist, then time for tiles and route lines to
+  // paint, before the screenshot is honest; everything else just needs layout to settle.
+  const hasMap = /routes|live|plan|dashboard/.test(route);
+  if (hasMap) {
+    await page.waitForSelector("canvas.maplibregl-canvas", { timeout: 8_000 }).catch(() => {});
+    await page.waitForTimeout(3_500);
+  } else {
+    await page.waitForTimeout(1_100);
+  }
   const title = await page.title();
   const filename = `${group.name}-${name}.jpg`;
   await page.screenshot({ path: path.join(output, filename), type: "jpeg", quality: 86, fullPage: false });
