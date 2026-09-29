@@ -5,8 +5,8 @@ import { SiteFooter } from "../components/site-footer";
 import { SiteHeader } from "../components/site-header";
 import { CookieConsent } from "../components/cookie-consent";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "../lib/site";
-import "@fontsource/poppins/latin-600.css";
-import "@fontsource/poppins/latin-700.css";
+import "@fontsource/bricolage-grotesque/latin-600.css";
+import "@fontsource/bricolage-grotesque/latin-700.css";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -22,7 +22,7 @@ export const metadata: Metadata = {
   category: "transportation",
 };
 
-export const viewport: Viewport = { themeColor: "#f3f0e4", width: "device-width", initialScale: 1 };
+export const viewport: Viewport = { themeColor: "#ffffff", width: "device-width", initialScale: 1 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (

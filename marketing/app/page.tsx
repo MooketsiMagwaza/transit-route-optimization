@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { Hero } from "../components/hero";
 import { Showcase } from "../components/showcase";
-import { TselaArt, type ArtName } from "../components/tsela-art";
+import { TselaArt } from "../components/tsela-art";
+import { getNetworkStats } from "../lib/network-stats";
 import { DOCS_URL, RIDER_URL } from "../lib/urls";
 
 // The homepage shows live network numbers, so it renders per request (the data itself is cached for five minutes).
@@ -16,29 +17,32 @@ const STEPS: { title: string; copy: string }[] = [
   { title: "Keep the map true", copy: "Riders add tips and corrections. Builders use the same reviewed network through the API." },
 ];
 
-const GATEWAYS: { kicker: string; title: string; copy: string; action: string; href: string; art: ArtName; primary?: boolean; internal?: boolean }[] = [
-  { kicker: "Ride", title: "Plan a trip", copy: "Set two places and compare road-following combi routes.", action: "Open the rider app", href: RIDER_URL, art: "stop", primary: true },
-  { kicker: "Product", title: "Explore services", copy: "See the rider, operations, community, and data tools separately.", action: "See every service", href: "/services", art: "map", internal: true },
-  { kicker: "Developers", title: "Read the API", copy: "Authentication, endpoint reference, examples, and error responses.", action: "Open the developer guide", href: DOCS_URL, art: "guide" },
-  { kicker: "Access", title: "Get an API key", copy: "Create an account, issue a key, and watch usage from the console.", action: "Open the console", href: `${DOCS_URL}/login`, art: "success" },
+const GATEWAYS: { kicker: string; title: string; copy: string; action: string; href: string; internal?: boolean }[] = [
+  { kicker: "Ride", title: "Plan a trip", copy: "Set two places and compare road-following combi routes.", action: "Open the rider app", href: RIDER_URL },
+  { kicker: "Product", title: "Explore services", copy: "See the rider, operations, community, and data tools separately.", action: "See every service", href: "/services", internal: true },
+  { kicker: "Developers", title: "Read the API", copy: "Authentication, endpoint reference, examples, and error responses.", action: "Open the developer guide", href: DOCS_URL },
+  { kicker: "Access", title: "Get an API key", copy: "Create an account, issue a key, and watch usage from the console.", action: "Open the console", href: `${DOCS_URL}/login` },
+  { kicker: "Blog", title: "Build in public", copy: "Design decisions, route research, and the questions still being worked through.", action: "Read the journal", href: "/journal", internal: true },
 ];
 
-export default function Home() {
+export default async function Home() {
+  const stats = await getNetworkStats();
+
   return (
     <>
       <Hero />
       <Showcase />
 
       <section className="section" id="how-it-works" aria-labelledby="how-title">
-        <div className="container">
-          <header className="section-header">
-            <p className="kicker">One trip, four steps</p>
+        <div className="container how-grid">
+          <div>
+            <p className="kicker">How it works</p>
             <h2 id="how-title">From two places to the right stop.</h2>
-          </header>
-          <ol className="steps">
-            {STEPS.map((step, index) => (
-              <li className="step" key={step.title}>
-                <span className="step-number">Step {index + 1}</span>
+            <p className="lede">Set where you are and where you&apos;re going. Tsela does the comparing, and keeps the map honest as riders correct it.</p>
+          </div>
+          <ol className="how-list">
+            {STEPS.map((step) => (
+              <li key={step.title}>
                 <h3>{step.title}</h3>
                 <p>{step.copy}</p>
               </li>
@@ -48,36 +52,37 @@ export default function Home() {
       </section>
 
       <section className="section section-tint" id="start-here" aria-labelledby="start-title">
-        <div className="container">
-          <header className="section-header">
+        <div className="container start-panel">
+          <div>
             <p className="kicker">Start here</p>
             <h2 id="start-title">One network. Four ways in.</h2>
             <p className="lede">Whether you are getting somewhere, learning the platform, or building on the network, the next step should be obvious.</p>
-          </header>
-          <div className="gateway-grid">
+            <table className="stat-table" aria-label="The network today">
+              <tbody>
+                <tr><th scope="row">Routes mapped</th><td>{stats ? stats.routes : "7+"}</td></tr>
+                <tr><th scope="row">Field verified</th><td>{stats ? stats.verified : "0"}</td></tr>
+                <tr><th scope="row">Where it comes from</th><td>Riders</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <ul className="start-list">
             {GATEWAYS.map((gateway) => {
               const body = (
                 <>
-                  <div>
-                    <span className="kicker">{gateway.kicker}</span>
-                    <h3>{gateway.title}</h3>
-                    <p>{gateway.copy}</p>
-                    <b>{gateway.action} →</b>
-                  </div>
-                  <TselaArt name={gateway.art} />
+                  <span className="start-kicker">{gateway.kicker}</span>
+                  <h3>{gateway.title} <span aria-hidden="true">→</span></h3>
+                  <p>{gateway.copy}</p>
                 </>
               );
-              const className = `gateway-card${gateway.primary ? " gateway-primary" : ""}`;
-              return gateway.internal
-                ? <Link className={className} href={gateway.href} key={gateway.title}>{body}</Link>
-                : <a className={className} href={gateway.href} key={gateway.title}>{body}</a>;
+              return (
+                <li key={gateway.title}>
+                  {gateway.internal
+                    ? <Link href={gateway.href}>{body}</Link>
+                    : <a href={gateway.href}>{body}</a>}
+                </li>
+              );
             })}
-          </div>
-          <div className="build-strip">
-            <div><span className="kicker">Build in public</span><h3>Follow the network as it grows.</h3></div>
-            <p>Design decisions, route research, shipped changes, and the questions still being worked through.</p>
-            <Link className="button button-small" href="/journal">Read the blog →</Link>
-          </div>
+          </ul>
         </div>
       </section>
 
