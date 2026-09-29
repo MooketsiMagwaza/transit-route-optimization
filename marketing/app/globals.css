@@ -75,7 +75,7 @@ p { color: var(--c-ink-2); }
 .mobile-nav a:hover, .mobile-nav a[aria-current="page"] { background: var(--c-accent-soft); color: var(--c-accent-text); }
 
 /* Hero: a dark band, left-aligned, that the real product screenshot bleeds into from below */
-.hero { padding: var(--s-8) 0 var(--s-7); background: var(--c-ink); color: #fff; }
+.hero { padding: var(--s-8) 0 var(--s-8); background: var(--c-ink); color: #fff; }
 .hero-inner { display: grid; gap: var(--s-4); max-width: 640px; }
 .hero-inner h1 { color: #fff; margin: 0; }
 .hero-inner .lede { color: rgba(255, 255, 255, 0.72); }
@@ -84,7 +84,7 @@ p { color: var(--c-ink-2); }
 
 /* Product showcase: a real screenshot, framed, straddling the dark hero and the white page below */
 .showcase { padding-top: 0; padding-bottom: var(--s-7); }
-.showcase-stage { margin-top: calc(-1 * var(--s-7)); }
+.showcase-stage { margin-top: calc(-1 * var(--s-6)); }
 .window { overflow: hidden; border: 1px solid var(--c-line); border-radius: var(--r-lg); background: var(--c-surface); box-shadow: var(--sh-2); }
 .window img { display: block; width: 100%; height: auto; }
 .showcase figcaption { margin-top: var(--s-4); color: var(--c-ink-2); font-size: var(--fs-sm); }
