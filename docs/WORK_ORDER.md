@@ -2,6 +2,7 @@
 
 - **Snapshot date:** 2026-09-28
 - **Repository baseline:** branch `feat/work-orders-local-completion`, merged into `main` on 2026-09-28 through a pull request (209 files). Before the merge `main` was the 2026-09-19 reconciliation.
+- **2026-09-29 update:** branch `feat/friendly-ui` (WO-20's second pass and WO-22's shared design system) merged into `main`. See those two sections for what shipped and what's still open.
 - **Merge policy:** make reviewable commits on a feature branch, then squash-merge one tested change into `main`. Never add co-author trailers. This branch deviates from "one work order per branch": it carries WO-06 to WO-21 as one commit per work order so the owner can review or split them; squash by commit rather than as a single change. The owner asked for the branch to be merged as it stood on 2026-09-28; it went in as a rebase merge, so every commit is kept on `main` and each work order can still be reviewed or reverted on its own.
 
 **Product state:** strong local foundation with most of the production controls now written and locally tested; **not approved for production**. Several controls have unit tests but have not yet run against real infrastructure (see [What has and has not been run](#what-has-and-has-not-been-run)).
@@ -71,9 +72,9 @@ Real problems found and fixed while running the above, kept here because each on
 | WO-17 | P0 before URL fetches or paid integrations | **Implemented and verified locally** | Close adversarial request and abuse-cost paths | JSON/body limits, SSRF-safe outbound requests, tenant checks, admin-only writes, and shared database rate limits are tested. Spend caps do not apply yet because there are no paid integrations; add them with the first one |
 | WO-18 | P1 | **Implemented and verified locally** | Establish durable data-governance invariants | Public IDs, database-maintained `updatedAt`, recoverable deletion, ownership checks, append-only audit, and an expand-then-contract migration rule exist. Remaining: integer IDs are still in URL paths, and indexes should be checked against real traffic |
 | WO-19 | P2, evidence-gated | Decision framework complete; implementation deferred by design | Add asynchronous and real-time architecture only where measured | Nothing to build until a measured trigger exists |
-| WO-20 | P1 | **Site rebuilt; home page needs a second pass (owner feedback)** | Finish marketing, brand and search readiness | See [WO-20 and the home page](#wo-20--marketing-and-the-home-page) |
+| WO-20 | P1 | **Second pass shipped and merged; two items still open** | Finish marketing, brand and search readiness | See [WO-20 and the home page](#wo-20--marketing-and-the-home-page) |
 | WO-21 | P1 | **Implemented; not field tested** | Complete installable PWA and field-offline behavior | Icons, manifests, a narrowly scoped service worker, stale-data notice, and an idempotent offline queue exist. Not done: verification in a real browser (install prompt, offline reload), and low-connectivity field tests |
-| WO-22 | P1 | **Implemented on `feat/friendly-ui`; owner design review of the merge is the only open item** | One design system across marketing, rider, operations, and docs | See [WO-22](#wo-22--one-design-system) |
+| WO-22 | P1 | **Merged to `main`; CI drift check and a full lint/build re-run are still open** | One design system across marketing, rider, operations, and docs | See [WO-22](#wo-22--one-design-system) |
 
 The [conversation-to-work-order audit](WORK_ORDER_AUDIT.md) maps the full product discussion to these entries and records the few items that were previously only implicit.
 
@@ -117,7 +118,7 @@ Do not treat that merged foundation as Supabase integration, production database
 
 ## WO-20 — marketing and the home page
 
-**Owner feedback: the home page is the biggest problem.** The site was rebuilt on one calm stylesheet and the structural defects (nested frames, no mobile menu, cramped type, a banner covering half a phone, dead code) are fixed. The home page still does not do its job. This is a critique of what ships, from the screenshots, and a brief for the second pass. Nothing here is implemented yet.
+**Status: the second pass shipped as part of WO-22 and merged to `main`.** Most of the brief below is done: the hero shows a real screenshot instead of an invented map and fare, "how it works" is a plain divided list instead of a card grid, the "four ways in" grid is gone in favour of a plain list with an honest stats table (routes mapped, field verified, source), and the empty space under the hero is gone (the screenshot now bleeds out of the hero band). **Still open:** the hero has no inline "Where to?" field — the primary action is still a button to the rider app, not an in-place search — and the home page still addresses developers ("Get an API key", "Read the API") alongside riders, softened from duplicate cards into one plain list row but not removed. Both are candidates for a third pass; neither blocked the merge.
 
 ### What is wrong
 
@@ -147,9 +148,10 @@ A first-time visitor can say what Tsela does and take the first step within five
 
 ### Open decisions for the owner
 
-- **Direction.** Recommendation below in WO-22: keep the bold identity for expressive moments (marketing hero, rider home) and use a calmer density for reading surfaces. Confirm or overrule.
+- ~~**Direction.**~~ **Decided:** not the bold neo-brutalist identity this section originally recommended. The owner chose the Android Developers site (`developer.android.com`) as the structural and visual reference instead — see WO-22.
 - **Real screenshots on the marketing site.** They will show real (community-sourced, unverified) routes. Confirm that is acceptable to show publicly.
 - **Final name, mark, and icon approval** remain the owner's; the mark is now consistent across favicon, app icons, and the downloadable SVG.
+- **Not yet decided:** the inline "Where to?" hero field and whether the home page should keep addressing developers at all (see Status above).
 
 ## WO-22 — one design system
 
@@ -163,7 +165,7 @@ A first-time visitor can say what Tsela does and take the first step within five
 
 **Done when:** one tokens source with a passing drift check; each app's stylesheet has a single `:root`; the same button, card, and label look identical on all four surfaces; both themes on the portal and handbook use the same tokens; a design review has approved marketing, rider home, and the portal side by side.
 
-**Status.** Implemented on `feat/friendly-ui`, not yet merged to `main`. `design/tokens.css` is the one source (`design/sync.mjs`, `--check` not yet wired into CI); marketing, rider, admin, and the portal all read it, including the portal's `--portal-*` and `--color-fd-*` names, which are aliases onto the same `--c-*` values rather than a second set of colours. Each app's stylesheet was collapsed and re-derived from the tokens rather than patched. A light/dark toggle was added to marketing, rider, and admin (the portal already had one); dark mode is verified on all four, on desktop and phone widths, with no hydration errors. The buttons, cards, and labels are visually consistent across all four apps, though "identical" has not been checked pixel-for-pixel. Not done: the CI drift check, and the owner's side-by-side review.
+**Status: merged to `main`** (owner-approved, no separate side-by-side review beyond that). `design/tokens.css` is the one source (`design/sync.mjs`, `--check` not yet wired into CI); marketing, rider, admin, and the portal all read it, including the portal's `--portal-*` and `--color-fd-*` names, which are aliases onto the same `--c-*` values rather than a second set of colours. Each app's stylesheet was collapsed and re-derived from the tokens rather than patched. A light/dark toggle was added to marketing, rider, and admin (the portal already had one); dark mode is verified on all four, on desktop and phone widths, with no hydration errors. The buttons, cards, and labels are visually consistent across all four apps, though "identical" has not been checked pixel-for-pixel. **Still open:** the CI drift check (`node design/sync.mjs --check`) is not wired into `.github/workflows/ci.yml`, and lint, type-check, and production builds for the four apps have not been re-run since the redesign (see [What has and has not been run](#what-has-and-has-not-been-run)).
 
 ## Remaining work
 
@@ -173,8 +175,8 @@ Ordered by what unblocks what. Each item names the risk I expect, so the next se
 2. ~~Prove the identity flow~~ **Done**, including the `email_verified` assumption (GoTrue does put it in `user_metadata`, so linking an existing local account by verified email works). It found finding 9. Still open: Google, which needs the owner's OAuth client ID, secret, and callback URLs.
 3. **Recovery profile and drills.** First replace the MinIO images (finding 10; needs an owner decision). Then start `objects`, `recovery-init`, `db-standby`, and `backup`, confirm the now non-root backup runner can write `/backups` and prune `/wal_archive`, run `ops/backups/run-drills.sh all`, and keep the evidence. Risks: standby replication depends on the mounted `pg_hba.conf`; `pg_restore` may need a role or extension adjustment. Then: uploads against the real store (the first attempt at a hand-written SigV4 signature usually needs one correction, most likely around the signed content-length header), the alert-delivery drill (this also proves finding 1), the capacity baseline, and an automated accessibility scan (axe-core over headless Edge) of every public page in both themes.
 4. ~~Tidy and commit~~ **Done.** The map fix, identity fix, scheduler health, and smoke tests are committed separately; the map fix is confirmed in the production Docker builds; the portal already serves its CSS fixes. All of it is on `main`.
-5. **Marketing home page and design system** (WO-20, WO-22): agree the direction with the owner, then build the home page second pass first, then the shared tokens.
-6. **Then, and only then:** run Trivy and `npm audit`, regenerate the README gallery, and decide with the owner how to merge (see below).
+5. ~~Marketing home page and design system~~ **Done, merged to `main`.** WO-20's second pass and WO-22's shared tokens shipped together; see both sections for what's still open within them.
+6. ~~Regenerate the README gallery~~ **Done.** Not yet run against `main`: Trivy and `npm audit`, and a lint/type-check/production-build pass for the four apps (WO-22's remaining item).
 
 ## Adequate rest point
 
