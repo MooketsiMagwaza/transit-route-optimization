@@ -1,7 +1,6 @@
 /** Mission, principles, metadata, and evidence boundaries for the company surface. */
 
 import type { Metadata } from "next";
-import { TselaArt } from "../../components/tsela-art";
 
 export const metadata: Metadata = { title: "About", description: "Why Tsela is building a community-checked map of Gaborone's combi network.", alternates: { canonical: "/company" } };
 
@@ -9,13 +8,11 @@ export default function CompanyPage() {
   return (
     <>
       <section className="page-hero container">
-      <div>
-        <p className="kicker">About Tsela</p>
-        <h1>A combi map built from local truth.</h1>
-        <p className="lede">In Gaborone, useful routes exist, but the knowledge often lives in conversations, habits, and handwritten lists. Tsela makes that shared intelligence visible without pretending informal transit is a fixed timetable.</p>
-      
-      </div>
-      <TselaArt name="community" />
+        <div>
+          <p className="kicker">About Tsela</p>
+          <h1>A combi map built from local truth.</h1>
+          <p className="lede">In Gaborone, useful routes exist, but the knowledge often lives in conversations, habits, and handwritten lists. Tsela makes that shared intelligence visible without pretending informal transit is a fixed timetable.</p>
+        </div>
       </section>
       <section className="section">
         <div className="container split">
@@ -32,11 +29,7 @@ export default function CompanyPage() {
       </section>
       <section className="section">
         <div className="container">
-          <div className="callout-band">
-            <p className="kicker">Built first for Gaborone</p>
-            <h2>The network grows from verified local knowledge, not imported assumptions.</h2>
-            <p>Every expansion should make the map more honest, useful, and accountable to the people who use it.</p>
-          </div>
+          <p className="lede">Every expansion should make the map more honest, useful, and accountable to the people who use it — the network grows from verified local knowledge, not imported assumptions.</p>
         </div>
       </section>
     </>

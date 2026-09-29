@@ -8,6 +8,8 @@ How Tsela's four surfaces (marketing, rider, operations, developer portal) are m
 
 **Tsela's own voice comes from three things**, not from effects: real Gaborone content (place names, real routes, honest verification state), hand-drawn ink drawings used sparingly with green as the spot colour, and plain, specific copy.
 
+**Every page picks its own layout.** The Android Developers site never reuses one hero template: [the Studio page](https://developer.android.com/studio) is a dark band with a real screenshot, [the multidevice page](https://developer.android.com/multidevice) is a white hero that opens into a tinted band below it, [the UI design overview](https://developer.android.com/design/ui) is centred with one text link over a large tinted panel, and [the widgets page](https://developer.android.com/design/ui/widget) is a split hero with real screenshots bleeding to the frame edge and two buttons, one filled and one outlined. A content page's hero is chosen for what that page is about, not copied from the last one: a product page can take a tinted band, an about page can be plain text with no illustration at all, and a reference page can lead with a real code sample instead of art. Reusing the same kicker-plus-headline-plus-icon block on every inner page is itself a tell.
+
 ## The checklist
 
 Each item is a pattern that signals "generated", and what we do instead.
@@ -72,3 +74,4 @@ The values live in [design/tokens.css](../design/tokens.css) and are copied into
 - [Proof of Hand: Why Designers Are Reaching for Imperfection in 2026](https://studio2am.co/blogs/news/proof-of-hand-why-designers-are-reaching-for-imperfection-in-2026), Studio 2AM
 - [Anti-AI Crafting: The Handmade Rebellion Reshaping Design in 2026](https://designmagazine.com.au/anti-ai-crafting-the-50-million-handmade-rebellion-reshaping-design-in-2026/), Design Magazine
 - [Android Developers: Android Studio](https://developer.android.com/studio), the visual reference for structure and tone
+- [Android Developers: Multidevice](https://developer.android.com/multidevice), [Design for Android](https://developer.android.com/design/ui) and [Widgets on Android](https://developer.android.com/design/ui/widget), the reference for varying a page's hero by what it's about

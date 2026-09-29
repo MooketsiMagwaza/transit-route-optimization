@@ -117,7 +117,9 @@ p { color: var(--c-ink-2); }
 .closing > div { display: grid; justify-items: start; gap: var(--s-3); }
 .closing .tsela-art { max-width: none; }
 
-/* Inner pages */
+/* Inner pages: each picks its own hero treatment rather than reusing one template */
+.page-hero-band { background: var(--c-accent-soft); }
+.page-hero-band .page-hero { padding-bottom: var(--s-7); }
 .page-hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(220px, 360px); align-items: center; gap: var(--s-7); padding: var(--s-8) 0 var(--s-6); }
 .page-hero > div, .page-hero:not(.developer-hero) > :not(.tsela-art) { min-width: 0; }
 .page-hero h1 { font-size: clamp(2.25rem, 5vw, 3.5rem); margin-bottom: var(--s-3); }
@@ -132,6 +134,7 @@ p { color: var(--c-ink-2); }
 .tone-orange .service-number { background: var(--c-warn-soft); color: var(--c-warn); }
 .tone-lime .service-number { background: var(--c-brand-soft); color: var(--c-brand); }
 .service-note { color: var(--c-ink-2); font-size: var(--fs-sm); }
+.service-list-note { max-width: 60ch; margin-top: var(--s-4); }
 .callout-band, .access-band { display: grid; gap: var(--s-2); justify-items: start; padding: var(--s-7); border-radius: var(--r-xl); background: var(--c-brand-soft); }
 .access-band { grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr) auto; align-items: center; gap: var(--s-5); background: var(--c-accent-soft); }
 .split { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); gap: var(--s-7); align-items: start; }
@@ -157,7 +160,7 @@ p { color: var(--c-ink-2); }
 .swatch { display: grid; gap: 2px; align-content: end; min-height: 120px; padding: var(--s-4); border-radius: var(--r-lg); box-shadow: var(--sh-1); }
 .swatch b { font-family: var(--font-display); font-weight: 600; }
 .swatch code { width: fit-content; background: rgba(255, 255, 255, 0.55); color: var(--c-ink); }
-.swatch.green { background: var(--c-spot); color: var(--c-ink); }
+.swatch.green { background: var(--c-brand); color: #fff; }
 .swatch.blue { background: var(--c-accent); color: #fff; }
 .swatch.cream { background: var(--c-bg); color: var(--c-ink); box-shadow: inset 0 0 0 1px var(--c-line); }
 .swatch.ink { background: var(--c-ink); color: #fff; }

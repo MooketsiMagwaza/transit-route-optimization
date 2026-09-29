@@ -7,10 +7,10 @@ import { BrandMark } from "../../components/brand-mark";
 export const metadata: Metadata = { title: "Brand and icons", description: "The working Tsela name, route mark, app icon, hand-drawn illustration style, and public colour system.", alternates: { canonical: "/brand" } };
 
 const swatches = [
-  { name: "Go green", hex: "#3FD08B", className: "green" },
-  { name: "Action blue", hex: "#1A66E6", className: "blue" },
-  { name: "Cream", hex: "#F3F0E4", className: "cream" },
-  { name: "Ink", hex: "#1D1B16", className: "ink" },
+  { name: "Brand green", hex: "#146C2E", className: "green" },
+  { name: "Action blue", hex: "#0B57D0", className: "blue" },
+  { name: "Canvas", hex: "#F8F9FA", className: "cream" },
+  { name: "Ink", hex: "#1F1F1F", className: "ink" },
 ];
 
 export default function BrandPage() {
@@ -45,6 +45,19 @@ export default function BrandPage() {
           </header>
           <div className="swatches">
             {swatches.map((swatch) => <span className={`swatch ${swatch.className}`} key={swatch.name}><b>{swatch.name}</b><code>{swatch.hex}</code></span>)}
+          </div>
+        </div>
+      </section>
+      <section className="section">
+        <div className="container split">
+          <header>
+            <p className="kicker">Illustration</p>
+            <h2>Hand-drawn, not generated.</h2>
+            <p>Every scene is drawn from simple shapes by a seeded pen that wobbles each stroke, printed in black ink with the spot colour a few pixels off-register. Used sparingly: onboarding, empty states, and a single moment per marketing page.</p>
+          </header>
+          <div className="brand-showcase">
+            <article className="brand-card"><TselaArt name="guide" title="A signpost with the road ahead" /></article>
+            <article className="brand-card"><TselaArt name="stop" title="A combi stop with a shelter and a bench" /></article>
           </div>
         </div>
       </section>

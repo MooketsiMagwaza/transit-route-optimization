@@ -15,14 +15,15 @@ const services = [
 export default function ServicesPage() {
   return (
     <>
-      <section className="page-hero container">
-      <div>
-        <p className="kicker">The Tsela product</p>
-        <h1>One route network. Three useful tools.</h1>
-        <p className="lede">Riders get clear trip choices. Community and operations keep the map accountable. Builders get a readable, metered API.</p>
-      
-      </div>
-      <TselaArt name="map" />
+      <section className="page-hero-band">
+        <div className="page-hero container">
+          <div>
+            <p className="kicker">The Tsela product</p>
+            <h1>One route network. Three useful tools.</h1>
+            <p className="lede">Riders get clear trip choices. Community and operations keep the map accountable. Builders get a readable, metered API.</p>
+          </div>
+          <TselaArt name="map" />
+        </div>
       </section>
       <section className="container service-list" aria-label="Services">
         {services.map((service) => (
@@ -36,15 +37,7 @@ export default function ServicesPage() {
             {service.href ? <a className="button button-small" href={service.href}>{service.action} <span aria-hidden="true">↗</span></a> : <strong className="service-note">{service.action}</strong>}
           </article>
         ))}
-      </section>
-      <section className="section">
-        <div className="container">
-          <div className="callout-band">
-            <p className="kicker">Next access layer</p>
-            <h2>Low-data and USSD channels come after the core network is trustworthy.</h2>
-            <p>That order matters: reach is only useful when the underlying route knowledge is clear, fresh, and reviewable.</p>
-          </div>
-        </div>
+        <p className="lede service-list-note">Low-data and USSD channels come after the core network is trustworthy: reach is only useful once the route knowledge underneath it is clear, fresh, and reviewable.</p>
       </section>
     </>
   );
