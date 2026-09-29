@@ -1,5 +1,5 @@
 /* Tsela Operations: one stylesheet on the shared design tokens (see design/tokens.css).
-   A white sidebar with clay icons, cream canvas, white cards on soft shadows, and clay buttons.
+   A white sidebar, a light-grey canvas, thin borders instead of shadows, and flat buttons.
    Nothing here hard-codes a colour, radius, or font size; it all reads the tokens. */
 
 @import "./tokens.css";
@@ -31,7 +31,7 @@ small { color: var(--c-ink-2); font-size: var(--fs-xs); }
 
 /* Shell */
 .app-shell { display: grid; grid-template-columns: 272px minmax(0, 1fr); min-height: 100dvh; }
-.sidebar { position: sticky; top: 0; display: flex; flex-direction: column; gap: var(--s-5); height: 100dvh; padding: var(--s-5) var(--s-4); background: var(--c-surface); box-shadow: 1px 0 0 var(--c-line), 4px 0 24px rgba(40, 45, 30, 0.04); }
+.sidebar { position: sticky; top: 0; display: flex; flex-direction: column; gap: var(--s-5); height: 100dvh; padding: var(--s-5) var(--s-4); background: var(--c-surface); box-shadow: 1px 0 0 var(--c-line); }
 .sidebar-brand { display: flex; align-items: center; gap: var(--s-3); padding: var(--s-1) var(--s-2); color: var(--c-ink); }
 .sidebar-brand:hover { text-decoration: none; }
 .brand-name { display: grid; font-family: var(--font-display); font-size: var(--fs-md); font-weight: 700; line-height: 1.15; letter-spacing: -0.02em; }
@@ -39,7 +39,7 @@ small { color: var(--c-ink-2); font-size: var(--fs-xs); }
 .nav-links { display: grid; gap: 4px; }
 .nav-link { display: flex; align-items: center; gap: var(--s-3); padding: 8px 12px; border-radius: var(--r-md); color: var(--c-ink-2); font-weight: 500; transition: background var(--dur) var(--ease), color var(--dur) var(--ease); }
 .nav-link:hover { text-decoration: none; background: var(--c-fill-2); color: var(--c-ink); }
-.nav-link.active { background: var(--c-brand-soft); color: var(--c-brand-ink); font-weight: 700; }
+.nav-link.active { background: var(--c-accent-soft); color: var(--c-accent-text); font-weight: 700; }
 .nav-icon { display: grid; place-items: center; width: 34px; height: 34px; flex: none; }
 .sidebar-footer { display: flex; align-items: center; gap: var(--s-2); margin-top: auto; padding: var(--s-3) var(--s-3); border-radius: var(--r-md); background: var(--c-fill-2); color: var(--c-ink-2); font-size: var(--fs-sm); }
 .status-pip { width: 9px; height: 9px; border-radius: 50%; background: var(--c-spot); box-shadow: 0 0 0 4px var(--c-brand-soft); }
@@ -52,15 +52,15 @@ small { color: var(--c-ink-2); font-size: var(--fs-xs); }
 .breadcrumb { display: flex; align-items: center; gap: var(--s-2); color: var(--c-ink-2); font-size: var(--fs-sm); }
 .breadcrumb-sep { color: var(--c-ink-3); }
 
-/* Buttons */
-.btn { display: inline-flex; align-items: center; justify-content: center; gap: var(--s-2); min-height: 42px; padding: 0 var(--s-4); border-radius: var(--r-md); background: linear-gradient(165deg, var(--c-surface) 0%, var(--c-fill) 100%); color: var(--c-ink); font-weight: 600; box-shadow: 0 5px 12px rgba(40, 45, 30, 0.13), inset 0 2px 2px rgba(255, 255, 255, 0.9), inset 0 -3px 6px rgba(40, 45, 30, 0.08); transition: transform var(--dur) var(--ease); }
-.btn:hover { text-decoration: none; transform: translateY(-1px); }
-.btn:active { transform: translateY(0); }
-.btn-primary { color: var(--c-on-accent); background: linear-gradient(165deg, color-mix(in srgb, var(--c-accent) 70%, #fff) 0%, var(--c-accent) 46%, color-mix(in srgb, var(--c-accent) 80%, #000) 100%); box-shadow: 0 8px 16px color-mix(in srgb, var(--c-accent) 34%, transparent), inset 0 2px 3px rgba(255, 255, 255, 0.55), inset 0 -4px 8px rgba(8, 30, 100, 0.3); }
-.btn-secondary { background: linear-gradient(165deg, var(--c-surface) 0%, var(--c-fill) 100%); }
-.btn-ghost { background: none; box-shadow: none; color: var(--c-brand); }
-.btn-ghost:hover { background: var(--c-brand-soft); }
-.btn-sm { min-height: 34px; padding: 0 var(--s-3); border-radius: var(--r-sm); font-size: var(--fs-sm); }
+/* Buttons: an outlined pill for most things, filled blue for the one thing to tap */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: var(--s-2); min-height: 42px; padding: 0 var(--s-4); border-radius: var(--r-pill); border: 1px solid var(--c-line-strong); background: var(--c-surface); color: var(--c-ink); font-weight: 600; transition: background var(--dur) var(--ease), border-color var(--dur) var(--ease); }
+.btn:hover { text-decoration: none; background: var(--c-fill); }
+.btn-primary { color: var(--c-on-accent); background: var(--c-accent); border-color: var(--c-accent); }
+.btn-primary:hover { background: var(--c-accent-hover); border-color: var(--c-accent-hover); }
+.btn-secondary { background: var(--c-surface); }
+.btn-ghost { background: none; border-color: transparent; color: var(--c-accent-text); }
+.btn-ghost:hover { background: var(--c-accent-soft); }
+.btn-sm { min-height: 34px; padding: 0 var(--s-3); font-size: var(--fs-sm); }
 .btn-full { width: 100%; }
 
 /* Cards, grids, badges, alerts */
@@ -296,7 +296,7 @@ td { padding: 12px; border-top: 0.5px solid var(--c-line); font-size: var(--fs-s
 .handbook-table { overflow-x: auto; }
 .handbook-toc { position: sticky; top: var(--s-6); display: grid; gap: 4px; padding: var(--s-4); border-radius: var(--r-lg); background: var(--c-surface); box-shadow: var(--sh-1); font-size: var(--fs-sm); }
 .handbook-toc a { padding: 4px 8px; border-radius: 6px; color: var(--c-ink-2); }
-.handbook-toc a:hover { background: var(--c-brand-soft); color: var(--c-brand-ink); text-decoration: none; }
+.handbook-toc a:hover { background: var(--c-accent-soft); color: var(--c-accent-text); text-decoration: none; }
 .handbook-toc .depth-3 { padding-left: var(--s-4); }
 
 /* Sign-in */
@@ -304,7 +304,8 @@ td { padding: 12px; border-top: 0.5px solid var(--c-line); font-size: var(--fs-s
 .admin-login > div { display: grid; gap: var(--s-3); }
 .admin-login > div span { color: var(--c-ink-2); font-size: var(--fs-sm); font-weight: 500; }
 .admin-login form { display: grid; gap: var(--s-3); }
-.admin-login form button { min-height: 48px; border-radius: var(--r-md); color: var(--c-on-accent); font-weight: 600; background: linear-gradient(165deg, color-mix(in srgb, var(--c-accent) 70%, #fff) 0%, var(--c-accent) 46%, color-mix(in srgb, var(--c-accent) 80%, #000) 100%); box-shadow: 0 8px 16px color-mix(in srgb, var(--c-accent) 34%, transparent), inset 0 2px 3px rgba(255, 255, 255, 0.55), inset 0 -4px 8px rgba(8, 30, 100, 0.3); }
+.admin-login form button { min-height: 48px; border-radius: var(--r-pill); color: var(--c-on-accent); font-weight: 600; background: var(--c-accent); border: 1px solid var(--c-accent); }
+.admin-login form button:hover { background: var(--c-accent-hover); border-color: var(--c-accent-hover); }
 .admin-login form p[role="alert"] { padding: var(--s-3) var(--s-4); border-radius: var(--r-md); background: var(--c-bad-soft); color: var(--c-bad); font-size: var(--fs-sm); }
 .tsela-art { width: 100%; max-width: 320px; height: auto; color: var(--c-ink); }
 

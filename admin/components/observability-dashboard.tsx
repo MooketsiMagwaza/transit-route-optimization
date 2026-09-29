@@ -35,7 +35,7 @@ export function ObservabilityDashboard() {
   return <div className="page-container ops-platform-page">
     <header className="ops-platform-hero ops-observability-hero">
       <div><span className="page-eyebrow">Platform observability</span><h1>Signals you can<br />act on.</h1><p>Prometheus collects bounded HTTP metrics. Grafana turns them into dashboards and delivers alert state changes back into this operational feed.</p></div>
-      <div className={`ops-hero-stat ${overview?.firingAlerts ? "alerting" : "calm"}`}><span>FIRING NOW</span><strong>{overview?.firingAlerts ?? 0}</strong><small>Grafana notifications</small></div>
+      <div className={`ops-hero-stat ${overview?.firingAlerts ? "alerting" : "calm"}`}><span>Firing now</span><strong>{overview?.firingAlerts ?? 0}</strong><small>Grafana notifications</small></div>
     </header>
     {error && <div className="alert alert-error">{error}</div>}
 
@@ -52,7 +52,7 @@ export function ObservabilityDashboard() {
         <div className="ops-usage-paths">{overview?.usagePaths.length ? overview.usagePaths.map((item) => <div key={item.path}><code>{item.path}</code><strong>{item.requests}</strong></div>) : <p>No metered API traffic yet.</p>}</div>
       </article>
       <article className="ops-panel">
-        <header><div><span className="panel-kicker">GRAFANA WEBHOOK</span><h2>Notification feed</h2></div><small>Auto-refreshes</small></header>
+        <header><div><span className="panel-kicker">Grafana webhook</span><h2>Notification feed</h2></div><small>Auto-refreshes</small></header>
         <div className="ops-notification-feed">{notifications.length ? notifications.map((notice) => <article key={notice.id} className={`severity-${notice.severity}`}>
           <i /><div><span>{notice.state} · {notice.severity}</span><strong>{notice.title}</strong>{notice.message && <p>{notice.message}</p>}<time>{new Intl.DateTimeFormat("en-BW", { dateStyle: "medium", timeStyle: "short" }).format(new Date(notice.createdAt))}</time></div>
         </article>) : <p className="ops-empty">No Grafana notifications have been delivered. That is normal while the stack is healthy.</p>}</div>

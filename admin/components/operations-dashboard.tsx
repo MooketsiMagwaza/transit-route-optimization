@@ -177,7 +177,7 @@ export function OperationsDashboard() {
 
     <section className="ops-system-pulse" aria-label="Platform resource usage">
       <header>
-        <div><span className="panel-kicker">LIVE PLATFORM PULSE</span><h2>Capacity and reliability</h2></div>
+        <div><span className="panel-kicker">Live platform pulse</span><h2>Capacity and reliability</h2></div>
         <div className="ops-system-links"><Link href="/observability">All alerts</Link><a href={platformOverview?.grafanaUrl ?? "http://localhost:3004"} target="_blank" rel="noreferrer">Open Grafana ↗</a></div>
       </header>
       <div className="ops-system-grid">
@@ -194,15 +194,15 @@ export function OperationsDashboard() {
     </section>
 
     {loading ? <section className="ops-metric-grid" aria-label="Loading network totals">{[0, 1, 2, 3].map((item) => <div className="ops-metric skeleton-block" key={item} />)}</section> : <section className="ops-metric-grid" aria-label="Network totals">
-      <article className="ops-metric"><span>01 · Routes</span><strong>{totalRoutes}</strong><p>Published corridors</p></article>
-      <article className="ops-metric"><span>02 · Stops</span><strong>{totalStops}</strong><p>Mapped network points</p></article>
-      <article className="ops-metric"><span>03 · Density</span><strong>{averageStops}</strong><p>Average stops per route</p></article>
-      <article className="ops-metric ops-metric-dark"><span>04 · Platform</span><strong>{health?.status === "healthy" ? "Live" : "Check"}</strong><p>PostGIS network status</p></article>
+      <article className="ops-metric"><span>Routes</span><strong>{totalRoutes}</strong><p>Published corridors</p></article>
+      <article className="ops-metric"><span>Stops</span><strong>{totalStops}</strong><p>Mapped network points</p></article>
+      <article className="ops-metric"><span>Density</span><strong>{averageStops}</strong><p>Average stops per route</p></article>
+      <article className="ops-metric ops-metric-dark"><span>Platform</span><strong>{health?.status === "healthy" ? "Live" : "Check"}</strong><p>PostGIS network status</p></article>
     </section>}
 
     <section className="ops-overview-grid">
       <article className="ops-panel ops-coverage-panel">
-        <header><div><span className="panel-kicker">NETWORK SHAPE</span><h2>Stops by route</h2></div><small>Current data window</small></header>
+        <header><div><span className="panel-kicker">Network shape</span><h2>Stops by route</h2></div><small>Current data window</small></header>
         <div className="ops-route-bars">
           {routeCounts.length ? routeCounts.map(([routeId, count], index) => <div className="ops-route-bar" key={routeId}><div><strong>{routeNames.get(routeId) ?? `Route ${routeId}`}</strong><span>{count} visible stop{count === 1 ? "" : "s"}</span></div><i><b style={{ width: `${Math.max(12, count / maxVisibleStops * 100)}%`, background: ROUTE_COLORS[index % ROUTE_COLORS.length] }} /></i></div>) : <p className="ops-empty">Stop distribution will appear when route data is available.</p>}
         </div>
@@ -210,7 +210,7 @@ export function OperationsDashboard() {
       </article>
 
       <article className="ops-panel ops-health-panel">
-        <header><div><span className="panel-kicker">INFRASTRUCTURE</span><h2>Service health</h2></div>{health && <span className={`badge ${health.status === "healthy" ? "badge-green" : "badge-amber"}`}>{health.status}</span>}</header>
+        <header><div><span className="panel-kicker">Infrastructure</span><h2>Service health</h2></div>{health && <span className={`badge ${health.status === "healthy" ? "badge-green" : "badge-amber"}`}>{health.status}</span>}</header>
         {healthError ? <div className="alert alert-error">{healthError}</div> : health ? <div className="ops-health-list">
           <HealthItem label="API" status={health.services.api.status} detail={`${Math.floor(health.uptimeSeconds / 60)} min uptime`} />
           <HealthItem label="PostgreSQL" status={health.services.database.status} detail={health.services.database.latencyMs == null ? undefined : `${health.services.database.latencyMs} ms response`} />
@@ -222,11 +222,11 @@ export function OperationsDashboard() {
 
     <section className="ops-data-grid">
       <article className="ops-panel ops-recent-routes">
-        <header><div><span className="panel-kicker">ROUTE DIRECTORY</span><h2>Recent corridors</h2></div><span>{data?.routes.length ?? 0} shown</span></header>
+        <header><div><span className="panel-kicker">Route directory</span><h2>Recent corridors</h2></div><span>{data?.routes.length ?? 0} shown</span></header>
         <div>{data?.routes.slice(0, 6).map((route, index) => <Link href={`/routes/${route.id}`} key={route.id}><i style={{ background: ROUTE_COLORS[index % ROUTE_COLORS.length] }} /><span><strong>{route.name}</strong><small>{route.description || "No description yet"}</small></span><em>#{route.id}</em><b>→</b></Link>)}</div>
       </article>
       <article className="ops-panel ops-stop-snapshot">
-        <header><div><span className="panel-kicker">STOP DATA</span><h2>Latest snapshot</h2></div><span>Page {page}</span></header>
+        <header><div><span className="panel-kicker">Stop data</span><h2>Latest snapshot</h2></div><span>Page {page}</span></header>
         <div className="ops-stop-list">{data?.nodes.slice(0, 7).map((node) => <div key={node.id}><span>{String(node.orderNum).padStart(2, "0")}</span><p><strong>{node.name}</strong><small>{routeNames.get(node.routeId) ?? `Route ${node.routeId}`}</small></p><em>{node.lat.toFixed(3)}, {node.long.toFixed(3)}</em></div>)}</div>
         <footer><button className="btn btn-secondary btn-sm" disabled={page === 1} onClick={() => setPage((current) => Math.max(1, current - 1))}>Previous</button><button className="btn btn-secondary btn-sm" disabled={(data?.nodes.length ?? 0) < 10} onClick={() => setPage((current) => current + 1)}>Next page</button></footer>
       </article>
@@ -234,7 +234,7 @@ export function OperationsDashboard() {
 
     {builderOpen && <div className="ops-modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.currentTarget === event.target) closeBuilder(); }}>
       <section className="ops-route-modal" role="dialog" aria-modal="true" aria-labelledby="route-builder-title">
-        <header><div><span className="panel-kicker">NEW CORRIDOR</span><h2 id="route-builder-title">Map a route</h2><p>Name the corridor, then place stops in travel order. The preview stays inside the supported Gaborone service area.</p></div><button onClick={closeBuilder} aria-label="Close route builder">×</button></header>
+        <header><div><span className="panel-kicker">New corridor</span><h2 id="route-builder-title">Map a route</h2><p>Name the corridor, then place stops in travel order. The preview stays inside the supported Gaborone service area.</p></div><button onClick={closeBuilder} aria-label="Close route builder">×</button></header>
         {routeNotice && <div className="alert alert-error">{routeNotice}</div>}
         <form onSubmit={createRoute}>
           <div className="ops-route-fields"><label><span>Route name</span><input className="form-input" value={routeName} onChange={(event) => setRouteName(event.target.value)} placeholder="e.g. Broadhurst to Main Mall" required maxLength={120} /></label><label><span>Description</span><input className="form-input" value={routeDescription} onChange={(event) => setRouteDescription(event.target.value)} placeholder="Service area or purpose" maxLength={500} /></label></div>

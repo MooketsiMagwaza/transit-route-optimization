@@ -126,7 +126,7 @@ export default function RoutesPage() {
               <div className="card-title">Create New Route</div>
               <div className="card-subtitle">Add a new corridor to the network</div>
             </div>
-            <span className="card-index" aria-hidden="true">NEW</span>
+            <span className="card-index" aria-hidden="true">New</span>
           </div>
 
           {error && (
