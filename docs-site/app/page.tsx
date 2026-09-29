@@ -16,7 +16,7 @@ export default function DeveloperLanding() {
     >
       <section className="developer-landing-hero">
         <div className="developer-landing-copy">
-          <p className="eyebrow">TSELA DEVELOPER PORTAL</p>
+          <p className="eyebrow">Tsela developer portal</p>
           <h1>Build with the routes people use.</h1>
           <p>Sign in or create a developer account to explore the route API, issue a key, and follow your usage in one place.</p>
           <div className="developer-landing-points">
@@ -29,9 +29,9 @@ export default function DeveloperLanding() {
       </section>
 
       <section className="developer-portal-paths" aria-label="After sign in">
-        <Link href="/reference"><span>01 / DOCUMENTATION</span><strong>Browse the developer guide</strong><small>Sign in for endpoints, examples, errors, and limits</small></Link>
-        <Link href="/console"><span>02 / DASHBOARD</span><strong>Manage your access</strong><small>Keys, limits, and request activity</small></Link>
-        <Link href="/reference/guides/errors-and-retries"><span>03 / RELIABILITY</span><strong>Handle errors and limits</strong><small>Status codes, retry policy, and rate-limit headers</small></Link>
+        <Link href="/reference"><span>Documentation</span><strong>Browse the developer guide</strong><small>Sign in for endpoints, examples, errors, and limits</small></Link>
+        <Link href="/console"><span>Dashboard</span><strong>Manage your access</strong><small>Keys, limits, and request activity</small></Link>
+        <Link href="/reference/guides/errors-and-retries"><span>Reliability</span><strong>Handle errors and limits</strong><small>Status codes, retry policy, and rate-limit headers</small></Link>
       </section>
     </HomeLayout>
   );

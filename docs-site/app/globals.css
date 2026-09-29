@@ -1,130 +1,87 @@
 @import "tailwindcss";
 @import "fumadocs-ui/css/neutral.css";
 @import "fumadocs-ui/css/preset.css";
+@import "./tokens.css";
 
 /*
- * Tsela skin for Fumadocs. Navigation, search, table of contents, code blocks and
- * theme switching stay stock Fumadocs; only design tokens and a few restrained
- * components change. Contrast targets WCAG AA in both themes.
+ * Tsela skin for Fumadocs, on the shared design tokens (see design/tokens.css): a white and
+ * light-grey canvas, one blue for actions, thin borders instead of shadows. Navigation, search,
+ * table of contents, and code blocks stay stock Fumadocs; only design tokens and a few restrained
+ * components change. `--portal-*` and `--color-fd-*` are aliases onto the shared `--c-*` tokens, so
+ * light/dark both follow the tokens' own `.dark` overrides without redeclaring anything here.
+ * Contrast targets WCAG AA in both themes.
  */
 :root {
-  --portal-ink: #111111;
-  --portal-muted: #55574f;
-  --portal-line: #d9d6ca;
-  --portal-soft: #f4f2e9;
-  --portal-blue: #3a52e8;
-  --portal-blue-hover: #2a3fc4;
-  --portal-blue-soft: #edf0ff;
-  --portal-on-blue: #ffffff;
-  --portal-lime: #c8f135;
-  --portal-lime-soft: #f0fbc7;
-  --portal-pink: #ff70b7;
-  --portal-green: #1a6a3a;
-  --portal-red: #b42318;
-  --portal-surface: #fffdf3;
-  --portal-surface-raised: #ffffff;
-  --portal-surface-tinted: #f4f2e9;
-  --portal-control-line: #b9b6aa;
-  --portal-copy: #3c3e37;
-  --portal-success-soft: #e6f6ee;
-  --portal-success-line: #b9e3ce;
-  --portal-success-text: #1a4d35;
-  --portal-danger-soft: #fff1ef;
-  --portal-danger-line: #f4c7c3;
-  --portal-code-bg: #111111;
-  --portal-code-text: #f1efe6;
-  --color-fd-primary: #3a52e8;
-  --color-fd-primary-foreground: #ffffff;
-  --color-fd-ring: #3a52e8;
-  --color-fd-background: #fffdf3;
-  --color-fd-foreground: #111111;
-  --color-fd-card: #ffffff;
-  --color-fd-card-foreground: #111111;
-  --color-fd-popover: #ffffff;
-  --color-fd-popover-foreground: #111111;
-  --color-fd-secondary: #f4f2e9;
-  --color-fd-secondary-foreground: #111111;
-  --color-fd-accent: #f0fbc7;
-  --color-fd-accent-foreground: #111111;
-  --color-fd-muted: #f4f2e9;
-  --color-fd-muted-foreground: #55574f;
-  --color-fd-border: #d9d6ca;
-}
-
-.dark {
-  color-scheme: dark;
-  --portal-ink: #f5f4ec;
-  --portal-muted: #a9aba1;
-  --portal-line: #33352e;
-  --portal-soft: #1a1b17;
-  --portal-blue: #93a3ff;
-  --portal-blue-hover: #b3bfff;
-  --portal-blue-soft: #1c2140;
-  --portal-on-blue: #0d0f1c;
-  --portal-lime: #c8f135;
-  --portal-lime-soft: #26300f;
-  --portal-pink: #ff70b7;
-  --portal-green: #6ce9a6;
-  --portal-red: #ffa39b;
-  --portal-surface: #111210;
-  --portal-surface-raised: #191a17;
-  --portal-surface-tinted: #1a1b17;
-  --portal-control-line: #4a4c43;
-  --portal-copy: #d6d8cd;
-  --portal-success-soft: #12271d;
-  --portal-success-line: #2c664b;
-  --portal-success-text: #b7f0d2;
-  --portal-danger-soft: #2b1718;
-  --portal-danger-line: #6b302f;
-  --portal-code-bg: #0b0c0a;
-  --portal-code-text: #f1efe6;
-  --color-fd-primary: #93a3ff;
-  --color-fd-primary-foreground: #0d0f1c;
-  --color-fd-ring: #93a3ff;
-  --color-fd-background: #111210;
-  --color-fd-foreground: #f5f4ec;
-  --color-fd-card: #191a17;
-  --color-fd-card-foreground: #f5f4ec;
-  --color-fd-popover: #191a17;
-  --color-fd-popover-foreground: #f5f4ec;
-  --color-fd-secondary: #1f211c;
-  --color-fd-secondary-foreground: #f5f4ec;
-  --color-fd-accent: #26300f;
-  --color-fd-accent-foreground: #f5f4ec;
-  --color-fd-muted: #1a1b17;
-  --color-fd-muted-foreground: #a9aba1;
-  --color-fd-border: #33352e;
+  --portal-ink: var(--c-ink);
+  --portal-muted: var(--c-ink-2);
+  --portal-line: var(--c-line);
+  --portal-soft: var(--c-fill);
+  --portal-blue: var(--c-accent);
+  --portal-blue-hover: var(--c-accent-hover);
+  --portal-blue-soft: var(--c-accent-soft);
+  --portal-on-blue: var(--c-on-accent);
+  --portal-green: var(--c-good);
+  --portal-red: var(--c-bad);
+  --portal-surface: var(--c-bg);
+  --portal-surface-raised: var(--c-surface);
+  --portal-surface-tinted: var(--c-fill-2);
+  --portal-control-line: var(--c-line-strong);
+  --portal-copy: var(--c-ink);
+  --portal-success-soft: var(--c-good-soft);
+  --portal-success-line: var(--c-line);
+  --portal-success-text: var(--c-good);
+  --portal-danger-soft: var(--c-bad-soft);
+  --portal-danger-line: var(--c-line);
+  --portal-code-bg: var(--c-ink);
+  --portal-code-text: var(--c-bg);
+  --color-fd-primary: var(--c-accent);
+  --color-fd-primary-foreground: var(--c-on-accent);
+  --color-fd-ring: var(--c-accent);
+  --color-fd-background: var(--c-bg);
+  --color-fd-foreground: var(--c-ink);
+  --color-fd-card: var(--c-surface);
+  --color-fd-card-foreground: var(--c-ink);
+  --color-fd-popover: var(--c-surface);
+  --color-fd-popover-foreground: var(--c-ink);
+  --color-fd-secondary: var(--c-fill);
+  --color-fd-secondary-foreground: var(--c-ink);
+  --color-fd-accent: var(--c-accent-soft);
+  --color-fd-accent-foreground: var(--c-accent-text);
+  --color-fd-muted: var(--c-fill);
+  --color-fd-muted-foreground: var(--c-ink-2);
+  --color-fd-border: var(--c-line);
 }
 
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
-body { margin: 0; color: var(--portal-ink); background: var(--portal-surface); font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; }
+body { margin: 0; color: var(--portal-ink); background: var(--portal-surface); font-family: var(--font-ui); }
 a { color: inherit; }
 button, input { font: inherit; }
-button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid rgba(49,87,255,.28); outline-offset: 2px; }
+button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid var(--c-accent-soft); outline-offset: 2px; }
+h1, h2, h3 { font-family: var(--font-display); }
 
 /* Keep Fumadocs as the visual foundation; branding is deliberately minimal. */
 .tsela-fumadocs { background: var(--portal-surface); }
 .fuma-brand { display: inline-flex; align-items: center; gap: 10px; font-weight: 720; letter-spacing: -.02em; }
-.fuma-brand > b { display: grid; width: 31px; height: 31px; place-items: center; border: 2px solid var(--portal-ink); border-radius: 9px; background: var(--portal-lime); color: #111; font-size: 13px; }
+.fuma-brand > b { display: grid; width: 31px; height: 31px; place-items: center; border-radius: 9px; background: var(--c-brand); color: #fff; font-size: 13px; }
 .fuma-brand > span { display: flex; flex-direction: column; line-height: 1.05; }
-.fuma-brand small { margin-top: 4px; color: var(--portal-muted); font-size: 11px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; }
+.fuma-brand small { margin-top: 4px; color: var(--portal-muted); font-size: 11px; font-weight: 600; }
 
 /* Public access page */
 .developer-landing { min-height: 100vh; background: var(--portal-surface); }
 .developer-landing-hero { width: min(1200px,calc(100% - 40px)); min-height: calc(100vh - 150px); margin: 0 auto; padding: 78px 0 60px; display: grid; grid-template-columns: minmax(0,1.1fr) minmax(360px,.68fr); gap: clamp(54px,8vw,112px); align-items: center; }
 .developer-landing-copy { max-width: 690px; }
-.eyebrow, .section-kicker { margin: 0; color: var(--portal-blue); font-size: 12px; font-weight: 750; letter-spacing: .14em; text-transform: uppercase; }
+.eyebrow, .section-kicker { margin: 0; color: var(--portal-blue); font-size: 13px; font-weight: 650; }
 .developer-landing-copy h1 { max-width: 680px; margin: 20px 0 24px; font-size: clamp(52px,6.3vw,84px); line-height: .98; letter-spacing: -.06em; }
 .developer-landing-copy > p:not(.eyebrow) { max-width: 620px; margin: 0; color: var(--portal-muted); font-size: 18px; line-height: 1.7; }
 .developer-landing-points { margin-top: 34px; display: grid; gap: 13px; }
 .developer-landing-points span { display: flex; align-items: center; gap: 11px; color: var(--portal-copy); font-size: 14px; }
 .developer-landing-points span::before { content: ""; width: 7px; height: 7px; flex: 0 0 auto; border-radius: 50%; background: var(--portal-blue); box-shadow: 0 0 0 4px var(--portal-blue-soft); }
 
-.auth-card { padding: 28px; border: 1px solid var(--portal-line); border-radius: 18px; background: var(--portal-surface-raised); box-shadow: 0 18px 55px rgba(16,24,40,.09); }
+.auth-card { padding: 28px; border: 1px solid var(--portal-line); border-radius: 18px; background: var(--portal-surface-raised); }
 .auth-tabs { margin-bottom: 24px; padding: 4px; display: grid; grid-template-columns: 1fr 1fr; gap: 4px; border-radius: 10px; background: var(--portal-soft); }
 .auth-tabs button { min-height: 40px; border: 0; border-radius: 7px; background: transparent; color: var(--portal-muted); font-size: 13px; font-weight: 650; cursor: pointer; }
-.auth-tabs button.active { background: var(--portal-surface-raised); color: var(--portal-ink); box-shadow: 0 1px 4px rgba(16,24,40,.12); }
+.auth-tabs button.active { background: var(--portal-surface-raised); color: var(--portal-ink); box-shadow: 0 0 0 1px var(--portal-line); }
 .auth-card form { display: grid; gap: 16px; }
 .auth-card label { display: grid; gap: 7px; color: var(--portal-copy); font-size: 13px; font-weight: 650; }
 .auth-card input, .create-key-inline input { width: 100%; min-height: 45px; padding: 0 12px; border: 1px solid var(--portal-control-line); border-radius: 9px; background: var(--portal-surface-raised); color: var(--portal-ink); }
@@ -132,7 +89,7 @@ button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid 
 .auth-card > a { display: inline-block; margin-top: 18px; color: var(--portal-blue); font-size: 13px; font-weight: 650; text-decoration: none; }
 .auth-demo { margin: -4px 0 20px; padding: 14px; border: 1px solid var(--portal-line); border-radius: 10px; background: var(--portal-blue-soft); }
 .auth-demo > div { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-.auth-demo span { color: var(--portal-blue); font-size: 11px; font-weight: 800; letter-spacing: .12em; }
+.auth-demo span { color: var(--portal-blue); font-size: 12px; font-weight: 700; }
 .auth-demo button { border: 0; background: transparent; color: var(--portal-blue); font-size: 12px; font-weight: 700; cursor: pointer; }
 .auth-demo p { margin: 9px 0 0; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .auth-demo code { overflow: hidden; color: var(--portal-copy); font-size: 12px; text-overflow: ellipsis; }
@@ -153,7 +110,7 @@ button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid 
 .developer-portal-paths a { min-height: 185px; padding: 26px; display: flex; flex-direction: column; text-decoration: none; border-right: 1px solid var(--portal-line); transition: background .18s ease; }
 .developer-portal-paths a:last-child { border-right: 0; }
 .developer-portal-paths a:hover { background: var(--portal-soft); }
-.developer-portal-paths span { color: var(--portal-blue); font-size: 11px; font-weight: 800; letter-spacing: .12em; }
+.developer-portal-paths span { color: var(--portal-blue); font-size: 12px; font-weight: 700; }
 .developer-portal-paths strong { margin-top: 42px; font-size: 17px; }
 .developer-portal-paths small { margin-top: 9px; color: var(--portal-muted); font-size: 13px; line-height: 1.55; }
 
@@ -162,7 +119,7 @@ button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid 
 .overview-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 13px; }
 .overview-grid a { min-height: 165px; padding: 22px; display: flex; flex-direction: column; border: 1px solid var(--portal-line); border-radius: 13px; background: var(--portal-surface-raised); text-decoration: none; transition: border-color .18s ease, box-shadow .18s ease; }
 .overview-grid a:hover { border-color: #bdc7fb; box-shadow: 0 10px 30px rgba(16,24,40,.07); }
-.overview-grid small { color: var(--portal-blue); font-size: 11px; font-weight: 800; letter-spacing: .11em; }
+.overview-grid small { color: var(--portal-blue); font-size: 12px; font-weight: 700; }
 .overview-grid strong { margin-top: 30px; font-size: 17px; }
 .overview-grid span { margin-top: 7px; color: var(--portal-muted); font-size: 13px; line-height: 1.55; }
 
@@ -196,7 +153,7 @@ button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid 
 .console-live-grid h2 { margin: 18px 0 8px; font-size: 18px; }
 .console-live-grid code { font-size: 12px; }
 .console-live-grid p { margin: 10px 0 0; color: var(--portal-muted); font-size: 13px; line-height: 1.55; }
-.console-badge { padding: 4px 7px; border-radius: 99px; background: var(--portal-soft); color: var(--portal-copy); font-size: 11px; font-weight: 800; letter-spacing: .1em; }
+.console-badge { padding: 4px 9px; border-radius: 99px; background: var(--portal-soft); color: var(--portal-copy); font-size: 12px; font-weight: 700; }
 .console-badge.live { background: var(--portal-success-soft); color: var(--portal-green); }
 .keys-section, .usage-paths { margin-top: 42px; }
 .keys-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 25px; }
@@ -273,15 +230,15 @@ button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid 
 }
 
 /* Reference content: facts, tables, code, sandbox */
-.fact-grid { margin: 24px 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 0; border: 2px solid var(--portal-ink); border-radius: 14px; overflow: hidden; background: var(--portal-surface-raised); }
+.fact-grid { margin: 24px 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 0; border: 1px solid var(--portal-line); border-radius: 14px; overflow: hidden; background: var(--portal-surface-raised); }
 .fact-grid > div { padding: 14px 16px; border-right: 1px solid var(--portal-line); border-bottom: 1px solid var(--portal-line); }
-.fact-grid dt { color: var(--portal-muted); font: 600 11px/1.3 ui-monospace, "Cascadia Code", Consolas, monospace; letter-spacing: .08em; text-transform: uppercase; }
+.fact-grid dt { color: var(--portal-muted); font: 600 12px/1.3 ui-monospace, "Cascadia Code", Consolas, monospace; }
 .fact-grid dd { margin: 6px 0 0; color: var(--portal-copy); font-size: 14px; line-height: 1.5; }
 .fact-grid code, .ref-table code, .note-list code { font-size: .9em; }
 .table-scroll { margin: 14px 0; overflow-x: auto; border: 1px solid var(--portal-line); border-radius: 12px; background: var(--portal-surface-raised); }
 .ref-table { width: 100%; min-width: 560px; border-collapse: collapse; font-size: 14px; line-height: 1.55; }
 .ref-table th, .ref-table td { padding: 12px 14px; text-align: left; vertical-align: top; border-bottom: 1px solid var(--portal-line); }
-.ref-table thead th { background: var(--portal-soft); color: var(--portal-muted); font: 600 11px/1.3 ui-monospace, "Cascadia Code", Consolas, monospace; letter-spacing: .08em; text-transform: uppercase; }
+.ref-table thead th { background: var(--portal-soft); color: var(--portal-muted); font: 600 12px/1.3 ui-monospace, "Cascadia Code", Consolas, monospace; }
 .ref-table tbody tr:last-child > * { border-bottom: 0; }
 .ref-table tbody th { font-weight: 700; }
 .ref-table tbody th small { display: block; margin-top: 3px; color: var(--portal-muted); font-size: 12px; font-weight: 500; }
@@ -295,16 +252,16 @@ button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid 
 .guide-list { margin: 12px 0 0; padding: 0; list-style: none; border: 1px solid var(--portal-line); border-radius: 12px; overflow: hidden; background: var(--portal-surface-raised); }
 .guide-list li + li { border-top: 1px solid var(--portal-line); }
 .guide-list a { padding: 14px 16px; display: grid; gap: 2px; text-decoration: none; }
-.guide-list a:hover { background: var(--portal-lime-soft); }
+.guide-list a:hover { background: var(--c-accent-soft); }
 .guide-list strong { font-size: 15px; }
 .guide-list span { color: var(--portal-muted); font-size: 14px; }
-.stability { padding: 3px 9px; border: 1px solid var(--portal-ink); border-radius: 999px; background: var(--portal-pink); color: #111; font: 700 11px/1.3 ui-monospace, "Cascadia Code", Consolas, monospace; letter-spacing: .06em; text-transform: uppercase; }
-.stability.stable { background: var(--portal-lime); }
-.stability.deprecated { background: var(--portal-danger-soft); color: var(--portal-red); border-color: var(--portal-red); }
+.stability { padding: 3px 10px; border-radius: 999px; background: var(--c-accent-soft); color: var(--c-accent-text); font: 700 12px/1.3 ui-monospace, "Cascadia Code", Consolas, monospace; }
+.stability.stable { background: var(--portal-success-soft); color: var(--portal-success-text); }
+.stability.deprecated { background: var(--portal-danger-soft); color: var(--portal-red); }
 .reference-notes { padding-left: 20px; list-style: disc; }
 .reference-notes li + li { margin-top: 6px; }
 
-.code-block { margin: 14px 0; overflow: hidden; border: 2px solid var(--portal-ink); border-radius: 12px; background: var(--portal-code-bg); color: var(--portal-code-text); }
+.code-block { margin: 14px 0; overflow: hidden; border: 1px solid var(--portal-line); border-radius: 12px; background: var(--portal-code-bg); color: var(--portal-code-text); }
 .code-block figcaption { padding: 8px 8px 8px 14px; display: flex; align-items: center; justify-content: space-between; gap: 12px; border-bottom: 1px solid rgba(255, 255, 255, .16); color: #d6d8cd; font: 600 12px ui-monospace, "Cascadia Code", Consolas, monospace; }
 .code-block pre { margin: 0; padding: 16px; overflow: auto; font: 13px/1.7 ui-monospace, "Cascadia Code", Consolas, monospace; }
 .code-block pre:focus-visible { outline: 3px solid var(--portal-blue); outline-offset: -3px; }
@@ -318,10 +275,10 @@ button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid 
 .response-label { display: flex; align-items: center; gap: 10px; margin: 8px 0; color: var(--portal-muted); font-weight: 500; }
 .response-label > span { padding: 2px 9px; border-radius: 999px; background: var(--portal-success-soft); color: var(--portal-success-text); font: 700 12px ui-monospace, "Cascadia Code", Consolas, monospace; }
 .response-label > span.fail { background: var(--portal-danger-soft); color: var(--portal-red); }
-.method { padding: 4px 9px; border: 1px solid var(--portal-ink); border-radius: 7px; background: var(--portal-lime); color: #111; font: 800 11px ui-monospace, "Cascadia Code", Consolas, monospace; }
+.method { padding: 4px 9px; border-radius: 7px; background: var(--c-accent-soft); color: var(--c-accent-text); font: 800 12px ui-monospace, "Cascadia Code", Consolas, monospace; }
 .endpoint-signature { flex-wrap: wrap; }
 
-.try-it { padding: 16px; border: 2px solid var(--portal-ink); border-radius: 14px; background: var(--portal-surface-raised); }
+.try-it { padding: 16px; border: 1px solid var(--portal-line); border-radius: 14px; background: var(--portal-surface-raised); }
 .try-it > p:first-child { margin: 0 0 12px; font-size: 14px; }
 .try-it form { display: grid; gap: 12px; }
 .try-it-path { margin: 0; display: flex; align-items: center; gap: 10px; }
@@ -337,20 +294,14 @@ button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid 
 .try-it-result { margin-top: 16px; }
 
 /* Tsela skin over stock Fumadocs chrome: crisp borders, lime current-page marker. */
-.tsela-fumadocs :is(nav, aside) a[aria-current="page"], .tsela-fumadocs #nd-sidebar a[data-active="true"] { color: var(--portal-ink); background: var(--portal-lime-soft); font-weight: 700; }
-.dark .tsela-fumadocs :is(nav, aside) a[aria-current="page"], .dark .tsela-fumadocs #nd-sidebar a[data-active="true"] { color: var(--portal-ink); background: var(--portal-lime-soft); }
+.tsela-fumadocs :is(nav, aside) a[aria-current="page"], .tsela-fumadocs #nd-sidebar a[data-active="true"] { color: var(--c-accent-text); background: var(--c-accent-soft); font-weight: 700; }
 .tsela-fumadocs h1 { letter-spacing: -.03em; }
 .tsela-fumadocs :is(h1, h2, h3) { text-wrap: balance; }
 .tsela-fumadocs #nd-page :is(p, li) { line-height: 1.7; }
 .tsela-fumadocs code:not(pre code) { padding: 1px 6px; border: 1px solid var(--portal-line); border-radius: 6px; background: var(--portal-soft); font-size: .88em; }
 .auth-card, .fact-grid, .try-it, .overview-grid a, .developer-portal-paths { border-color: var(--portal-line); }
-.auth-card { border: 2px solid var(--portal-ink); box-shadow: 6px 6px 0 var(--portal-blue); }
-.console-primary { border-color: var(--portal-ink); box-shadow: 3px 3px 0 var(--portal-ink); }
-.console-primary:hover { transform: translate(1px, 1px); box-shadow: 2px 2px 0 var(--portal-ink); }
-.console-primary:active { transform: translate(3px, 3px); box-shadow: none; }
-.dark .console-primary { border-color: var(--portal-ink); box-shadow: 3px 3px 0 var(--portal-ink); }
-.eyebrow, .section-kicker { color: var(--portal-copy); font-family: ui-monospace, "Cascadia Code", Consolas, monospace; }
-.developer-landing-copy .eyebrow { display: inline-block; padding: 6px 10px; border: 2px solid var(--portal-ink); border-radius: 999px; background: var(--portal-pink); color: #111; }
+.eyebrow, .section-kicker { color: var(--portal-blue); font-family: var(--font-ui); }
+.developer-landing-copy .eyebrow { display: inline-block; }
 .developer-landing-copy h1 { letter-spacing: -.045em; line-height: 1; }
 .developer-landing-points span::before { background: var(--portal-blue); box-shadow: 0 0 0 4px var(--portal-blue-soft); }
 .auth-error { color: var(--portal-red); }
@@ -367,8 +318,8 @@ button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid 
 }
 
 .auth-notice { padding: 11px 13px; border: 1px solid var(--portal-success-line); border-radius: 8px; background: var(--portal-success-soft); color: var(--portal-success-text); font-size: 13px; line-height: 1.45; }
-.auth-google { margin-top: 12px; min-height: 44px; display: flex; align-items: center; justify-content: center; border: 2px solid var(--portal-ink); border-radius: 10px; background: var(--portal-surface-raised); color: var(--portal-ink); font-weight: 700; text-decoration: none; }
-.auth-google:hover { background: var(--portal-lime-soft); }
+.auth-google { margin-top: 12px; min-height: 44px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--portal-control-line); border-radius: 999px; background: var(--portal-surface-raised); color: var(--portal-ink); font-weight: 700; text-decoration: none; }
+.auth-google:hover { background: var(--c-accent-soft); }
 
 .your-data { margin: 8px 0 72px; padding-top: 32px; border-top: 1px solid var(--portal-line); display: grid; grid-template-columns: .7fr 1.3fr; gap: 35px; align-items: start; }
 .your-data h2 { margin: 7px 0 8px; font-size: 26px; letter-spacing: -.035em; }
@@ -385,4 +336,3 @@ button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid 
 @media (max-width: 640px) { .reference-body .header-list > div { grid-template-columns: 1fr; } }
 /* In dark mode the near-white ink would make every frame glare; use the quieter line colour. */
 .dark .code-block, .dark .fact-grid, .dark .try-it, .dark .auth-card { border-color: var(--portal-control-line); }
-.dark .auth-card { box-shadow: 6px 6px 0 var(--portal-blue); }

@@ -3,11 +3,13 @@
  * Edit this file only. `node design/sync.mjs` copies it into each app (marketing, rider, admin,
  * docs-site), and `node design/sync.mjs --check` fails when a copy has drifted.
  *
- * The look is iOS in structure (grouped rounded surfaces, hairlines, large titles, a floating tab
- * bar) with a personality of its own: a warm off-white canvas, "Go" lime for the one thing to tap,
- * plum for brand ink, soft clay icons, and a chunky geometric display face. Contrast was checked
- * against WCAG AA: ink on the canvas is above 15:1, secondary ink above 5:1, plum on white above
- * 9:1, and dark ink on the lime action colour above 13:1.
+ * The system follows the structure and tone of the Android Developers site (Material): a white and
+ * light-grey canvas, near-black ink, one blue for actions and links with a pale tonal blue for
+ * selection, Tsela green for the brand and for "verified", thin borders instead of shadows, pill
+ * buttons, and modest corner radii. No gradients, glows, or blur. See docs/DESIGN_PRINCIPLES.md.
+ *
+ * Contrast (WCAG AA): ink on white is above 15:1, secondary ink above 9:1, tertiary ink 4.6:1,
+ * white on the action blue above 6:1, and brand green on white above 6:1.
  *
  * Components read these names and never hard-code a colour, radius, or font size.
  */
@@ -16,40 +18,41 @@
   color-scheme: light;
 
   /* Surfaces */
-  --c-bg: #f6f4f0;
+  --c-bg: #f8f9fa;
   --c-surface: #ffffff;
-  --c-fill: #ece9e4;
-  --c-fill-2: #f3f1ed;
-  --c-glass: rgba(255, 254, 252, 0.84);
-  --c-overlay: rgba(31, 26, 36, 0.36);
+  --c-fill: #f1f3f4;
+  --c-fill-2: #f8f9fa;
+  --c-glass: #ffffff;
+  --c-overlay: rgba(32, 33, 36, 0.4);
 
   /* Ink */
-  --c-ink: #1f1a24;
-  --c-ink-2: #665f6e;
-  --c-ink-3: #9a93a3;
-  --c-line: rgba(50, 30, 60, 0.12);
-  --c-line-strong: rgba(50, 30, 60, 0.28);
+  --c-ink: #1f1f1f;
+  --c-ink-2: #444746;
+  --c-ink-3: #747775;
+  --c-line: #dadce0;
+  --c-line-strong: #747775;
 
-  /* Action: the one colour that means "you can tap this" */
-  --c-accent: #e2f550;
-  --c-accent-hover: #d4e83a;
-  --c-accent-soft: #f2f9c6;
-  --c-on-accent: #1f1a24;
+  /* Action: filled blue for the one primary thing, the pale tonal blue for selection */
+  --c-accent: #0b57d0;
+  --c-accent-hover: #0842a0;
+  --c-accent-soft: #d3e3fd;
+  --c-on-accent: #ffffff;
+  --c-accent-text: #0b57d0;
+  --c-focus: #0b57d0;
 
-  /* Brand: plum, for links, emphasis, and anything that should feel like Tsela */
-  --c-brand: #5b2a86;
-  --c-brand-ink: #3b1859;
-  --c-brand-soft: #efe6f8;
-  --c-accent-text: #5b2a86;
-  --c-focus: #5b2a86;
+  /* Tsela green: the brand, and "field verified". --c-spot is the bright green used in drawings. */
+  --c-brand: #146c2e;
+  --c-brand-ink: #072711;
+  --c-brand-soft: #c4eed0;
+  --c-spot: #3ddc84;
 
   /* Status */
-  --c-good: #1d7a34;
-  --c-good-soft: #e4f5e8;
-  --c-warn: #a24a00;
-  --c-warn-soft: #fdf0dd;
-  --c-bad: #c4001a;
-  --c-bad-soft: #fdeaec;
+  --c-good: #146c2e;
+  --c-good-soft: #c4eed0;
+  --c-warn: #8c4a00;
+  --c-warn-soft: #ffe7b0;
+  --c-bad: #b3261e;
+  --c-bad-soft: #f9dedc;
 
   /* Route palette: data colours for lines on the map, never for chrome */
   --c-route-1: #7d3cff;
@@ -60,26 +63,26 @@
   --c-route-6: #d81e5b;
   --c-route-7: #3f8f1f;
 
-  /* Type: a chunky geometric face for titles, the system face for everything you read */
-  --font-ui: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  --font-display: "Poppins", -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  /* Type: one chosen display face for titles, the system face for everything you read */
+  --font-ui: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-display: "Bricolage Grotesque", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --font-mono: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace;
   --fs-xs: 0.75rem;
-  --fs-sm: 0.8125rem;
+  --fs-sm: 0.875rem;
   --fs-base: 1rem;
-  --fs-md: 1.0625rem;
-  --fs-lg: 1.3125rem;
+  --fs-md: 1.125rem;
+  --fs-lg: 1.375rem;
   --fs-xl: 1.75rem;
-  --fs-2xl: 2.125rem;
-  --fs-3xl: clamp(2.25rem, 5vw, 3.25rem);
-  --lh-tight: 1.12;
+  --fs-2xl: 2.25rem;
+  --fs-3xl: clamp(2.5rem, 5vw, 3.5rem);
+  --lh-tight: 1.15;
   --lh-snug: 1.3;
-  --lh-body: 1.5;
+  --lh-body: 1.55;
 
   /* Shape and spacing */
-  --r-sm: 10px;
-  --r-md: 14px;
-  --r-lg: 18px;
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 16px;
   --r-xl: 24px;
   --r-pill: 999px;
   --s-1: 4px;
@@ -91,44 +94,46 @@
   --s-7: 48px;
   --s-8: 72px;
 
-  /* Elevation: surfaces are flat; only floating things (tab bar, popovers) cast a shadow */
-  --sh-1: 0 0 0 0.5px rgba(50, 30, 60, 0.06);
-  --sh-2: 0 8px 30px rgba(50, 30, 60, 0.14), 0 0 0 0.5px rgba(50, 30, 60, 0.06);
+  /* Elevation: surfaces separate with a 1px ring; only things that float get a shadow */
+  --sh-1: 0 0 0 1px var(--c-line);
+  --sh-2: 0 1px 3px rgba(60, 64, 67, 0.3), 0 4px 8px 3px rgba(60, 64, 67, 0.15);
 
   /* Motion */
-  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
-  --dur: 180ms;
+  --ease: cubic-bezier(0.2, 0, 0, 1);
+  --dur: 160ms;
 }
 
-/* Dark: a deep aubergine rather than pure black. Applied by `.dark` or `[data-theme="dark"]`. */
+/* Dark: neutral graphite with the light tonal blue. Applied by `.dark` or `[data-theme="dark"]`. */
 .dark,
 [data-theme="dark"] {
   color-scheme: dark;
-  --c-bg: #14101a;
-  --c-surface: #1f1a26;
-  --c-fill: rgba(255, 255, 255, 0.1);
-  --c-fill-2: rgba(255, 255, 255, 0.06);
-  --c-glass: rgba(31, 26, 38, 0.84);
+  --c-bg: #131314;
+  --c-surface: #1e1f20;
+  --c-fill: #282a2c;
+  --c-fill-2: #1a1b1c;
+  --c-glass: #1e1f20;
   --c-overlay: rgba(0, 0, 0, 0.6);
-  --c-ink: #f5f2f8;
-  --c-ink-2: #b3aabd;
-  --c-ink-3: #7d7488;
-  --c-line: rgba(255, 255, 255, 0.14);
-  --c-line-strong: rgba(255, 255, 255, 0.3);
-  --c-accent-soft: rgba(226, 245, 80, 0.16);
-  --c-brand: #c9a6f2;
-  --c-brand-ink: #e6d4fb;
-  --c-brand-soft: rgba(201, 166, 242, 0.18);
-  --c-accent-text: #d9b8ff;
-  --c-focus: #d9b8ff;
-  --c-good: #62d47c;
-  --c-good-soft: #163420;
-  --c-warn: #ffb35c;
-  --c-warn-soft: #3a2a12;
-  --c-bad: #ff8a80;
-  --c-bad-soft: #3d1a1c;
-  --sh-1: 0 0 0 0.5px rgba(255, 255, 255, 0.1);
-  --sh-2: 0 10px 40px rgba(0, 0, 0, 0.6), 0 0 0 0.5px rgba(255, 255, 255, 0.12);
+  --c-ink: #e3e3e3;
+  --c-ink-2: #c4c7c5;
+  --c-ink-3: #8e918f;
+  --c-line: #444746;
+  --c-line-strong: #8e918f;
+  --c-accent: #a8c7fa;
+  --c-accent-hover: #c2d7fb;
+  --c-accent-soft: #0842a0;
+  --c-on-accent: #062e6f;
+  --c-accent-text: #a8c7fa;
+  --c-focus: #a8c7fa;
+  --c-brand: #6dd58c;
+  --c-brand-ink: #c4eed0;
+  --c-brand-soft: #0f5223;
+  --c-good: #6dd58c;
+  --c-good-soft: #0f5223;
+  --c-warn: #ffc95c;
+  --c-warn-soft: #4a3300;
+  --c-bad: #f2b8b5;
+  --c-bad-soft: #601410;
+  --sh-2: 0 1px 3px rgba(0, 0, 0, 0.6), 0 4px 8px 3px rgba(0, 0, 0, 0.35);
 }
 
 @media (prefers-reduced-motion: reduce) {
