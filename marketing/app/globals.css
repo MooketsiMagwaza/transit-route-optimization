@@ -65,7 +65,9 @@ p { color: var(--c-ink-2); }
 .site-nav a { padding: 8px 14px; border-radius: var(--r-pill); color: var(--c-ink-2); font-weight: 500; text-decoration: none; }
 .site-nav a:hover, .site-nav a[aria-current="page"] { background: var(--c-accent-soft); color: var(--c-accent-text); }
 .header-cta { margin-left: var(--s-2); }
-.menu-button { display: none; width: 44px; height: 44px; margin-left: auto; place-items: center; border-radius: var(--r-md); background: var(--c-fill); }
+.theme-toggle { display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; color: var(--c-ink-2); }
+.theme-toggle:hover { background: var(--c-fill); color: var(--c-ink); }
+.menu-button { display: none; width: 44px; height: 44px; place-items: center; border-radius: var(--r-md); background: var(--c-fill); }
 .menu-icon, .menu-icon::before, .menu-icon::after { display: block; width: 18px; height: 2px; border-radius: 2px; background: var(--c-ink); content: ""; }
 .menu-icon { position: relative; }
 .menu-icon::before { position: absolute; top: -6px; }
@@ -74,8 +76,9 @@ p { color: var(--c-ink-2); }
 .mobile-nav a { padding: 14px 16px; border-radius: var(--r-md); color: var(--c-ink); font-weight: 600; text-decoration: none; }
 .mobile-nav a:hover, .mobile-nav a[aria-current="page"] { background: var(--c-accent-soft); color: var(--c-accent-text); }
 
-/* Hero: a dark band, left-aligned, that the real product screenshot bleeds into from below */
-.hero { padding: var(--s-8) 0 var(--s-8); background: var(--c-ink); color: #fff; }
+/* Hero: a dark band, left-aligned, that the real product screenshot bleeds into from below.
+   Deliberately always dark (not `var(--c-ink)`, which flips light in dark mode). */
+.hero { padding: var(--s-8) 0 var(--s-8); background: #1f1f1f; color: #fff; }
 .hero-inner { display: grid; gap: var(--s-4); max-width: 640px; }
 .hero-inner h1 { color: #fff; margin: 0; }
 .hero-inner .lede { color: rgba(255, 255, 255, 0.72); }
@@ -160,10 +163,12 @@ p { color: var(--c-ink-2); }
 .swatch { display: grid; gap: 2px; align-content: end; min-height: 120px; padding: var(--s-4); border-radius: var(--r-lg); box-shadow: var(--sh-1); }
 .swatch b { font-family: var(--font-display); font-weight: 600; }
 .swatch code { width: fit-content; background: rgba(255, 255, 255, 0.55); color: var(--c-ink); }
-.swatch.green { background: var(--c-brand); color: #fff; }
-.swatch.blue { background: var(--c-accent); color: #fff; }
-.swatch.cream { background: var(--c-bg); color: var(--c-ink); box-shadow: inset 0 0 0 1px var(--c-line); }
-.swatch.ink { background: var(--c-ink); color: #fff; }
+/* These four are a literal colour reference, so they show the fixed brand hex, not whichever
+   theme happens to be active (the printed code value must always match the swatch). */
+.swatch.green { background: #146c2e; color: #fff; }
+.swatch.blue { background: #0b57d0; color: #fff; }
+.swatch.cream { background: #f8f9fa; color: #1f1f1f; box-shadow: inset 0 0 0 1px var(--c-line); }
+.swatch.ink { background: #1f1f1f; color: #fff; }
 .brand-caution-wrap { padding-bottom: var(--s-8); }
 .brand-caution { display: grid; gap: var(--s-1); padding: var(--s-5) var(--s-6); border-radius: var(--r-lg); background: var(--c-warn-soft); color: var(--c-warn); }
 .brand-caution p { color: inherit; }
@@ -226,6 +231,7 @@ p { color: var(--c-ink-2); }
 }
 @media (max-width: 760px) {
   .site-nav, .header-cta { display: none; }
+  .theme-toggle { margin-left: auto; }
   .menu-button { display: grid; }
   .section { padding: var(--s-7) 0; }
   .swatches { grid-template-columns: 1fr; }

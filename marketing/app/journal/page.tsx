@@ -1,7 +1,6 @@
 /** Public metadata and index of Markdown-backed product and developer blog posts. */
 
 import type { Metadata } from "next";
-import { TselaArt } from "../../components/tsela-art";
 import Link from "next/link";
 import { listJournalPosts } from "../../lib/journal";
 
@@ -12,13 +11,11 @@ export default async function JournalPage() {
   return (
     <>
       <section className="page-hero container">
-      <div>
-        <p className="kicker">Build blog</p>
-        <h1>The network is being built in public.</h1>
-        <p className="lede">Short, plain-language notes on what changed, why it changed, and what still needs local validation.</p>
-      
-      </div>
-      <TselaArt name="guide" />
+        <div>
+          <p className="kicker">Build blog</p>
+          <h1>The network is being built in public.</h1>
+          <p className="lede">Short, plain-language notes on what changed, why it changed, and what still needs local validation.</p>
+        </div>
       </section>
       <section className="container journal-list" aria-label="Posts">
         {posts.map((post) => (

@@ -6,7 +6,7 @@ How Tsela's four surfaces (marketing, rider, operations, developer portal) are m
 
 **Product first, like the [Android Developers](https://developer.android.com/studio) site.** The real product is the hero, not a decoration around it. Structure comes from a neutral white and near-black canvas, one blue for actions and links, one green for Tsela itself, thin borders instead of shadows, outlined pill buttons, tabs, plain tables, and real screenshots in bordered frames. The rider app follows Material conventions (navigation rail on desktop, bottom bar with a pill indicator on phones) because most riders are likely on Android; the operations app and portal follow the same system in a denser register.
 
-**Tsela's own voice comes from three things**, not from effects: real Gaborone content (place names, real routes, honest verification state), hand-drawn ink drawings used sparingly with green as the spot colour, and plain, specific copy.
+**Tsela's own voice comes from three things**, not from effects: real Gaborone content (place names, real routes, honest verification state), procedurally-generated ink drawings used sparingly with green as the spot colour, and plain, specific copy. The drawings are honestly described as generated (a seeded, deterministic program, not a person and not an image model) — never claimed as literally hand-drawn.
 
 **Every page picks its own layout.** The Android Developers site never reuses one hero template: [the Studio page](https://developer.android.com/studio) is a dark band with a real screenshot, [the multidevice page](https://developer.android.com/multidevice) is a white hero that opens into a tinted band below it, [the UI design overview](https://developer.android.com/design/ui) is centred with one text link over a large tinted panel, and [the widgets page](https://developer.android.com/design/ui/widget) is a split hero with real screenshots bleeding to the frame edge and two buttons, one filled and one outlined. A content page's hero is chosen for what that page is about, not copied from the last one: a product page can take a tinted band, an about page can be plain text with no illustration at all, and a reference page can lead with a real code sample instead of art. Reusing the same kicker-plus-headline-plus-icon block on every inner page is itself a tell.
 
@@ -48,8 +48,8 @@ Each item is a pattern that signals "generated", and what we do instead.
 - [ ] Specific over abstract: name the place, the route, the number.
 
 ### Imagery
-- [ ] **No placeholder-style art** built from generic circles and blocks. Drawings are hand-drawn, specific (a real combi, a real stop), imperfect on purpose, and few. Photography and screenshots are real.
-- [ ] Human-made cues are welcome where they mean something: hand-drawn marks, off-register spot colour, visible line variation, slight imperfection. Never as decoration on every surface.
+- [ ] **No placeholder-style art** built from generic circles and blocks. Drawings are specific (a real combi, a real stop), imperfect on purpose, and few. Photography and screenshots are real.
+- [ ] Craft cues are welcome where they mean something: sketch-like line wobble, off-register spot colour, visible line variation, slight imperfection. Never as decoration on every surface, and never captioned as hand-drawn when it is generated.
 
 ### Process
 - [ ] Decisions are written down once, in `design/tokens.css` and this file, and every surface reads them. Silence in the system produces the average of the web.

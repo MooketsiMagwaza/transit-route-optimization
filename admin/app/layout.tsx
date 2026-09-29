@@ -5,6 +5,7 @@ import "@fontsource/bricolage-grotesque/latin-700.css";
 import "@/app/globals.css";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { SurfaceShell } from "@/components/surface-shell";
+import { THEME_INIT_SCRIPT } from "@/components/theme-toggle";
 
 export const metadata: Metadata = {
   title: "Tsela Operations",
@@ -19,7 +20,10 @@ export const viewport: Viewport = { themeColor: "#ffffff", width: "device-width"
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
+      </head>
       <body>
         <SurfaceShell>{children}</SurfaceShell>
       </body>

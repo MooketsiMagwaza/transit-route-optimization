@@ -32,8 +32,9 @@
   --portal-success-text: var(--c-good);
   --portal-danger-soft: var(--c-bad-soft);
   --portal-danger-line: var(--c-line);
-  --portal-code-bg: var(--c-ink);
-  --portal-code-text: var(--c-bg);
+  /* Fixed, not theme-reactive: code blocks stay dark in both themes, like the other three apps'. */
+  --portal-code-bg: #1f1f1f;
+  --portal-code-text: #f8f9fa;
   --color-fd-primary: var(--c-accent);
   --color-fd-primary-foreground: var(--c-on-accent);
   --color-fd-ring: var(--c-accent);

@@ -5,6 +5,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { TselaIcon, TselaMark, type TselaIconName } from "@/components/tsela-icon";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 function RiderDock() {
   const pathname = usePathname();
@@ -27,6 +28,7 @@ function RiderDock() {
           </Link>
         ))}
       </nav>
+      <div className="dock-theme"><ThemeToggle /></div>
     </aside>
   );
 }

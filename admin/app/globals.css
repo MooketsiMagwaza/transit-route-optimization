@@ -42,6 +42,9 @@ small { color: var(--c-ink-2); font-size: var(--fs-xs); }
 .nav-link.active { background: var(--c-accent-soft); color: var(--c-accent-text); font-weight: 700; }
 .nav-icon { display: grid; place-items: center; width: 34px; height: 34px; flex: none; }
 .sidebar-footer { display: flex; align-items: center; gap: var(--s-2); margin-top: auto; padding: var(--s-3) var(--s-3); border-radius: var(--r-md); background: var(--c-fill-2); color: var(--c-ink-2); font-size: var(--fs-sm); }
+.sidebar-footer .theme-toggle { margin-left: auto; }
+.theme-toggle { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; color: var(--c-ink-2); }
+.theme-toggle:hover { background: var(--c-fill); color: var(--c-ink); }
 .status-pip { width: 9px; height: 9px; border-radius: 50%; background: var(--c-spot); box-shadow: 0 0 0 4px var(--c-brand-soft); }
 .main-content { min-width: 0; padding: var(--s-6) var(--s-7) var(--s-8); }
 .main-content:focus { outline: none; }
@@ -261,7 +264,7 @@ td { padding: 12px; border-top: 0.5px solid var(--c-line); font-size: var(--fs-s
 .mod-tabs { display: flex; flex-wrap: wrap; gap: 2px; width: fit-content; padding: 3px; border-radius: 10px; background: var(--c-fill); }
 .mod-tabs button { display: inline-flex; align-items: center; gap: var(--s-2); padding: 8px 16px; border-radius: 8px; color: var(--c-ink); font-size: var(--fs-sm); font-weight: 500; }
 .mod-tabs button.active { background: var(--c-surface); box-shadow: 0 1px 3px rgba(0, 0, 0, 0.14); font-weight: 600; }
-.mod-tabs b { padding: 1px 8px; border-radius: var(--r-pill); background: var(--c-accent); color: #fff; font-size: var(--fs-xs); }
+.mod-tabs b { padding: 1px 8px; border-radius: var(--r-pill); background: var(--c-accent); color: var(--c-on-accent); font-size: var(--fs-xs); }
 .mod-list, .mod-detail { display: grid; gap: var(--s-4); }
 .mod-card { display: grid; gap: var(--s-3); padding: var(--s-5); }
 .mod-card > header { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--s-3); }

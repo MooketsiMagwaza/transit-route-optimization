@@ -8,6 +8,7 @@ import { SurfaceShell } from "@/components/surface-shell";
 import { OfflineBanner } from "@/components/offline-banner";
 import { OutboxFlusher } from "@/components/outbox-flusher";
 import { ServiceWorkerRegister } from "@/components/sw-register";
+import { THEME_INIT_SCRIPT } from "@/components/theme-toggle";
 
 export const metadata: Metadata = {
   title: "Tsela Rider | Find your way through Gaborone",
@@ -22,7 +23,10 @@ export const viewport: Viewport = { themeColor: "#ffffff", width: "device-width"
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
+      </head>
       <body>
         <OfflineBanner />
         <ServiceWorkerRegister />

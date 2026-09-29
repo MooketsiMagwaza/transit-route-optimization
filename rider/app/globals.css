@@ -96,7 +96,7 @@ input[type="radio"] { width: auto; accent-color: var(--c-accent); }
 @keyframes slide { from { transform: translateX(-100%); } to { transform: translateX(260%); } }
 
 .page-loading-shell { display: grid; place-items: center; gap: var(--s-3); min-height: 50vh; text-align: center; }
-.page-loading-brand { display: grid; place-items: center; width: 56px; height: 56px; border-radius: 14px; background: var(--c-brand); color: #fff; font-family: var(--font-display); font-weight: 700; }
+.page-loading-brand { display: grid; place-items: center; width: 56px; height: 56px; border-radius: 14px; background: #146c2e; color: #fff; font-family: var(--font-display); font-weight: 700; }
 .page-loading-lines { display: flex; gap: 6px; }
 .page-loading-lines span { width: 8px; height: 8px; border-radius: 50%; background: var(--c-ink-3); animation: pulse 1s ease-in-out infinite; }
 .page-loading-lines span:nth-child(2) { animation-delay: 0.15s; }
@@ -117,6 +117,9 @@ input[type="radio"] { width: auto; accent-color: var(--c-accent); }
 
 .rider-dock { position: fixed; left: 0; right: 0; bottom: 0; z-index: 50; }
 .rail-brand { display: none; }
+.dock-theme { display: none; }
+.theme-toggle { display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; color: var(--c-ink-2); }
+.theme-toggle:hover { background: var(--c-fill); color: var(--c-ink); }
 .dock-nav { display: flex; padding: var(--s-2) var(--s-2) max(var(--s-3), env(safe-area-inset-bottom)); background: var(--c-surface); box-shadow: 0 -1px 0 var(--c-line); }
 .dock-nav a { display: grid; flex: 1; justify-items: center; gap: 4px; padding: var(--s-1) 0; color: var(--c-ink-2); font-size: var(--fs-xs); font-weight: 500; }
 .dock-nav a:hover { text-decoration: none; color: var(--c-ink); }
@@ -333,7 +336,7 @@ input[type="radio"] { width: auto; accent-color: var(--c-accent); }
 .contribution-instructions > div.active, .contribution-instructions > div.done { opacity: 1; }
 .contribution-instructions > div > span { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: var(--c-fill); font-size: var(--fs-sm); font-weight: 700; }
 .contribution-instructions > div.active > span { background: var(--c-accent); color: var(--c-on-accent); }
-.contribution-instructions > div.done > span { background: var(--c-good); color: #fff; }
+.contribution-instructions > div.done > span { background: #146c2e; color: #fff; }
 .contribution-instructions p { font-size: var(--fs-sm); }
 .contribution-instructions p strong { display: block; color: var(--c-ink); }
 .draw-actions { display: flex; gap: var(--s-2); }
@@ -439,6 +442,7 @@ input[type="radio"] { width: auto; accent-color: var(--c-accent); }
 @media (min-width: 1024px) {
   .rider-dock { top: 0; right: auto; width: 96px; }
   .rail-brand { position: absolute; top: 20px; left: 50%; display: block; transform: translateX(-50%); }
+  .dock-theme { display: flex; position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); }
   .dock-nav { flex-direction: column; align-items: center; gap: var(--s-2); height: 100%; padding: 88px 8px var(--s-4); box-shadow: 1px 0 0 var(--c-line); }
   .dock-nav a { flex: none; width: 80px; }
   .dock-nav a.primary { order: -1; margin-bottom: var(--s-3); }

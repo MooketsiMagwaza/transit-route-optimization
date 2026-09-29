@@ -16,6 +16,8 @@ const files = [
   { from: "design/tokens.css", to: (app) => `${app}/app/tokens.css` },
   { from: "design/tsela-icon.tsx", to: (app) => `${app}/components/tsela-icon.tsx` },
   { from: "design/tsela-art.tsx", to: (app) => `${app}/components/tsela-art.tsx` },
+  // The developer portal uses Fumadocs' own light/dark switch instead of this one.
+  { from: "design/theme-toggle.tsx", to: (app) => `${app}/components/theme-toggle.tsx`, apps: ["marketing", "rider", "admin"] },
 ];
 
 const check = process.argv.includes("--check");
@@ -23,7 +25,7 @@ const drifted = [];
 
 for (const file of files) {
   const source = readFileSync(join(root, file.from));
-  for (const app of apps) {
+  for (const app of file.apps ?? apps) {
     const target = join(root, file.to(app));
     const current = existsSync(target) ? readFileSync(target) : null;
     if (current && current.equals(source)) continue;

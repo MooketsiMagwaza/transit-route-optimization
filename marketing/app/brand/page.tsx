@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 import { TselaArt } from "../../components/tsela-art";
 import { BrandMark } from "../../components/brand-mark";
 
-export const metadata: Metadata = { title: "Brand and icons", description: "The working Tsela name, route mark, app icon, hand-drawn illustration style, and public colour system.", alternates: { canonical: "/brand" } };
+export const metadata: Metadata = { title: "Brand and icons", description: "The working Tsela name, route mark, app icon, generated ink illustration style, and public colour system.", alternates: { canonical: "/brand" } };
 
 const swatches = [
   { name: "Brand green", hex: "#146C2E", className: "green" },
@@ -52,8 +52,8 @@ export default function BrandPage() {
         <div className="container split">
           <header>
             <p className="kicker">Illustration</p>
-            <h2>Hand-drawn, not generated.</h2>
-            <p>Every scene is drawn from simple shapes by a seeded pen that wobbles each stroke, printed in black ink with the spot colour a few pixels off-register. Used sparingly: onboarding, empty states, and a single moment per marketing page.</p>
+            <h2>Generated ink, drawn on purpose.</h2>
+            <p>Every scene is produced by a small deterministic program, not a person and not an image model: a seeded pen that wobbles each stroke the same way every time, printed in black ink with the spot colour a few pixels off-register. Used sparingly: onboarding, empty states, and a single moment per marketing page.</p>
           </header>
           <div className="brand-showcase">
             <article className="brand-card"><TselaArt name="guide" title="A signpost with the road ahead" /></article>

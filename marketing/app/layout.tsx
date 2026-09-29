@@ -4,6 +4,7 @@ import type { Metadata, Viewport } from "next";
 import { SiteFooter } from "../components/site-footer";
 import { SiteHeader } from "../components/site-header";
 import { CookieConsent } from "../components/cookie-consent";
+import { THEME_INIT_SCRIPT } from "../components/theme-toggle";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "../lib/site";
 import "@fontsource/bricolage-grotesque/latin-600.css";
 import "@fontsource/bricolage-grotesque/latin-700.css";
@@ -26,7 +27,10 @@ export const viewport: Viewport = { themeColor: "#ffffff", width: "device-width"
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
+      </head>
       <body>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "WebSite", name: SITE_NAME, url: SITE_URL, description: SITE_DESCRIPTION, inLanguage: "en-BW" }).replace(/</g, "\\u003c") }} />
         <SiteHeader />

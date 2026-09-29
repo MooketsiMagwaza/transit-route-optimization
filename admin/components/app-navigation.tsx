@@ -5,6 +5,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { TselaIcon, TselaMark, type TselaIconName } from "@/components/tsela-icon";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 const items: Array<{ href: string; label: string; icon: TselaIconName }> = [
   { href: "/dashboard", label: "Dashboard", icon: "grid" },
@@ -43,7 +44,7 @@ export function AppNavigation() {
         ))}
       </ul>
 
-      <div className="sidebar-footer"><span className="status-pip" /><span className="status-text">Platform connected</span></div>
+      <div className="sidebar-footer"><span className="status-pip" /><span className="status-text">Platform connected</span><ThemeToggle /></div>
     </nav>
   );
 }
