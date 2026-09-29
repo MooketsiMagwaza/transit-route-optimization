@@ -11,9 +11,11 @@ export default async function JournalPage() {
   return (
     <>
       <section className="page-hero container">
-        <p className="kicker">Build blog</p>
-        <h1>The network is being built in public.</h1>
-        <p className="lede">Short, plain-language notes on what changed, why it changed, and what still needs local validation.</p>
+        <div>
+          <p className="kicker">Build blog</p>
+          <h1>The network is being built in public.</h1>
+          <p className="lede">Short, plain-language notes on what changed, why it changed, and what still needs local validation.</p>
+        </div>
       </section>
       <section className="container journal-list" aria-label="Posts">
         {posts.map((post) => (

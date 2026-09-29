@@ -42,7 +42,7 @@ export function AccountsDashboard() {
   return <div className="page-container ops-platform-page">
     <header className="ops-platform-hero">
       <div><span className="page-eyebrow">Developer access</span><h1>Accounts,<br />without blind spots.</h1><p>See who has joined, whether they have active keys, and how the API is being used. Secret material never enters this view.</p></div>
-      <div className="ops-hero-stat"><span>REGISTERED</span><strong>{overview?.accounts ?? accounts.length}</strong><small>developer accounts</small></div>
+      <div className="ops-hero-stat"><span>Registered</span><strong>{overview?.accounts ?? accounts.length}</strong><small>developer accounts</small></div>
     </header>
 
     <section className="ops-utility-bar"><label>Search accounts<input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Name or email" /></label><button className="btn btn-primary" onClick={() => void load()}>Refresh</button></section>

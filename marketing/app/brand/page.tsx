@@ -1,24 +1,29 @@
 /** Public identity reference with downloadable Tsela logo and icon usage guidance. */
 
 import type { Metadata } from "next";
+import { TselaArt } from "../../components/tsela-art";
 import { BrandMark } from "../../components/brand-mark";
 
-export const metadata: Metadata = { title: "Brand and icons", description: "The working Tsela name, route-loop logo, app icon, and public colour system.", alternates: { canonical: "/brand" } };
+export const metadata: Metadata = { title: "Brand and icons", description: "The working Tsela name, route mark, app icon, generated ink illustration style, and public colour system.", alternates: { canonical: "/brand" } };
 
 const swatches = [
-  { name: "Primary blue", hex: "#445CFF", className: "blue" },
-  { name: "Go lime", hex: "#C8F135", className: "lime" },
-  { name: "Paper", hex: "#FFFDF3", className: "paper" },
-  { name: "Signal pink", hex: "#FF70B7", className: "pink" },
+  { name: "Brand green", hex: "#146C2E", className: "green" },
+  { name: "Action blue", hex: "#0B57D0", className: "blue" },
+  { name: "Canvas", hex: "#F8F9FA", className: "cream" },
+  { name: "Ink", hex: "#1F1F1F", className: "ink" },
 ];
 
 export default function BrandPage() {
   return (
     <>
       <section className="page-hero container">
+      <div>
         <p className="kicker">Identity · working direction</p>
         <h1>A name that feels like a way forward.</h1>
         <p className="lede">Tsela means path, road, or way in Setswana. The public identity is warm and direct; TransitOS remains only the internal platform name while local-language, domain, and trademark validation continues.</p>
+      
+      </div>
+      <TselaArt name="success" />
       </section>
       <section className="container brand-showcase" aria-label="Logo and icon">
         <article className="brand-card brand-card-lockup">
@@ -36,10 +41,23 @@ export default function BrandPage() {
         <div className="container split">
           <header>
             <p className="kicker">Colour system</p>
-            <h2>Bright enough to guide. Calm enough to trust.</h2>
+            <h2>Warm enough to welcome. Clear enough to trust.</h2>
           </header>
           <div className="swatches">
             {swatches.map((swatch) => <span className={`swatch ${swatch.className}`} key={swatch.name}><b>{swatch.name}</b><code>{swatch.hex}</code></span>)}
+          </div>
+        </div>
+      </section>
+      <section className="section">
+        <div className="container split">
+          <header>
+            <p className="kicker">Illustration</p>
+            <h2>Generated ink, drawn on purpose.</h2>
+            <p>Every scene is produced by a small deterministic program, not a person and not an image model: a seeded pen that wobbles each stroke the same way every time, printed in black ink with the spot colour a few pixels off-register. Used sparingly: onboarding, empty states, and a single moment per marketing page.</p>
+          </header>
+          <div className="brand-showcase">
+            <article className="brand-card"><TselaArt name="guide" title="A signpost with the road ahead" /></article>
+            <article className="brand-card"><TselaArt name="stop" title="A combi stop with a shelter and a bench" /></article>
           </div>
         </div>
       </section>

@@ -75,7 +75,7 @@ export function ModerationDashboard() {
   return <div className="page-container ops-platform-page">
     <header className="ops-platform-hero">
       <div><span className="page-eyebrow">Community trust</span><h1>Moderation,<br />with a paper trail.</h1><p>Review what riders submit, act on reports, and keep route data honest. Every decision is written to an append-only audit trail.</p></div>
-      <div className="ops-hero-stat"><span>WAITING</span><strong>{(summary?.pendingContributions ?? 0) + (summary?.openReports ?? 0)}</strong><small>submissions and reports</small></div>
+      <div className="ops-hero-stat"><span>Waiting</span><strong>{(summary?.pendingContributions ?? 0) + (summary?.openReports ?? 0)}</strong><small>submissions and reports</small></div>
     </header>
     <div className="mod-tabs" role="tablist" aria-label="Moderation sections">
       {tabs.map((item) => <button key={item.id} role="tab" aria-selected={tab === item.id} className={tab === item.id ? "active" : ""} onClick={() => setTab(item.id)}>{item.label}{item.count ? <b>{item.count}</b> : null}</button>)}

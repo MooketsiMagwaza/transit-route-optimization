@@ -581,7 +581,7 @@ export default function RouteDetailPage() {
               <div className="card-title">Add a Stop</div>
               <div className="card-subtitle">Append a new node to this route</div>
             </div>
-            <span className="card-index" aria-hidden="true">ADD</span>
+            <span className="card-index" aria-hidden="true">Add</span>
           </div>
 
           <form onSubmit={handleAddNode}>

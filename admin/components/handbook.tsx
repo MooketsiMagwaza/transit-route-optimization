@@ -32,7 +32,7 @@ export function HandbookIndex() {
   return <div className="page-container handbook-page">
     <header className="ops-platform-hero">
       <div><span className="page-eyebrow">Internal handbook</span><h1>How Tsela runs.</h1><p>Architecture, security, recovery, and delivery notes for operators. This library is separate from the public developer guide and is checked against your administrator role on every request.</p></div>
-      <div className="ops-hero-stat"><span>PAGES</span><strong>{pages?.length ?? "–"}</strong><small>maintained in the repository</small></div>
+      <div className="ops-hero-stat"><span>Pages</span><strong>{pages?.length ?? "–"}</strong><small>maintained in the repository</small></div>
     </header>
     <section className="ops-utility-bar"><label>Search the handbook<input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Backup, security, launch…" /></label></section>
     {error && <div className="alert alert-error" role="alert">{error}</div>}

@@ -65,17 +65,20 @@ export function AllRoutesMap({
   geometries,
   selectedRouteId,
   onSelect,
+  insetLeft = 0,
 }: {
   routes: Route[];
   nodesByRoute: Record<number, Node[]>;
   geometries: Record<number, RouteGeometry>;
   selectedRouteId: number | null;
   onSelect: (routeId: number) => void;
+  /** Pixels on the left covered by a floating panel, kept clear when the map fits its routes. */
+  insetLeft?: number;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const bindingRef = useRef<{ update(): void } | null>(null);
   // Always the newest props. The map callbacks read this, never a captured render.
-  const stateRef = useRef({ routes, nodesByRoute, geometries, selectedRouteId });
+  const stateRef = useRef({ routes, nodesByRoute, geometries, selectedRouteId, insetLeft });
   const onSelectRef = useRef(onSelect);
 
   useEffect(() => { onSelectRef.current = onSelect; }, [onSelect]);
@@ -137,7 +140,7 @@ export function AllRoutesMap({
     };
 
     const apply = () => {
-      const { routes: shown, nodesByRoute: stops, geometries: lines, selectedRouteId: chosen } = stateRef.current;
+      const { routes: shown, nodesByRoute: stops, geometries: lines, selectedRouteId: chosen, insetLeft: inset } = stateRef.current;
       (map.getSource("network") as GeoJSONSource | undefined)?.setData(networkData(shown, stops, lines, chosen));
       const coordinates = chosen !== null
         ? lines[chosen]?.coordinates ?? (stops[chosen] ?? []).map((node) => [node.long, node.lat] as [number, number])
@@ -148,8 +151,8 @@ export function AllRoutesMap({
           new LngLatBounds(coordinates[0], coordinates[0])
         );
         map.fitBounds(bounds, chosen !== null
-          ? { padding: 70, duration: 500, maxZoom: 13.5 }
-          : { padding: 55, duration: 500, maxZoom: 12 });
+          ? { padding: { top: 70, right: 70, bottom: 70, left: 70 + inset }, duration: 500, maxZoom: 13.5 }
+          : { padding: { top: 55, right: 55, bottom: 55, left: 55 + inset }, duration: 500, maxZoom: 12 });
       }
     };
 
@@ -160,9 +163,9 @@ export function AllRoutesMap({
   }, []);
 
   useEffect(() => {
-    stateRef.current = { routes, nodesByRoute, geometries, selectedRouteId };
+    stateRef.current = { routes, nodesByRoute, geometries, selectedRouteId, insetLeft };
     bindingRef.current?.update();
-  }, [routes, nodesByRoute, geometries, selectedRouteId]);
+  }, [routes, nodesByRoute, geometries, selectedRouteId, insetLeft]);
 
   return <div ref={containerRef} className="all-routes-map" aria-label="All Gaborone combi routes" />;
 }

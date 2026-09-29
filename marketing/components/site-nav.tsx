@@ -5,6 +5,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { ThemeToggle } from "./theme-toggle";
 import { RIDER_URL } from "../lib/urls";
 
 const LINKS = [
@@ -35,6 +36,7 @@ export function SiteNav() {
         {LINKS.map((link) => <Link key={link.href} href={link.href} aria-current={current(link.href)}>{link.label}</Link>)}
       </nav>
       <a className="button button-primary button-small header-cta" href={RIDER_URL}>Plan a trip</a>
+      <ThemeToggle />
       <button
         type="button"
         className="menu-button"

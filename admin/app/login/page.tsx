@@ -60,7 +60,7 @@ export default function AdminLoginPage() {
 
   return <section className="admin-login">
     <div>
-      <span>RESTRICTED OPERATIONS</span>
+      <span>Restricted operations</span>
       <h1>Administrator sign in.</h1>
       <p>Rider and developer accounts cannot enter this workspace. Access is checked again by every admin API endpoint{EXTERNAL_AUTH ? ", which also requires a verified second factor" : ""}.</p>
     </div>

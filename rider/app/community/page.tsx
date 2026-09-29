@@ -5,6 +5,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { ContributionMap } from "@/components/contribution-map";
+import { TselaArt } from "@/components/tsela-art";
 import { ReportButton } from "@/components/report-button";
 import { isNetworkFailure, queuePost } from "@/lib/outbox";
 import { accountApi, Account, CommunityPost, clearAccountToken, getAccountToken } from "@/lib/account-api";
@@ -55,7 +56,7 @@ export default function CommunityPage() {
   async function submitRoute(event: React.FormEvent) { event.preventDefault(); if (waypoints.length < 2 || !name.trim()) return; setSubmitLoading(true); setError(""); try { const contribution = await apiClient.community.contribute({ name: name.trim(), notes: notes.trim() || undefined, waypoints }, getAccountToken()); setSubmittedId(contribution.id); } catch (submitError: unknown) { setError(submitError instanceof Error ? submitError.message : "Could not send this route for review"); } finally { setSubmitLoading(false); } }
 
   if (authLoading) return <div className="page-loading-shell"><div className="page-loading-brand">TS</div><div className="page-loading-lines"><span/><span/><span/></div><p>Checking your community profile…</p></div>;
-  if (!account) return <div className="community-gate"><span className="page-eyebrow">Members only</span><h1>Community knowledge needs accountable contributors.</h1><p>Sign in before tracing a route, posting a tip, or reading the discussion board. Public route planning stays open to everyone.</p><div><Link className="btn btn-dark" href="/account/login">Sign in or join →</Link><Link className="btn btn-secondary" href="/routes">Keep exploring routes</Link></div></div>;
+  if (!account) return <div className="community-gate"><TselaArt name="community" /><span className="page-eyebrow">Members only</span><h1>Community knowledge needs accountable contributors.</h1><p>Sign in before tracing a route, posting a tip, or reading the discussion board. Public route planning stays open to everyone.</p><div><Link className="btn btn-dark" href="/account/login">Sign in or join →</Link><Link className="btn btn-secondary" href="/routes">Keep exploring routes</Link></div></div>;
 
   return <div className="community-page">
     <header className="community-heading"><div><span className="page-eyebrow">Community · signed in as {account.displayName}</span><h1>Share what<br/>the map misses.</h1></div><p>Trace a missing corridor or search route-specific tips. Everything is plain text, attributed, and route contributions remain unpublished until review.</p></header>

@@ -22,10 +22,10 @@ export default function ReferenceOverview() {
           </dl>
 
           <div className="overview-grid">
-            <Link href="/reference/guides/getting-started"><small>START HERE</small><strong>Make your first request</strong><span>Create a key and call the API in a few minutes.</span></Link>
-            <Link href="/reference/routes/list"><small>API REFERENCE</small><strong>Browse endpoints</strong><span>Parameters, examples, responses, errors, and a live sandbox.</span></Link>
-            <Link href="/console"><small>DEVELOPER CONSOLE</small><strong>Manage credentials</strong><span>Create, rotate, and revoke keys; watch your usage.</span></Link>
-            <Link href="/reference/guides/errors-and-retries"><small>RELIABILITY</small><strong>Handle errors and limits</strong><span>Status codes, retries, and rate-limit headers.</span></Link>
+            <Link href="/reference/guides/getting-started"><small>Start here</small><strong>Make your first request</strong><span>Create a key and call the API in a few minutes.</span></Link>
+            <Link href="/reference/routes/list"><small>API reference</small><strong>Browse endpoints</strong><span>Parameters, examples, responses, errors, and a live sandbox.</span></Link>
+            <Link href="/console"><small>Developer console</small><strong>Manage credentials</strong><span>Create, rotate, and revoke keys; watch your usage.</span></Link>
+            <Link href="/reference/guides/errors-and-retries"><small>Reliability</small><strong>Handle errors and limits</strong><span>Status codes, retries, and rate-limit headers.</span></Link>
           </div>
 
           <h2 className="overview-heading">Endpoints</h2>
