@@ -39,11 +39,11 @@ const groups = [
     name: "rider",
     origin: "http://localhost:3002",
     pages: [
-      ["home", "/"],
-      ["plan", "/plan"],
-      ["pathfinder", "/pathfind"],
-      ["routes", "/routes"],
-      ["live-route", "/live/1"],
+      ["home", "/", true], // wide-screen build fetches the network and renders a mini map card
+      ["plan", "/plan", true],
+      ["pathfinder", "/pathfind", true],
+      ["routes", "/routes", true],
+      ["live-route", "/live/1", true],
       ["community", "/community"],
       ["guide", "/guide"],
       ["login", "/account/login"],
@@ -74,9 +74,9 @@ const groups = [
     origin: "http://localhost:3001",
     pages: [
       ["login", "/login"],
-      ["dashboard", "/dashboard"],
+      ["dashboard", "/dashboard", true],
       ["routes", "/routes"],
-      ["route-detail", "/routes/1"],
+      ["route-detail", "/routes/1", true],
       ["accounts", "/accounts"],
       ["observability", "/observability"],
     ],
@@ -93,15 +93,16 @@ async function login() {
   return (await response.json()).token;
 }
 
-async function capturePage(page, group, name, route) {
+async function capturePage(page, group, name, route, hasMap) {
   const url = `${group.origin}${route}`;
   const response = await page.goto(url, { waitUntil: "domcontentloaded", timeout: 45_000 });
   if (!response || response.status() >= 400) {
     throw new Error(`${url} returned ${response?.status() ?? "no response"}`);
   }
   // Map-bearing pages need the MapLibre canvas to exist, then time for tiles and route lines to
-  // paint, before the screenshot is honest; everything else just needs layout to settle.
-  const hasMap = /routes|live|plan|dashboard/.test(route);
+  // paint, before the screenshot is honest; everything else just needs layout to settle. Which
+  // pages these are is named explicitly per page above — inferring it from the route string
+  // missed the rider home page, whose network-map card is keyed off no map-shaped word at all.
   if (hasMap) {
     await page.waitForSelector("canvas.maplibregl-canvas", { timeout: 8_000 }).catch(() => {});
     await page.waitForTimeout(3_500);
@@ -151,8 +152,8 @@ async function main() {
     ? groups
     : groups.filter((group) => group.name !== "docs");
   for (const group of selectedGroups) {
-    for (const [name, route] of group.pages) {
-      const item = await capturePage(page, group, name, route);
+    for (const [name, route, hasMap] of group.pages) {
+      const item = await capturePage(page, group, name, route, hasMap);
       manifest.push(item);
       console.log(`captured ${item.filename}`);
     }
